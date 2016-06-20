@@ -1,0 +1,25 @@
+
+/*размер шрифта в таблице */
+th {
+    font-size: 12px;
+}
+
+td {
+    font-size: 11px;
+}
+
+/*  Выравнивание текста в ячейке*/
+
+.dt-head-left, .dt-body-left {
+    text-align: left;
+}
+
+.dt-head-center, .dt-body-center {
+    text-align: center;
+}
+
+.dt-head-right, .dt-body-right {
+    text-align:right;
+}
+
+/**/
