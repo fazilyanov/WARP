@@ -1,13 +1,25 @@
 ﻿using System;
 
-namespace WARP.ErrorPages
+namespace WARP
 {
     public partial class AppError : System.Web.UI.Page
     {
+        public string errorText = string.Empty;
+
         protected void Page_Load(object sender, EventArgs e)
         {
-            
+            if (Session["ErrorException"] != null)
+            {
+                errorText = (Session["ErrorException"] ?? "").ToString();
+
+
+
+                //SendMail();
+            }
+            Session.Clear();
+            ViewState.Clear();
         }
+
         //private void SendMail()
         //{
         //    System.Net.Mail.MailMessage mm = new System.Net.Mail.MailMessage();
@@ -24,24 +36,11 @@ namespace WARP.ErrorPages
         //    _str += "Ошибка:<br/><p>" + Session["ErrorException"].ToString() + "</p><br/><br/>";
 
         //    _str += faFunc.GetSessionValues();
-            
 
         //    mm.Body = _str;
 
         //    faFunc.SendMail(mm);
         //    faFunc.ToLog(8, "Об общей ошибке приложения");
         //}
-
-        protected void Page_PreRender(object sender, EventArgs e)
-        {
-            if (Session["ErrorException"] != null )
-            {
-                Label1.Text = (Session["ErrorException"] ?? "").ToString();
-                SendMail();
-            }
-            Session.Clear();
-            ViewState.Clear();
-        }
-
     }
 }

@@ -27,7 +27,8 @@ namespace WARP
 
         private void RegRoutes(RouteCollection routes)
         {
-            //routes.MapPageRoute("default", "default/{p_base}", "~/Default.aspx");
+            routes.MapPageRoute("default", "default/{pBase}", "~/Default.aspx");
+
             //routes.MapPageRoute("archive", "archive/{p_base}/{p_page}", "~/Archive/Archive.aspx");
             //routes.MapPageRoute("user", "admin/user", "~/Admin/User.aspx");
             //routes.MapPageRoute("role", "admin/role", "~/Admin/Role.aspx");
@@ -53,8 +54,6 @@ namespace WARP
             //routes.MapPageRoute("userrolebase", "admin/userrolebase", "~/Admin/UserRoleBase.aspx");
             //routes.MapPageRoute("uservisit", "admin/uservisit", "~/Admin/UserVisit.aspx");
             //routes.MapPageRoute("usersetting", "admin/usersetting", "~/Admin/UserSetting.aspx");
-
-           
         }
 
         protected void Application_Error(object sender, EventArgs e)

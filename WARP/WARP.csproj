@@ -166,6 +166,7 @@
     <Content Include="Content\Select-1.2.0\js\dataTables.select.js" />
     <Content Include="Content\Select-1.2.0\js\dataTables.select.min.js" />
     <Content Include="Archive\DataTablesTestPage.aspx" />
+    <Content Include="Default.aspx" />
     <Content Include="Global.asax" />
     <Content Include="packages.config" />
     <Content Include="Content\bootstrap-3.3.6\css\bootstrap-theme.css.map" />
@@ -208,6 +209,13 @@
       <DependentUpon>DataTablesTestPage.aspx</DependentUpon>
     </Compile>
     <Compile Include="Base\TableData.cs" />
+    <Compile Include="Default.aspx.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Default.aspx.designer.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

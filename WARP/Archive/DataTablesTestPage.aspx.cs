@@ -55,12 +55,12 @@ namespace WARP
             sbQuery.AppendLine("ORDER BY " + sortCol + " " + sortDir);
             sbQuery.AppendLine("OFFSET @displayStart ROWS FETCH FIRST @displayLength ROWS ONLY");
 
-            SqlParameter[] SqlParameterArray = {
+            SqlParameter[] sqlParameterArray = {
                 new SqlParameter { ParameterName = "@displayStart", SqlDbType = SqlDbType.Int, Value = displayStart },
                 new SqlParameter { ParameterName = "@displayLength", SqlDbType = SqlDbType.Int, Value = displayLength }
             };
 
-            DataTable dt = ComFunc.GetData(sbQuery.ToString(), SqlParameterArray);
+            DataTable dt = ComFunc.GetData(sbQuery.ToString(), sqlParameterArray);
             return dt;
         }
 

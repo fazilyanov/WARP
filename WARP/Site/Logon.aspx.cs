@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Web;
 
-namespace ArchNet
+namespace WARP
 {
     public partial class Logon : System.Web.UI.Page
     {
@@ -26,11 +26,11 @@ namespace ArchNet
                     break;
 
                 case "POST":
-                    login = (Request.Form["login"] ?? "").ToString().Trim();
-                    password = (Request.Form["password"] ?? "").ToString().Trim();
+                    login = (Request.Form["login"] ?? "").ToString().Trim().ToLower();
+                    password = (Request.Form["password"] ?? "").ToString().Trim().ToLower();
                     rememberme = (Request.Form["rememberme"] ?? "").ToString();
 
-                    if (login != "" && password != "" && faFunc.ExecuteScalarInt("SELECT id FROM [dbo].[_user] where [login]='" + login + "' AND [password]='" + password + "'") > 0)
+                    if (login != "" && password != "" && ComFunc.ExecuteScalarInt("SELECT id FROM [dbo].[User] WHERE [Login]='" + login + "' AND [Password]='" + password + "'") > 0)
                     {
                         Session["UserFormLogin"] = login;
                         if (rememberme != "")
@@ -40,13 +40,14 @@ namespace ArchNet
                             cookie["password"] = password;
                             cookie.Expires = DateTime.Now.AddYears(1);
                             Response.Cookies.Add(cookie);
-
+                            ComFunc.LogIt(2);
                         }
                         Response.Redirect("/");
                     }
                     else
                     {
-                        error = "Ошибка";
+                        error = "Ошибка авторизации";
+                        ComFunc.LogIt(3, login + " / " + password);
                     }
                     break;
 

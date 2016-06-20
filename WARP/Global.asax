@@ -1,1 +1,1 @@
-﻿<%@ Application Codebehind="Global.asax.cs" Inherits="ArchNet.Global" Language="C#" %>
+﻿<%@ Application Codebehind="Global.asax.cs" Inherits="WARP.Global" Language="C#" %>
