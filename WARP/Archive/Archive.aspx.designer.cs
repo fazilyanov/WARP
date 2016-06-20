@@ -10,6 +10,6 @@
 namespace WARP {
     
     
-    public partial class DataTablesTestPage {
+    public partial class Archive {
     }
 }

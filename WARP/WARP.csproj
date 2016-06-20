@@ -66,6 +66,7 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Archive\Archive.aspx" />
     <Content Include="Content\Archive\archive.css" />
     <Content Include="Content\bootstrap-3.3.6\css\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-3.3.6\css\bootstrap-theme.min.css" />
@@ -165,7 +166,6 @@
     <Content Include="Content\Select-1.2.0\css\select.jqueryui.min.css" />
     <Content Include="Content\Select-1.2.0\js\dataTables.select.js" />
     <Content Include="Content\Select-1.2.0\js\dataTables.select.min.js" />
-    <Content Include="Archive\DataTablesTestPage.aspx" />
     <Content Include="Default.aspx" />
     <Content Include="Global.asax" />
     <Content Include="packages.config" />
@@ -200,14 +200,15 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Base\ComFunc.cs" />
-    <Compile Include="Archive\DataTablesTestPage.aspx.cs">
-      <DependentUpon>DataTablesTestPage.aspx</DependentUpon>
+    <Compile Include="Archive\Archive.aspx.cs">
+      <DependentUpon>Archive.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="Archive\DataTablesTestPage.aspx.designer.cs">
-      <DependentUpon>DataTablesTestPage.aspx</DependentUpon>
+    <Compile Include="Archive\Archive.aspx.designer.cs">
+      <DependentUpon>Archive.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Base\ArchivePage.cs" />
+    <Compile Include="Base\ComFunc.cs" />
     <Compile Include="Base\TableData.cs" />
     <Compile Include="Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>
@@ -278,7 +279,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>52083</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:52083/</IISUrl>
+          <IISUrl>http://localhost:3333/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

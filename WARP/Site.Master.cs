@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data;
-using System.Data.SqlClient;
 
 /// scio me nihil scire
 /// 19.06.2016
@@ -11,9 +10,10 @@ namespace WARP
     {
         public string curBaseName = "";
 
-       
         protected void Page_Load(object sender, EventArgs e)
         {
+            Session["UserFormLogin"] = "a.fazilyanov";
+
             // Сокращенное имя текущей базы, переданное в параметре адресной строки
             curBaseName = (Page.RouteData.Values["pBase"] ?? "").ToString();
 
@@ -31,21 +31,28 @@ namespace WARP
                 {
                     Login = Context.User.Identity.Name.Trim().ToLower(); // Достаем windows логин
                     Login = Login.Substring(Login.LastIndexOf('\\') + 1); // Чистим
+                }
+                if (Login.Length > 0)
+                {
                     DataTable dt = ComFunc.GetUserInfo(Login); // Ищем в базе
-                    if (dt.Rows.Count == 0) // если нет такого, просим залогиниться вручную
+
+                    if (dt == null || dt.Rows.Count == 0) // если нет такого, просим залогиниться вручную
                     {
-                        if ((Session["UserFormLogin"] ?? "").ToString() != "")
-                        {
-                            Response.Redirect("Logon.aspx");
-                        }
+                        Response.Redirect("/Site/Logon.aspx");
                     }
                     else // Раз есть - считываем данные в сессию
                     {
-                        ComFunc.LogIt(1);
+                        
                         Session["UserId"] = dt.Rows[0]["ID"];
                         Session["UserLogin"] = dt.Rows[0]["Login"];
                         Session["UserName"] = dt.Rows[0]["Name"];
+                        //
+                        ComFunc.LogIt(1);
                     }
+                }
+                else
+                {
+                    Response.Redirect("/Site/Logon.aspx");
                 }
             }
         }

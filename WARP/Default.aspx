@@ -4,9 +4,15 @@
 <%@ MasterType VirtualPath="~/Site.master" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="cph" runat="server">
-    
-    <ul class="list-group">
-  
+    <div class="row">
+        <div class="col-sm-4">
+            </div>
+        <div class="col-sm-4">
+<ul class="list-group">
+<%=htmlBaseList%>  
 </ul>
-
+            <div class="col-sm-4">
+                </div>
+            </div>       
+        </div>
 </asp:Content>

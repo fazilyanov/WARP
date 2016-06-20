@@ -2,9 +2,13 @@
 using System.Data;
 using System.Data.SqlClient;
 using System.Web;
+using System.Web.Caching;
 
 namespace WARP
 {
+    /// <summary>
+    /// Общие функции проекта
+    /// </summary>
     public class ComFunc
     {
         #region GetInfo
@@ -16,32 +20,95 @@ namespace WARP
         /// <returns>DataTable</returns>
         public static DataTable GetUserInfo(string login)
         {
-            return GetData("SELECT * FROM User WHERE Del = 0 AND Login = @login", new SqlParameter("login", login));
+            return GetData("SELECT * FROM [dbo].[User] WHERE Del = 0 AND Login = @login", new SqlParameter("login", login));
         }
 
+        /// <summary>
+        /// Возвращает список всех баз
+        /// </summary>
+        /// <returns>DataTable</returns>
         public static DataTable GetBaseList()
         {
-            return GetData("SELECT * FROM Base WHERE Del=0 ORDER BY TabIndex");
+            string key = "BaseList";
+            DataTable dt = new DataTable();
+            dt = HttpContext.Current.Cache[key] as DataTable;
+            if (dt == null)
+            {
+                dt = GetData("SELECT * FROM Base WHERE Del=0 ORDER BY TabIndex");
+                dt.PrimaryKey = new DataColumn[] { dt.Columns["ID"] };
+                HttpContext.Current.Cache.Insert(key, dt, null, DateTime.Now.AddHours(2), Cache.NoSlidingExpiration);
+            }
+            return dt;
         }
 
-        //    string _key = "data_tree__doctree";
-        //    DataTable buf = new DataTable();
-        //    buf = HttpContext.Current.Cache[_key] as DataTable;
-        //        if (buf == null)
-        //        {
-        //            buf = new DataTable();
-        //    SqlConnection conn = new SqlConnection(Properties.Settings.Default.constr);
-        //    conn.Open();
-        //            string sql = "SELECT a.* FROM [_doctree_pre] a ORDER BY a.pos";
-        //    SqlCommand cmd = new SqlCommand(sql, conn);
-        //    cmd.CommandTimeout = 600;
-        //            SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(cmd);
-        //    sqlDataAdapter.Fill(buf);
-        //            conn.Close();
-        //            buf.PrimaryKey = new DataColumn[] { buf.Columns["id"]
-        //};
-        //HttpContext.Current.Cache.Insert(_key, buf, null, DateTime.Now.AddHours(2), Cache.NoSlidingExpiration);
-        //        }
+        /// <summary>
+        /// Возвращает элемент перечисления ArchivePage по имени
+        /// </summary>
+        /// <param name="name">Имя</param>
+        public static ArchivePage GetArchivePageByName(string name)
+        {
+            return (ArchivePage)System.Enum.Parse(typeof(ArchivePage), name);
+        }
+
+        /// <summary>
+        /// Возвращает заголовок страницы, по сокращенному названию
+        /// </summary>
+        /// <param name="page">Сокращенное название</param>
+        public static string GetArchivePageNameRus(ArchivePage archivePage)
+        {
+            string ret = "";
+
+            switch (archivePage)
+            {
+                case ArchivePage.Acc:
+                    ret = "Бухгалтерские документы";
+                    break;
+
+                case ArchivePage.Dog:
+                    ret = "Договоры";
+                    break;
+
+                case ArchivePage.Ord:
+                    ret = "ОРД";
+                    break;
+
+                case ArchivePage.Oth:
+                    ret = "Прочие документы";
+                    break;
+
+                case ArchivePage.Empl:
+                    ret = "Документы по личному составу";
+                    break;
+
+                case ArchivePage.Ohs:
+                    ret = "Документы по охране труда";
+                    break;
+
+                case ArchivePage.Tech:
+                    ret = "Техническая документация";
+                    break;
+
+                case ArchivePage.All:
+                    ret = "Поиск документов";
+                    break;
+
+                case ArchivePage.Select:
+                    ret = "Выбор документа";
+                    break;
+
+                case ArchivePage.Bank:
+                    ret = "Банковские документы";
+                    break;
+
+                case ArchivePage.Norm:
+                    ret = "Локальные нормативные документы";
+                    break;
+
+                default:
+                    break;
+            }
+            return ret;
+        }
 
         #endregion GetInfo
 
@@ -108,30 +175,30 @@ namespace WARP
         /// Выполняет запрос
         /// </summary>
         /// <param name="query">SQL запрос</param>
-        /// <param name="connstring">Строка подключения</param>
+        /// <param name="connString">Строка подключения</param>
         /// <param name="timeout">Таймаут (По умолчанию - 120)</param>
         /// <returns>Количество строк, "-1" - ошибка</returns>
         /// <remarks>аааааа</remarks>
-        public static int ExecuteNonQuery(string query, string connstring, SqlParameter[] sqlParameterArray = null, int timeout = 120)
+        public static int ExecuteNonQuery(string query, string connString, SqlParameter[] sqlParameterArray = null, int timeout = 120)
         {
             int ret = -1;
-            SqlCommand cmd;
-            SqlConnection conn = new SqlConnection(connstring);
-            conn.Open();
-            cmd = new SqlCommand(query, conn);
-            if (sqlParameterArray != null) cmd.Parameters.AddRange(sqlParameterArray);
-            cmd.CommandTimeout = timeout;
+            SqlCommand sqlCommand;
+            SqlConnection sqlConnection = new SqlConnection(connString);
+            sqlConnection.Open();
+            sqlCommand = new SqlCommand(query, sqlConnection);
+            if (sqlParameterArray != null) sqlCommand.Parameters.AddRange(sqlParameterArray);
+            sqlCommand.CommandTimeout = timeout;
             try
             {
-                ret = cmd.ExecuteNonQuery();
+                ret = sqlCommand.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
-                LogError(ex.Message.Trim());
+                LogSqlError(ex.Message.Trim(), sqlCommand.CommandText, sqlParameterArray);
             }
             finally
             {
-                conn.Close();
+                sqlConnection.Close();
             }
             return ret;
         }
@@ -170,31 +237,31 @@ namespace WARP
         /// Возвращает таблицу - результат запроса
         /// </summary>
         /// <param name="query">SQL запрос</param>
-        /// <param name="connstring">Строка подключения</param>
+        /// <param name="connString">Строка подключения</param>
         /// <param name="timeout">Таймаут (По умолчанию - 120)</param>
         /// <returns>DataTable.</returns>
-        public static DataTable GetData(string query, string connstring, SqlParameter[] sqlParameterArray, int timeout = 120)
+        public static DataTable GetData(string query, string connString, SqlParameter[] sqlParameterArray, int timeout = 120)
         {
-            SqlCommand cmd;
-            SqlConnection conn = new SqlConnection(connstring);
-            conn.Open();
-            cmd = new SqlCommand(query, conn);
-            if (sqlParameterArray != null) cmd.Parameters.AddRange(sqlParameterArray);
-            cmd.CommandTimeout = timeout;
+            SqlCommand sqlCommand;
+            SqlConnection sqlConnection = new SqlConnection(connString);
+            sqlConnection.Open();
+            sqlCommand = new SqlCommand(query, sqlConnection);
+            if (sqlParameterArray != null) sqlCommand.Parameters.AddRange(sqlParameterArray);
+            sqlCommand.CommandTimeout = timeout;
             DataTable dt = new DataTable();
             try
             {
-                SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(cmd);
+                SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(sqlCommand);
                 sqlDataAdapter.Fill(dt);
             }
             catch (Exception ex)
             {
                 dt = null;
-                LogError(ex.Message.Trim());
+                LogSqlError(ex.Message.Trim(), sqlCommand.CommandText, sqlParameterArray);
             }
             finally
             {
-                conn.Close();
+                sqlConnection.Close();
             }
             return dt;
         }
@@ -212,29 +279,29 @@ namespace WARP
         /// Выполняет скалярный запрос
         /// </summary>
         /// <param name="query">SQL запрос</param>
-        /// <param name="connstring">Строка подключения</param>
+        /// <param name="connString">Строка подключения</param>
         /// <param name="timeout">Таймаут (По умолчанию - 120)</param>
         /// <returns>Количество строк, "-1" - ошибка</returns>
         /// <remarks>аааааа</remarks>
-        public static object ExecuteScalar(string query, string connstring, int timeout = 120)
+        public static object ExecuteScalar(string query, string connString, int timeout = 120)
         {
-            SqlCommand cmd;
-            SqlConnection conn = new SqlConnection(connstring);
+            SqlCommand sqlCommand;
+            SqlConnection sqlConnection = new SqlConnection(connString);
             object ret = null;
-            conn.Open();
-            cmd = new SqlCommand(query, conn);
-            cmd.CommandTimeout = timeout;
+            sqlConnection.Open();
+            sqlCommand = new SqlCommand(query, sqlConnection);
+            sqlCommand.CommandTimeout = timeout;
             try
             {
-                ret = cmd.ExecuteScalar();
+                ret = sqlCommand.ExecuteScalar();
             }
             catch (Exception ex)
             {
-                LogError(ex.Message.Trim());
+                LogSqlError(ex.Message.Trim(), sqlCommand.CommandText, null);
             }
             finally
             {
-                conn.Close();
+                sqlConnection.Close();
             }
             return ret;
         }
@@ -254,15 +321,15 @@ namespace WARP
         /// Выполняет скалярный запрос
         /// </summary>
         /// <param name="query">SQL запрос</param>
-        /// <param name="connstring">Строка подключения</param>
+        /// <param name="connString">Строка подключения</param>
         /// <param name="timeout">Таймаут (По умолчанию - 120)</param>
         /// <returns>Количество строк, "-1" - ошибка</returns>
         /// <remarks>аааааа</remarks>
-        public static int ExecuteScalarInt(string query, string connstring, int timeout = 120)
+        public static int ExecuteScalarInt(string query, string connString, int timeout = 120)
         {
             int ret = -1;
             int resInt = 0;
-            var res = ComFunc.ExecuteScalar(query, connstring);
+            var res = ComFunc.ExecuteScalar(query, connString);
             if (int.TryParse((res is DBNull || res == null ? "-1" : res.ToString()), out resInt))
                 ret = resInt;
             return ret;
@@ -284,7 +351,27 @@ namespace WARP
         {
             int userId = int.Parse((HttpContext.Current.Session["UserId"] ?? "0").ToString());
             prim = prim == null ? "NULL" : "'" + prim + "'";
-            ExecuteNonQuery("INSERT INTO [dbo].[Log]([IdUser],[When],[IdLogType],[What]) VALUES ( " + userId + ", GetDate(), " + idLogType + "," + prim + ")");
+            ExecuteNonQuery("INSERT INTO [dbo].[Log]([IdUser],[When],[IdLogType],[Prim]) VALUES ( " + userId + ", GetDate(), " + idLogType + "," + prim + ")");
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="errorText">Сообщение исключения</param>
+        /// <param name="sqlQuery">Запрос в котором произошла ошибка</param>
+        public static void LogSqlError(string errorText, string sqlQuery, SqlParameter[] sqlParameterArray)
+        {
+            string paramList = "";
+            if (sqlParameterArray != null)
+            {
+                foreach (SqlParameter item in sqlParameterArray)
+                {
+                    paramList += item.ParameterName + " = " + item.Value.ToString() + Environment.NewLine;
+                }
+            }
+            LogError(
+                "Ошибка:" + Environment.NewLine + errorText + Environment.NewLine + Environment.NewLine +
+                "SQL:" + Environment.NewLine + sqlQuery + Environment.NewLine + "Params:" + Environment.NewLine + paramList);
         }
 
         /// <summary>
@@ -298,28 +385,27 @@ namespace WARP
         public static void LogError(string errorText)
         {
             int ret = -1;
-            SqlCommand cmd;
-            SqlConnection conn = new SqlConnection(Properties.Settings.Default.ConnectionString);
+            SqlCommand sqlCommand;
+            SqlConnection sqlConnection = new SqlConnection(Properties.Settings.Default.ConnectionString);
             try
             {
-                conn.Open();
-                cmd = new SqlCommand("INSERT INTO [dbo].[Log]([IdUser],[When],[ErrorText]) VALUES ( @IdUser, GetDate(), @ErrorText);", conn);
+                sqlConnection.Open();
+                sqlCommand = new SqlCommand("INSERT INTO [dbo].[LogError]([IdUser],[When],[ErrorText]) VALUES ( @IdUser, GetDate(), @ErrorText);", sqlConnection);
                 int userId = int.Parse((HttpContext.Current.Session["UserId"] ?? "0").ToString());
                 SqlParameter[] sqlParameterArray = {
-                new SqlParameter { ParameterName = "@IdUser", SqlDbType = SqlDbType.Int, Value = userId },
-                new SqlParameter { ParameterName = "@ErrorText", SqlDbType = SqlDbType.NVarChar, Value = errorText }
-            };
-                cmd.Parameters.AddRange(sqlParameterArray);
-
-                ret = cmd.ExecuteNonQuery();
+                    new SqlParameter { ParameterName = "@IdUser", SqlDbType = SqlDbType.Int, Value = userId },
+                    new SqlParameter { ParameterName = "@ErrorText", SqlDbType = SqlDbType.NVarChar, Value = errorText }
+                };
+                sqlCommand.Parameters.AddRange(sqlParameterArray);
+                ret = sqlCommand.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
-                SendMailAdmin(ex.Message, "Архив: Неудачная запись в лог ошибок");
+                SendMailAdmin(ex.Message + Environment.NewLine + errorText, "Архив: Неудачная запись в лог ошибок");
             }
             finally
             {
-                conn.Close();
+                sqlConnection.Close();
             }
         }
 

@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Logon.aspx.cs" Inherits="ArchNet.Logon" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Logon.aspx.cs" Inherits="WARP.Logon" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -8,12 +8,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="favicon.ico" type="image/ico" />
+    <link rel="icon" href="/Content/favicon.ico" type="image/ico" />
+    
 
     <title>Авторизация</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="/styles/bootstrap.css?t=1" rel="stylesheet" type="text/css" />
+    <link href="../Content/bootstrap-3.3.6/css/bootstrap.min.css" rel="stylesheet" />
 
     <style>
         body {

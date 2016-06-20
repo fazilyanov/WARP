@@ -1,1 +1,1 @@
-﻿<%@ WebHandler Language="C#" CodeBehind="Handler.ashx.cs" Class="ArchNet.Handler1" %>
+﻿<%@ WebHandler Language="C#" CodeBehind="Handler.ashx.cs" Class="WARP.Handler" %>

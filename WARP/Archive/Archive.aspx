@@ -1,42 +1,33 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="DataTablesTestPage.aspx.cs" Inherits="WARP.DataTablesTestPage" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Archive.aspx.cs" Inherits="WARP.Archive" %>
 
-<!DOCTYPE html>
+<asp:Content ID="Content1" ContentPlaceHolderID="cph" runat="server">
 
-<html>
-<head runat="server">
-    
+    <table id="table_id" class="table table-striped table-bordered" style="table-layout: fixed; width: 100%">
+        <%--;word-wrap:break-word;--%>
+        <thead>
+            <tr>
+                <%=htmlTableColumns%>
+            </tr>
+        </thead>
+    </table>
 
-    <title></title>
-</head>
-<body>
-    <div class="container-fluid" style="padding-top: 5px;">
-        <table id="table_id" class="table table-striped table-bordered" style="table-layout: fixed; width: 100%">
-            <%--;word-wrap:break-word;--%>
-            <thead>
-                <tr>
-                    <%=htmlTableColumns%>
-                </tr>
-            </thead>
-        </table>
-    </div>
     <script>
         $(window).bind('resize', function () {
             var h = $(window).height();
             $('.dataTables_scrollBody').css('height', (h - 125) + 'px');
         });
         $(document).ready(function () {
-            document.title = 'Архив / Поиск документов';
+            document.title = '<%=documentTitle%>';
             //
 
             $('#table_id').DataTable({
                 dom: 'ZBrt<"row"<"col-sm-5"i><"col-sm-7"p>>',
                 "processing": true,
                 "serverSide": true,
-                "ajax": "Handler1.ashx?table=archive",
+                "ajax": "/Handler.ashx?table=archive_<%=curArchivePage.ToString()%>",
                 "columns": [
                     <%=jsTableColumns%>
                 ],
-                
 
                 autoWidth: false,
                 select: true,
@@ -45,7 +36,7 @@
                     "tableWidthFixed": true
                 },
                 stateSave: true,
-                scrollY: ($(window).height()-125)+"px",
+                scrollY: ($(window).height() - 125) + "px",
                 scrollX: true,
                 scrollCollapse: false,
                 lengthMenu: [
@@ -110,5 +101,4 @@
 
         });
     </script>
-</body>
-</html>
+</asp:Content>

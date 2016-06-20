@@ -4,16 +4,36 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
 using System.Text;
+using System.Web;
 using System.Web.Script.Serialization;
-
 
 namespace WARP
 {
-    public partial class DataTablesTestPage : System.Web.UI.Page
+    public partial class Archive : System.Web.UI.Page
     {
         public string htmlTableColumns;
         public string jsTableColumns;
         public string jsTableLanguage;
+        public ArchivePage curArchivePage;
+        public string documentTitle;
+
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            string pPage = (Page.RouteData.Values["pPage"] ?? "").ToString().Trim();
+            if (pPage.Length > 0)
+            {
+                curArchivePage = ComFunc.GetArchivePageByName(pPage);
+                documentTitle = ComFunc.GetArchivePageNameRus(curArchivePage);
+                TableData tableData = InitTableData();
+                htmlTableColumns = ComFunc.GenerateHtmlTableColumns(tableData);
+                jsTableColumns = ComFunc.GenerateJSTableColumns(tableData);
+            }
+            else
+            {
+                Response.Write("bad param");
+                Response.End();
+            }
+        }
 
         public static TableData InitTableData()
         {
@@ -33,7 +53,7 @@ namespace WARP
             return tableData;
         }
 
-        public static DataTable GetData(int displayStart, int displayLength, string sortCol, string sortDir)
+        public static DataTable GetData(ArchivePage archivePage, int displayStart, int displayLength, string sortCol, string sortDir)
         {
             StringBuilder sbQuery = new StringBuilder();
             sbQuery.AppendLine("SELECT * FROM  (");
@@ -45,11 +65,11 @@ namespace WARP
             sbQuery.AppendLine("   ,T.DateUpd");
             sbQuery.AppendLine("   ,T.Prim");
             sbQuery.AppendLine("   ,T.DocContent");
-            sbQuery.AppendLine("   ,F.name as FrmContr");
+            sbQuery.AppendLine("   ,F.Name as FrmContr");
             sbQuery.AppendLine("   ,T.Summ");
             sbQuery.AppendLine("   ,T.DocPack");
             sbQuery.AppendLine("   FROM [dbo].[ArchiveTest] T");
-            sbQuery.AppendLine("   LEFT JOIN [dbo].[_frm] F on T.IdFrmContr = F.id");
+            sbQuery.AppendLine("   LEFT JOIN [dbo].[Frm] F on T.IdFrmContr = F.ID");
             sbQuery.AppendLine(") a");
 
             sbQuery.AppendLine("ORDER BY " + sortCol + " " + sortDir);
@@ -64,13 +84,13 @@ namespace WARP
             return dt;
         }
 
-        public static string GetJsonData(int draw, int displayStart, int displayLength, int iSortCol, string sortDir)
+        public static string GetJsonData(ArchivePage archivePage, int draw, int displayStart, int displayLength, int iSortCol, string sortDir)
         {
             string ret = "";
             int recordsFiltered = 0;
             TableData tableData = InitTableData();
             string sortCol = tableData.ColumnList.Count >= iSortCol ? tableData.ColumnList[iSortCol].NameSql : "";
-            DataTable dt = GetData(displayStart, displayLength, sortCol, sortDir);
+            DataTable dt = GetData(archivePage, displayStart, displayLength, sortCol, sortDir);
 
             if (dt != null)
             {
@@ -126,11 +146,6 @@ namespace WARP
             return ret;
         }
 
-        protected void Page_Load(object sender, EventArgs e)
-        {
-            TableData tableData = InitTableData();
-            htmlTableColumns = ComFunc.GenerateHtmlTableColumns(tableData);
-            jsTableColumns = ComFunc.GenerateJSTableColumns(tableData);
-        }
+        
     }
 }
