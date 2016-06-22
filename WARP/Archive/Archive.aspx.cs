@@ -4,7 +4,6 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
 using System.Text;
-using System.Web;
 using System.Web.Script.Serialization;
 
 namespace WARP
@@ -14,16 +13,16 @@ namespace WARP
         public string htmlTableColumns;
         public string jsTableColumns;
         public string jsTableLanguage;
-        public ArchivePage curArchivePage;
+        public string curPage;
         public string documentTitle;
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            string pPage = (Page.RouteData.Values["pPage"] ?? "").ToString().Trim();
-            if (pPage.Length > 0)
+            curPage = (Page.RouteData.Values["pPage"] ?? "").ToString().Trim();
+            if (curPage.Length > 0)
             {
-                curArchivePage = ComFunc.GetArchivePageByName(pPage);
-                documentTitle = ComFunc.GetArchivePageNameRus(curArchivePage);
+                //curPage = ComFunc.GetArchivePageByName(pPage);
+                documentTitle = ComFunc.GetArchivePageNameRus(curPage);
                 TableData tableData = InitTableData();
                 htmlTableColumns = ComFunc.GenerateHtmlTableColumns(tableData);
                 jsTableColumns = ComFunc.GenerateJSTableColumns(tableData);
@@ -40,20 +39,20 @@ namespace WARP
             TableData tableData = new TableData();
             tableData.ColumnList = new List<TableColumn>()
             {
-                new TableColumn { Name ="ID", NameSql="ID", Type = TableColumnType.Integer, Width=20 },
+                new TableColumn { Name ="ID", NameSql="ID", Type = TableColumnType.Integer, Width=30 },
                 new TableColumn { Name ="Дата редак.", NameSql="DateUpd",Type = TableColumnType.DateTime, Width=110, Align=TableColumnAlign.Center },
                 new TableColumn { Name ="Номер документа", NameSql="NumDoc", Width=300 },
                 new TableColumn { Name ="Дата докум.", NameSql="DocDate",Type = TableColumnType.Date, Width=85, Align=TableColumnAlign.Center},
                 new TableColumn { Name ="Содержание", NameSql="DocContent", Width=300 },
                 new TableColumn { Name ="Контрагент", NameSql="FrmContr", Width=250 },
-                new TableColumn { Name ="Сумма", NameSql="Summ", Type = TableColumnType.Money, Width=200, Align=TableColumnAlign.Right},
+                new TableColumn { Name ="Сумма", NameSql="Summ", Type = TableColumnType.Money, Width=100, Align=TableColumnAlign.Right},
                 new TableColumn { Name ="Пакет", NameSql="DocPack", Type = TableColumnType.Integer, Width=50,Align=TableColumnAlign.Center },
                 new TableColumn { Name ="Примечание", NameSql="Prim", Width=300 },
             };
             return tableData;
         }
 
-        public static DataTable GetData(ArchivePage archivePage, int displayStart, int displayLength, string sortCol, string sortDir)
+        public static DataTable GetData(string curBase, string curTable, string archivePage, int displayStart, int displayLength, string sortCol, string sortDir)
         {
             StringBuilder sbQuery = new StringBuilder();
             sbQuery.AppendLine("SELECT * FROM  (");
@@ -68,10 +67,10 @@ namespace WARP
             sbQuery.AppendLine("   ,F.Name as FrmContr");
             sbQuery.AppendLine("   ,T.Summ");
             sbQuery.AppendLine("   ,T.DocPack");
-            sbQuery.AppendLine("   FROM [dbo].[ArchiveTest] T");
+            sbQuery.AppendLine("   FROM [dbo].[" + curBase + "Archive] T");
             sbQuery.AppendLine("   LEFT JOIN [dbo].[Frm] F on T.IdFrmContr = F.ID");
             sbQuery.AppendLine(") a");
-
+            sbQuery.AppendLine("WHERE a.id>100000");
             sbQuery.AppendLine("ORDER BY " + sortCol + " " + sortDir);
             sbQuery.AppendLine("OFFSET @displayStart ROWS FETCH FIRST @displayLength ROWS ONLY");
 
@@ -84,13 +83,13 @@ namespace WARP
             return dt;
         }
 
-        public static string GetJsonData(ArchivePage archivePage, int draw, int displayStart, int displayLength, int iSortCol, string sortDir)
+        public static string GetJsonData(string curBase, string curTable, string archivePage, int draw, int displayStart, int displayLength, int iSortCol, string sortDir)
         {
             string ret = "";
             int recordsFiltered = 0;
             TableData tableData = InitTableData();
             string sortCol = tableData.ColumnList.Count >= iSortCol ? tableData.ColumnList[iSortCol].NameSql : "";
-            DataTable dt = GetData(archivePage, displayStart, displayLength, sortCol, sortDir);
+            DataTable dt = GetData(curBase, curTable, archivePage, displayStart, displayLength, sortCol, sortDir);
 
             if (dt != null)
             {
@@ -135,7 +134,7 @@ namespace WARP
                 var result = new
                 {
                     draw,
-                    recordsTotal = (int)ComFunc.ExecuteScalar("SELECT COUNT(*) FROM [dbo].[ArchiveTest]"),
+                    recordsTotal = (int)ComFunc.ExecuteScalar("SELECT COUNT(*) FROM [dbo].[" + curBase + curTable+"]"),
                     recordsFiltered = recordsFiltered,
                     data = data
                 };
@@ -145,7 +144,5 @@ namespace WARP
             }
             return ret;
         }
-
-        
     }
 }

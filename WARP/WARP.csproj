@@ -138,6 +138,29 @@
     <Content Include="Content\datatables.js" />
     <Content Include="Content\datatables.min.css" />
     <Content Include="Content\datatables.min.js" />
+    <Content Include="Content\Editor-1.5.6\css\dataTables.editor.css" />
+    <Content Include="Content\Editor-1.5.6\css\editor.bootstrap.css" />
+    <Content Include="Content\Editor-1.5.6\css\editor.bootstrap.min.css" />
+    <Content Include="Content\Editor-1.5.6\css\editor.dataTables.css" />
+    <Content Include="Content\Editor-1.5.6\css\editor.dataTables.min.css" />
+    <Content Include="Content\Editor-1.5.6\css\editor.foundation.css" />
+    <Content Include="Content\Editor-1.5.6\css\editor.foundation.min.css" />
+    <Content Include="Content\Editor-1.5.6\css\editor.jqueryui.css" />
+    <Content Include="Content\Editor-1.5.6\css\editor.jqueryui.min.css" />
+    <Content Include="Content\Editor-1.5.6\images\ajax-loader-small.gif" />
+    <Content Include="Content\Editor-1.5.6\images\ajax-loader.gif" />
+    <Content Include="Content\Editor-1.5.6\images\calender.png" />
+    <Content Include="Content\Editor-1.5.6\images\close.png" />
+    <Content Include="Content\Editor-1.5.6\images\shadow_left.png" />
+    <Content Include="Content\Editor-1.5.6\images\shadow_right.png" />
+    <Content Include="Content\Editor-1.5.6\js\dataTables.editor.js" />
+    <Content Include="Content\Editor-1.5.6\js\dataTables.editor.min.js" />
+    <Content Include="Content\Editor-1.5.6\js\editor.bootstrap.js" />
+    <Content Include="Content\Editor-1.5.6\js\editor.bootstrap.min.js" />
+    <Content Include="Content\Editor-1.5.6\js\editor.foundation.js" />
+    <Content Include="Content\Editor-1.5.6\js\editor.foundation.min.js" />
+    <Content Include="Content\Editor-1.5.6\js\editor.jqueryui.js" />
+    <Content Include="Content\Editor-1.5.6\js\editor.jqueryui.min.js" />
     <Content Include="Content\favicon.ico" />
     <Content Include="Content\FixedColumns-3.2.2\css\fixedColumns.bootstrap.css" />
     <Content Include="Content\FixedColumns-3.2.2\css\fixedColumns.bootstrap.min.css" />
@@ -181,6 +204,16 @@
     <Content Include="Content\Buttons-1.2.1\css\mixins.scss" />
     <Content Include="Content\DataTables-1.10.12\js\Russian.json" />
     <Content Include="Handler.ashx" />
+    <Content Include="Content\Editor-1.5.6\css\scss\bubble.scss" />
+    <Content Include="Content\Editor-1.5.6\css\scss\datatable.scss" />
+    <Content Include="Content\Editor-1.5.6\css\scss\datetime.scss" />
+    <Content Include="Content\Editor-1.5.6\css\scss\envelope.scss" />
+    <Content Include="Content\Editor-1.5.6\css\scss\fields.scss" />
+    <Content Include="Content\Editor-1.5.6\css\scss\inline.scss" />
+    <Content Include="Content\Editor-1.5.6\css\scss\lightbox.scss" />
+    <Content Include="Content\Editor-1.5.6\css\scss\main.scss" />
+    <Content Include="Content\Editor-1.5.6\css\scss\mixins.scss" />
+    <Content Include="Content\Editor-1.5.6\css\scss\upload.scss" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

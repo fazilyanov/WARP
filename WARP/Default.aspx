@@ -4,15 +4,24 @@
 <%@ MasterType VirtualPath="~/Site.master" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="cph" runat="server">
-    <div class="row">
-        <div class="col-sm-4">
-            </div>
-        <div class="col-sm-4">
-<ul class="list-group">
-<%=htmlBaseList%>  
-</ul>
-            <div class="col-sm-4">
-                </div>
-            </div>       
-        </div>
+    <script type="text/javascript">
+        jQuery(document).ready(function () {
+        <%
+        if (Master.curBaseName == string.Empty)
+        {
+        %>
+            $('.navbar-right > li').first().addClass('open');
+        <%
+        }
+        else
+        {
+        %>
+            $('.navbar-right > li').first().next().addClass('open');
+            $('#curPageTitle').text('Электронный архив / База: <%=Master.curBaseNameRus%>');
+        <%
+        }
+        %>
+
+        });
+    </script>
 </asp:Content>

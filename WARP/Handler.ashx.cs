@@ -10,17 +10,19 @@ namespace WARP
     {
         public void ProcessRequest(HttpContext context)
         {
-            string table = context.Request["table"].ToLower();
+            string curBase = context.Request["curBase"];
+            string curTable = context.Request["curTable"];
+            string curPage = context.Request["curPage"];
             int draw = int.Parse(context.Request["draw"]);
             int displayLength = int.Parse(context.Request["length"]);
             int displayStart = int.Parse(context.Request["start"]);
             int sortCol = int.Parse(context.Request["order[0][column]"]);
             string sortDir = context.Request["order[0][dir]"];
             string search = context.Request["search[value]"];
-            switch (table)
+            switch (curTable)
             {
-                case "archive_all":
-                    context.Response.Write(Archive.GetJsonData(ArchivePage.All, draw, displayStart, displayLength, sortCol, sortDir));
+                case "Archive":
+                    context.Response.Write(Archive.GetJsonData(curBase,curTable, curPage, draw, displayStart, displayLength, sortCol, sortDir));
                     break;
 
                 default:

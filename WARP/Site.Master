@@ -7,26 +7,89 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Архив документов</title>
 
-    <link rel="icon" href="favicon.ico" type="/Content/favicon.ico" />
+    <link rel="icon" href="/content/favicon.ico" />
 
-    <link rel="stylesheet" type="text/css" href="/content/bootstrap-3.3.6/css/bootstrap.min.css" />
-    <link rel="stylesheet" type="text/css" href="/content/datatables.css">
+    <link rel="stylesheet" type="text/css" href="/content/datatables.min.css">
     <link rel="stylesheet" type="text/css" href="/content/archive/archive.css?v=1" />
 
-    <script type="text/javascript" charset="utf8" src="/content/jQuery-2.2.3/jquery-2.2.3.min.js"></script>
-    <script type="text/javascript" charset="utf8" src="/content/bootstrap-3.3.6/js/bootstrap.min.js"></script>
     <script type="text/javascript" charset="utf8" src="/content/datatables.min.js"></script>
     <script type="text/javascript" charset="utf8" src="/content/dataTables.colResize.js"></script>
 
     <script>
         function pinger() {
-            $.post('/ajax/pinger.aspx', function (result) { });
+            $.post('/site/pinger.aspx', function (result) { });
         }
         setInterval(pinger, 300000);
     </script>
 </head>
 <body>
-    <div class="container-fluid" style="padding-top: 5px;">
+    <div class="container-fluid" style="padding-top: 2px;">
+        <nav class="navbar navbar-blue ">
+            <div class="container-fluid">
+                <ul class="nav navbar-nav">
+                    <li><a id="curPageTitle" href="/" style="padding-left: 0px;">Электронный Архив</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">База<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <%=WARP.ComFunc.GetBaseHtmlList()%>
+                        </ul>
+                    </li>
+                    <%
+                        if (curBaseName != string.Empty)
+                        {
+                    %>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Документы<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <%=WARP.ComFunc.GetArchivePageHtmlList(curBaseName)%>
+                        </ul>
+                    </li>
+                    <%
+                        }
+                    %>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Отчеты<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">Action</a></li>
+                            <li><a href="#">Another action</a></li>
+                            <li><a href="#">Something else here</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="#">Separated link</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="#">One more separated link</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Сервис<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">Action</a></li>
+                            <li><a href="#">Another action</a></li>
+                            <li><a href="#">Something else here</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="#">Separated link</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="#">One more separated link</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Справка<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">Action</a></li>
+                            <li><a href="#">Another action</a></li>
+                            <li><a href="#">Something else here</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="#">Separated link</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="#">One more separated link</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </nav>
         <asp:ContentPlaceHolder ID="cph" runat="server">
         </asp:ContentPlaceHolder>
     </div>

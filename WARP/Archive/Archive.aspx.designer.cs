@@ -11,5 +11,17 @@ namespace WARP {
     
     
     public partial class Archive {
+        
+        /// <summary>
+        /// Master свойство.
+        /// </summary>
+        /// <remarks>
+        /// Автоматически создаваемое свойство.
+        /// </remarks>
+        public new WARP.Site Master {
+            get {
+                return ((WARP.Site)(base.Master));
+            }
+        }
     }
 }

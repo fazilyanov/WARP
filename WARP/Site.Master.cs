@@ -8,14 +8,22 @@ namespace WARP
 {
     public partial class Site : System.Web.UI.MasterPage
     {
-        public string curBaseName = "";
+        /// <summary>
+        /// Сокращенное имя текущей базы, переданное в параметре адресной строки
+        /// </summary>
+        public string curBaseName;
+
+        /// <summary>
+        /// Полное наименование текущей базы / организации
+        /// </summary>
+        public string curBaseNameRus;
 
         protected void Page_Load(object sender, EventArgs e)
         {
             Session["UserFormLogin"] = "a.fazilyanov";
 
-            // Сокращенное имя текущей базы, переданное в параметре адресной строки
-            curBaseName = (Page.RouteData.Values["pBase"] ?? "").ToString();
+            curBaseName = (Page.RouteData.Values["pBase"] ?? string.Empty).ToString();
+            curBaseNameRus = curBaseName != string.Empty ? ComFunc.GetBaseNameRus(curBaseName) : curBaseName;
 
             // Если пользователь еще не авторизировался (любым из способов)
             if (Session["UserLogin"] == null)
@@ -42,7 +50,6 @@ namespace WARP
                     }
                     else // Раз есть - считываем данные в сессию
                     {
-                        
                         Session["UserId"] = dt.Rows[0]["ID"];
                         Session["UserLogin"] = dt.Rows[0]["Login"];
                         Session["UserName"] = dt.Rows[0]["Name"];

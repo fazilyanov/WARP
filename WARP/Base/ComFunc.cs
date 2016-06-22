@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Web;
 using System.Web.Caching;
+using System.Web.UI;
 
 namespace WARP
 {
@@ -13,6 +15,91 @@ namespace WARP
     {
         #region GetInfo
 
+        #region Base
+
+        /// <summary>
+        /// Возвращает список всех баз
+        /// </summary>
+        /// <returns>DataTable</returns>
+        public static DataTable GetBaseData()
+        {
+            string key = "BaseData";
+            DataTable dt = new DataTable();
+            dt = HttpContext.Current.Cache[key] as DataTable;
+            if (dt == null)
+            {
+                dt = GetData("SELECT * FROM Base ORDER BY TabIndex");
+                dt.PrimaryKey = new DataColumn[] { dt.Columns["ID"] };
+                HttpContext.Current.Cache.Insert(key, dt, null, DateTime.Now.AddHours(12), Cache.NoSlidingExpiration);
+            }
+            return dt;
+        }
+
+        public static string GetBaseHtmlList()
+        {
+            string key = "BaseHtmlList";
+            string html = (HttpContext.Current.Cache[key] ?? string.Empty).ToString();
+            if (html == string.Empty)
+            {
+                foreach (DataRow row in GetBaseData().Rows)
+                {
+                    html += "<li><a href=\"" + (HttpContext.Current.Handler as Page).GetRouteUrl("default", new { pBase = row["Name"] }) + "\">" + row["NameRus"] + "</a></li>" + Environment.NewLine;
+                }
+                HttpContext.Current.Cache.Insert(key, html, null, DateTime.Now.AddHours(12), Cache.NoSlidingExpiration);
+            }
+            return html;
+        }
+
+        public static string GetBaseNameRus(string name)
+        {
+            return GetBaseData().AsEnumerable().Where(row => row.Field<string>("Name") == name).Select(row => row.Field<string>("NameRus")).Single();
+        }
+
+        public static string GetBaseNameRus(int id)
+        {
+            return GetBaseData().AsEnumerable().Where(row => row.Field<int>("ID") == id).Select(row => row.Field<string>("NameRus")).Single();
+        }
+
+        #endregion Base
+
+        #region ArchivePage
+
+        public static DataTable GetArchivePageData()
+        {
+            string key = "ArchivePageData";
+            DataTable dt = new DataTable();
+            dt = HttpContext.Current.Cache[key] as DataTable;
+            if (dt == null)
+            {
+                dt = GetData("SELECT * FROM ArchivePage ORDER BY ID");
+                dt.PrimaryKey = new DataColumn[] { dt.Columns["ID"] };
+                HttpContext.Current.Cache.Insert(key, dt, null, DateTime.Now.AddHours(12), Cache.NoSlidingExpiration);
+            }
+            return dt;
+        }
+
+        public static string GetArchivePageHtmlList(string curBaseName)
+        {
+            string key = "ArchivePageHtmlList" + curBaseName;
+            string html = (HttpContext.Current.Cache[key] ?? string.Empty).ToString();
+            if (html == string.Empty)
+            {
+                foreach (DataRow row in GetArchivePageData().Rows)
+                {
+                    html += "<li><a href=\"" + (HttpContext.Current.Handler as Page).GetRouteUrl("archive", new { pBase = curBaseName, pPage = row["Name"] }) + "\">" + row["NameRus"] + "</a></li>" + Environment.NewLine;
+                }
+                HttpContext.Current.Cache.Insert(key, html, null, DateTime.Now.AddHours(12), Cache.NoSlidingExpiration);
+            }
+            return html;
+        }
+
+        public static string GetArchivePageNameRus(string name)
+        {
+            return name != string.Empty ? GetArchivePageData().AsEnumerable().Where(row => row.Field<string>("Name") == name).Select(row => row.Field<string>("NameRus")).Single() : string.Empty;
+        }
+
+        #endregion ArchivePage
+
         /// <summary>
         /// Ищет в базе информацию по пользователю
         /// </summary>
@@ -21,93 +108,6 @@ namespace WARP
         public static DataTable GetUserInfo(string login)
         {
             return GetData("SELECT * FROM [dbo].[User] WHERE Del = 0 AND Login = @login", new SqlParameter("login", login));
-        }
-
-        /// <summary>
-        /// Возвращает список всех баз
-        /// </summary>
-        /// <returns>DataTable</returns>
-        public static DataTable GetBaseList()
-        {
-            string key = "BaseList";
-            DataTable dt = new DataTable();
-            dt = HttpContext.Current.Cache[key] as DataTable;
-            if (dt == null)
-            {
-                dt = GetData("SELECT * FROM Base WHERE Del=0 ORDER BY TabIndex");
-                dt.PrimaryKey = new DataColumn[] { dt.Columns["ID"] };
-                HttpContext.Current.Cache.Insert(key, dt, null, DateTime.Now.AddHours(2), Cache.NoSlidingExpiration);
-            }
-            return dt;
-        }
-
-        /// <summary>
-        /// Возвращает элемент перечисления ArchivePage по имени
-        /// </summary>
-        /// <param name="name">Имя</param>
-        public static ArchivePage GetArchivePageByName(string name)
-        {
-            return (ArchivePage)System.Enum.Parse(typeof(ArchivePage), name);
-        }
-
-        /// <summary>
-        /// Возвращает заголовок страницы, по сокращенному названию
-        /// </summary>
-        /// <param name="page">Сокращенное название</param>
-        public static string GetArchivePageNameRus(ArchivePage archivePage)
-        {
-            string ret = "";
-
-            switch (archivePage)
-            {
-                case ArchivePage.Acc:
-                    ret = "Бухгалтерские документы";
-                    break;
-
-                case ArchivePage.Dog:
-                    ret = "Договоры";
-                    break;
-
-                case ArchivePage.Ord:
-                    ret = "ОРД";
-                    break;
-
-                case ArchivePage.Oth:
-                    ret = "Прочие документы";
-                    break;
-
-                case ArchivePage.Empl:
-                    ret = "Документы по личному составу";
-                    break;
-
-                case ArchivePage.Ohs:
-                    ret = "Документы по охране труда";
-                    break;
-
-                case ArchivePage.Tech:
-                    ret = "Техническая документация";
-                    break;
-
-                case ArchivePage.All:
-                    ret = "Поиск документов";
-                    break;
-
-                case ArchivePage.Select:
-                    ret = "Выбор документа";
-                    break;
-
-                case ArchivePage.Bank:
-                    ret = "Банковские документы";
-                    break;
-
-                case ArchivePage.Norm:
-                    ret = "Локальные нормативные документы";
-                    break;
-
-                default:
-                    break;
-            }
-            return ret;
         }
 
         #endregion GetInfo

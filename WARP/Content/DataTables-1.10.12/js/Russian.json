@@ -2,7 +2,7 @@
   "processing": "Подождите...",
   "search": "Поиск:",
   "lengthMenu": "Показать _MENU_ записей",
-  "info": "Записи с _START_ до _END_ из _TOTAL_ записей",
+  "info": "Записи с _START_ до _END_ из _TOTAL_",
   "infoEmpty": "Записи с 0 до 0 из 0 записей",
   "infoFiltered": "(отфильтровано из _MAX_ записей)",
   "infoPostFix": "",
@@ -14,6 +14,9 @@
     "previous": "Предыдущая",
     "next": "Следующая",
     "last": "Последняя"
+  },
+  "select": {
+    "rows": "%d выбрано"
   },
   "aria": {
     "sortAscending": ": активировать для сортировки столбца по возрастанию",
