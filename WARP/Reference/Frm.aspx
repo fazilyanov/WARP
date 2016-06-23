@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Archive.aspx.cs" Inherits="WARP.Archive" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Frm.aspx.cs" Inherits="WARP.Frm" %>
 
 <%@ MasterType VirtualPath="~/Site.master" %>
 
@@ -81,7 +81,7 @@
                             {
                                 extend: 'colvis',
                                 text: 'Видимость столбцов',
-                                postfixButtons: ['colvisRestore']
+                                postfixButtons: [{ extend: "colvisRestore", text: 'Сбросить', }]
                             },
                             {
                                 extend: 'pageLength',

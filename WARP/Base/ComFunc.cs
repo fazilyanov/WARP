@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Globalization;
 using System.Linq;
 using System.Web;
 using System.Web.Caching;
@@ -114,24 +116,45 @@ namespace WARP
 
         #region DataTables
 
-        public static string GenerateHtmlTableColumns(TableData tableData)
+        public static List<Dictionary<string, object>> GetFormatData(TableData tableData, DataTable dt)
         {
-            string ret = Environment.NewLine;
-            foreach (TableColumn item in tableData.ColumnList)
+            List<Dictionary<string, object>> data = new List<Dictionary<string, object>>();
+            Dictionary<string, object> row;
+            CultureInfo ruRu = CultureInfo.CreateSpecificCulture("ru-RU");
+            foreach (DataRow dr in dt.Rows)
             {
-                ret += "                        <th>" + item.Name + "</th>" + Environment.NewLine;
-            }
-            return ret;
-        }
+                row = new Dictionary<string, object>();
 
-        public static string GenerateJSTableColumns(TableData tableData)
-        {
-            string ret = Environment.NewLine;
-            foreach (TableColumn item in tableData.ColumnList)
-            {
-                ret += "                    { \"data\": \"" + item.NameSql + "\", className:\"dt-body-" + item.Align.ToString().ToLower() + "\", \"width\": \"" + item.Width + "px\" }," + Environment.NewLine;
+                foreach (TableColumn column in tableData.ColumnList)
+                {
+                    switch (column.Type)
+                    {
+                        case TableColumnType.Integer:
+                            row.Add(column.NameSql, Convert.ToInt32(dr[column.NameSql]));
+                            break;
+
+                        case TableColumnType.Money:
+                            row.Add(column.NameSql, String.Format(ruRu, "{0:0,0.00}", Convert.ToDecimal(dr[column.NameSql])));
+                            break;
+
+                        case TableColumnType.DateTime:
+                            row.Add(column.NameSql, ((DateTime)dr[column.NameSql]).ToString("dd.MM.yyyy HH:mm:ss"));
+                            break;
+
+                        case TableColumnType.Date:
+                            row.Add(column.NameSql, ((DateTime)dr[column.NameSql]).ToString("dd.MM.yyyy"));
+                            break;
+
+                        case TableColumnType.String:
+                        default:
+                            row.Add(column.NameSql, dr[column.NameSql].ToString());
+                            break;
+                    }
+                }
+                data.Add(row);
             }
-            return ret;
+
+            return data;
         }
 
         #endregion DataTables

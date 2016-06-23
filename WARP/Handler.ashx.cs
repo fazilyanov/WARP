@@ -22,9 +22,11 @@ namespace WARP
             switch (curTable)
             {
                 case "Archive":
-                    context.Response.Write(Archive.GetJsonData(curBase,curTable, curPage, draw, displayStart, displayLength, sortCol, sortDir));
+                    context.Response.Write(Archive.GetJsonData(curBase, curTable, curPage, draw, displayStart, displayLength, sortCol, sortDir));
                     break;
-
+                case "Frm":
+                    context.Response.Write(Frm.GetJsonData(curBase, curTable, curPage, draw, displayStart, displayLength, sortCol, sortDir));
+                    break;
                 default:
                     break;
             }

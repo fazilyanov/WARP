@@ -29,6 +29,7 @@ namespace WARP
         {
             routes.MapPageRoute("default", "Default/{pBase}", "~/Default.aspx");
             routes.MapPageRoute("archive", "Archive/{pBase}/{pPage}", "~/Archive/Archive.aspx");
+            routes.MapPageRoute("frm", "Reference/Frm", "~/Reference/Frm.aspx");
 
             //routes.MapPageRoute("user", "admin/user", "~/Admin/User.aspx");
             //routes.MapPageRoute("role", "admin/role", "~/Admin/Role.aspx");
