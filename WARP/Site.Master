@@ -11,10 +11,12 @@
 
     <link rel="stylesheet" type="text/css" href="/content/datatables.min.css">
     <link rel="stylesheet" type="text/css" href="/content/archive/archive.css?v=1" />
+    <link rel="stylesheet" type="text/css" href="/content/bootstrap-combobox/css/bootstrap-combobox.css" />
 
     <script type="text/javascript" charset="utf8" src="/content/datatables.min.js"></script>
     <script type="text/javascript" charset="utf8" src="/content/dataTables.colResize.js"></script>
-    <script type="text/javascript" charset="utf8" src="/content/Archive/typeahead.bundle.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="/content/archive/typeahead.bundle.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="/content/bootstrap-combobox/js/bootstrap-combobox.js"></script>
     <script>
         function pinger() {
             $.post('/site/pinger.aspx', function (result) { });

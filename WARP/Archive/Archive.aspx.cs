@@ -36,15 +36,83 @@ namespace WARP
             tableData.TableSql = "Archive";
             tableData.ColumnList = new List<TableColumn>()
             {
-                new TableColumn { Name ="ID", NameSql="ID", Type = TableColumnType.Integer, Width=30 },
-                new TableColumn { Name ="Дата редак.", NameSql="DateUpd",Type = TableColumnType.DateTime, Width=110, Align=TableColumnAlign.Center },
-                new TableColumn { Name ="Номер документа", NameSql="NumDoc", Width=300 },
-                new TableColumn { Name ="Дата докум.", NameSql="DocDate",Type = TableColumnType.Date, Width=85, Align=TableColumnAlign.Center},
-                new TableColumn { Name ="Содержание", NameSql="DocContent", Width=300 },
-                new TableColumn { Name ="Контрагент", NameSql="FrmContr", Width=250 },
-                new TableColumn { Name ="Сумма", NameSql="Summ", Type = TableColumnType.Money, Width=100, Align=TableColumnAlign.Right},
-                new TableColumn { Name ="Пакет", NameSql="DocPack", Type = TableColumnType.Integer, Width=50, Align=TableColumnAlign.Center },
-                new TableColumn { Name ="Примечание", NameSql="Prim", Width=300 },
+                new TableColumn {
+                    Caption ="ID",
+                    NameSql ="ID",
+                    Type = TableColumnType.Integer, Width=30
+                },
+                new TableColumn {
+                    Caption ="Дата редак.",
+                    NameSql ="DateUpd",
+                    Type = TableColumnType.DateTime,
+                    Width =110,
+                    Align =TableColumnAlign.Center
+                },
+                new TableColumn {
+                    Caption ="Оператор",
+                    NameSql ="User",
+                    FilterType =TableColumnFilterType.Autocomplete,
+                    Width =150,
+                    LookUpTable="User",
+                },
+                new TableColumn {
+                    Caption ="Номер документа",
+                    NameSql ="NumDoc",
+                    Width =300
+                },
+                new TableColumn {
+                    Caption ="Документ",
+                    NameSql ="DocTree",
+                    FilterType =TableColumnFilterType.Autocomplete,
+                    Width =150,
+                    LookUpTable="DocTree",
+                },
+                new TableColumn {
+                    Caption ="Вид документа",
+                    NameSql ="DocType",
+                    FilterType =TableColumnFilterType.Autocomplete,
+                    Width =150,
+                    LookUpTable="DocType",
+                },
+                new TableColumn {
+                    Caption ="Дата докум.",
+                    NameSql ="DocDate",
+                    Type = TableColumnType.Date,
+                    Width =85,
+                    Align =TableColumnAlign.Center
+                },
+                new TableColumn {
+                    Caption ="Содержание",
+                    NameSql ="DocContent",
+                    Width =300
+                },
+                new TableColumn
+                {
+                    Caption ="Контрагент",
+                    NameSql ="FrmContr",
+                    Width =250,
+                    FilterType =TableColumnFilterType.Autocomplete,
+                    LookUpTable="Frm",
+                },
+                new TableColumn {
+                    Caption ="Сумма",
+                    NameSql ="Summ",
+                    Type = TableColumnType.Money,
+                    Width =100,
+                    Align =TableColumnAlign.Right
+                },
+                new TableColumn {
+                    Caption ="Пакет",
+                    NameSql ="DocPack",
+                    Type = TableColumnType.Integer,
+                    Width =50,
+                    Align =TableColumnAlign.Center
+                },
+                new TableColumn {
+                    Caption ="Примечание",
+                    NameSql ="Prim",
+                    Width =300
+                },
             };
             return tableData;
         }
@@ -67,6 +135,7 @@ namespace WARP
             sbQuery.AppendLine("   ,T.NumDoc");
             sbQuery.AppendLine("   ,T.DocDate");
             sbQuery.AppendLine("   ,T.DateUpd");
+            sbQuery.AppendLine("   ,U.Name as User");
             sbQuery.AppendLine("   ,T.Prim");
             sbQuery.AppendLine("   ,T.DocContent");
             sbQuery.AppendLine("   ,F.Name as FrmContr");
@@ -75,6 +144,9 @@ namespace WARP
             sbQuery.AppendLine("   ,T.Del");
             sbQuery.AppendLine("   FROM [dbo].[" + curBase + "Archive] T");
             sbQuery.AppendLine("   LEFT JOIN [dbo].[Frm] F on T.IdFrmContr = F.ID");
+            sbQuery.AppendLine("   LEFT JOIN [dbo].[User] U on T.IdUser = U.ID");
+            sbQuery.AppendLine("   LEFT JOIN [dbo].[DocType] DT on T.IdDocType = DT.ID");
+            sbQuery.AppendLine("   LEFT JOIN [dbo].[DocTree] TR on T.IdDocTree = TR.ID");
             sbQuery.AppendLine(") a");
             sbQuery.AppendLine("WHERE");
             sbQuery.AppendLine("	a.Del=0");

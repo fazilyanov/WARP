@@ -77,6 +77,8 @@
     <Content Include="Content\bootstrap-3.3.6\js\bootstrap.js" />
     <Content Include="Content\bootstrap-3.3.6\js\bootstrap.min.js" />
     <Content Include="Content\bootstrap-3.3.6\js\npm.js" />
+    <Content Include="Content\bootstrap-combobox\css\bootstrap-combobox.css" />
+    <Content Include="Content\bootstrap-combobox\js\bootstrap-combobox.js" />
     <Content Include="Content\Buttons-1.2.1\css\buttons.bootstrap.css" />
     <Content Include="Content\Buttons-1.2.1\css\buttons.bootstrap.min.css" />
     <Content Include="Content\Buttons-1.2.1\css\buttons.dataTables.css" />

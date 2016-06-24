@@ -12,8 +12,9 @@
         </thead>
     </table>
 
-    <!-- Modal -->
-    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <%=tableData.GenerateFilterFormDialog()%>
+
+    <%--<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -21,36 +22,8 @@
                     <h4 class="modal-title">Фильтр</h4>
                 </div>
                 <div class="modal-body">
-                    <div class="row">
-                        <div class="col-sm-3">
-                            <h5>Дата редактирования </h5>
-                        </div>
-                        <div class="col-sm-3">
-                            <input type="text" class="form-control input-sm" placeholder="Username">
-                        </div>
-                        <div class="col-sm-3">
-                            <input type="range" class="form-control input-sm" placeholder="От">
-                        </div>
-                        <div class="col-sm-3">
-                            <input type="text" class="form-control input-sm" placeholder="До">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-3">
-                            <h5>Номер документа</h5>
-                        </div>
-                        <div class="col-sm-3">
-                            <select class="form-control">
-                                <option>1</option>
-                                <option>2</option>
-                                <option>3</option>
-                                <option>4</option>
-                            </select>
-                        </div>
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control input-sm" placeholder="Username">
-                        </div>
-                    </div>
+                    
+                        
                     <div class="row">
                         <div class="col-sm-3">
                             <h5>Контрагент</h5>
@@ -63,45 +36,20 @@
                             <input type="text" class="form-control input-sm" placeholder="Username">
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-sm-3">
-                            <h5>Дата ред</h5>
-                        </div>
-                        <div class="col-sm-3">
-                            <input type="text" class="form-control input-sm" placeholder="Username">
-                        </div>
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control input-sm" placeholder="Username">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-3">
-                            <h5>Дата редактирования основноу версии</h5>
-                        </div>
-                        <div class="col-sm-3">
-                            <input type="text" class="form-control input-sm" placeholder="Username">
-                        </div>
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control input-sm" placeholder="Username">
-                        </div>
-                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
                     <button type="button" class="btn btn-primary">Применить</button>
                 </div>
             </div>
-            <!-- /.modal-content -->
         </div>
-        <!-- /.modal-dialog -->
-    </div>
-    <!-- /.modal -->
+    </div>--%>
+    
 
     <script>
-
+     
         // Для выбора вручную страницы
         //var table = $('#table_id').DataTable(); table.page(4).draw('page');
-
         $(window).bind('resize', function () {
             var h = $(window).height();
             $('.dataTables_scrollBody').css('height', (h - 125) + 'px');
@@ -109,30 +57,6 @@
 
         var editor;
         $(document).ready(function () {
-
-            var countries = new Bloodhound({
-                datumTokenizer: Bloodhound.tokenizers.whitespace,
-                queryTokenizer: Bloodhound.tokenizers.whitespace,
-                remote: {
-                    url: '/Handler/TypeaheadHandler.ashx?t=Frm&q=%QUERY',
-                    wildcard: '%QUERY'
-                }
-            });
-
-            $('#FrmContr').typeahead({
-                minLength: 0,
-                highlight: true
-            },
-            {
-                name: 'AnyName',
-                display: 'Name',
-                highlight: true,
-                limit: 10,
-                source: countries,
-            });
-
-            $("#FrmContr").on("typeahead:selected typeahead:autocompleted", function (e, datum) { $("#IdFrmContr").val(datum.ID); });
-
             document.title = '<%=browserTabTitle%>';
             $('#curPageTitle').text('<%=documentTitle%>');
 
@@ -206,9 +130,9 @@
                         className: "btn-sm",
                     },
                     {
-                        text: 'My button',
+                        text: 'Фильтр',
                         action: function (e, dt, node, config) {
-                            $('#myModal').modal();
+                            $('#modalFilterForm').modal();
                         },
                         className: "btn-sm",
                     }

@@ -26,10 +26,10 @@ namespace WARP
             tableData.TableSql = "Frm";
             tableData.ColumnList = new List<TableColumn>()
             {
-                new TableColumn { Name ="ID", NameSql="ID", Type = TableColumnType.Integer, Width=30 },
-                new TableColumn { Name ="Наименование", NameSql="Name", Width=110},
-                new TableColumn { Name ="Наименование полное", NameSql="NameFull", Width=110},
-                new TableColumn { Name ="ИНН", NameSql="Inn", Width=110},
+                new TableColumn { Caption ="ID", NameSql="ID", Type = TableColumnType.Integer, Width=30 },
+                new TableColumn { Caption ="Наименование", NameSql="Name", Width=110},
+                new TableColumn { Caption ="Наименование полное", NameSql="NameFull", Width=110},
+                new TableColumn { Caption ="ИНН", NameSql="Inn", Width=110},
             };
             return tableData;
         }
