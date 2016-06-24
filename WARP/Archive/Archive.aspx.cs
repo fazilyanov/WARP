@@ -43,7 +43,7 @@ namespace WARP
                 new TableColumn { Name ="Содержание", NameSql="DocContent", Width=300 },
                 new TableColumn { Name ="Контрагент", NameSql="FrmContr", Width=250 },
                 new TableColumn { Name ="Сумма", NameSql="Summ", Type = TableColumnType.Money, Width=100, Align=TableColumnAlign.Right},
-                new TableColumn { Name ="Пакет", NameSql="DocPack", Type = TableColumnType.Integer, Width=50,Align=TableColumnAlign.Center },
+                new TableColumn { Name ="Пакет", NameSql="DocPack", Type = TableColumnType.Integer, Width=50, Align=TableColumnAlign.Center },
                 new TableColumn { Name ="Примечание", NameSql="Prim", Width=300 },
             };
             return tableData;

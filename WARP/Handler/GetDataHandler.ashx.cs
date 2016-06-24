@@ -6,7 +6,7 @@ namespace WARP
     /// <summary>
     /// Обрабатывает запросы от DataTables
     /// </summary>
-    public class Handler : IHttpHandler, IRequiresSessionState
+    public class GetDataHandler : IHttpHandler, IRequiresSessionState
     {
         public void ProcessRequest(HttpContext context)
         {

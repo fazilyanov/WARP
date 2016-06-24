@@ -12,6 +12,91 @@
         </thead>
     </table>
 
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Фильтр</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <h5>Дата редактирования </h5>
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control input-sm" placeholder="Username">
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="range" class="form-control input-sm" placeholder="От">
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control input-sm" placeholder="До">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <h5>Номер документа</h5>
+                        </div>
+                        <div class="col-sm-3">
+                            <select class="form-control">
+                                <option>1</option>
+                                <option>2</option>
+                                <option>3</option>
+                                <option>4</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control input-sm" placeholder="Username">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <h5>Контрагент</h5>
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="text" id="FrmContr" class="form-control input-sm" placeholder="Username">
+                            <input type="hidden" id="IdFrmContr">
+                        </div>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control input-sm" placeholder="Username">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <h5>Дата ред</h5>
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control input-sm" placeholder="Username">
+                        </div>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control input-sm" placeholder="Username">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <h5>Дата редактирования основноу версии</h5>
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control input-sm" placeholder="Username">
+                        </div>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control input-sm" placeholder="Username">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+                    <button type="button" class="btn btn-primary">Применить</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+
     <script>
 
         // Для выбора вручную страницы
@@ -25,11 +110,34 @@
         var editor;
         $(document).ready(function () {
 
+            var countries = new Bloodhound({
+                datumTokenizer: Bloodhound.tokenizers.whitespace,
+                queryTokenizer: Bloodhound.tokenizers.whitespace,
+                remote: {
+                    url: '/Handler/TypeaheadHandler.ashx?t=Frm&q=%QUERY',
+                    wildcard: '%QUERY'
+                }
+            });
+
+            $('#FrmContr').typeahead({
+                minLength: 0,
+                highlight: true
+            },
+            {
+                name: 'AnyName',
+                display: 'Name',
+                highlight: true,
+                limit: 10,
+                source: countries,
+            });
+
+            $("#FrmContr").on("typeahead:selected typeahead:autocompleted", function (e, datum) { $("#IdFrmContr").val(datum.ID); });
+
             document.title = '<%=browserTabTitle%>';
             $('#curPageTitle').text('<%=documentTitle%>');
 
             editor = new $.fn.dataTable.Editor({
-                ajax: "/Handler.ashx?curBase=<%=Master.curBaseName%>&curTable=<%=tableData.TableSql%>&curPage=<%=curPage%>",
+                ajax: "/Handler/GetDataHandler.ashx?curBase=<%=Master.curBaseName%>&curTable=<%=tableData.TableSql%>&curPage=<%=curPage%>",
                 table: "#table_id",
                 idSrc: 'ID',
                 fields: [
@@ -48,7 +156,7 @@
                 dom: '<"row top-toolbar"<"col-sm-4"B><"col-sm-4"p><"col-sm-4"i>>Zrt',
                 processing: true,
                 serverSide: true,
-                ajax: "/Handler.ashx?curBase=<%=Master.curBaseName%>&curTable=<%=tableData.TableSql%>&curPage=<%=curPage%>",
+                ajax: "/Handler/GetDataHandler.ashx?curBase=<%=Master.curBaseName%>&curTable=<%=tableData.TableSql%>&curPage=<%=curPage%>",
                 "columns": [
                     <%=tableData.GenerateJSTableColumns()%>
                 ],
@@ -97,6 +205,14 @@
                         ],
                         className: "btn-sm",
                     },
+                    {
+                        text: 'My button',
+                        action: function (e, dt, node, config) {
+                            $('#myModal').modal();
+                        },
+                        className: "btn-sm",
+                    }
+
                 ],
                 language: {
                     url: '/content/DataTables-1.10.12/js/Russian.json'

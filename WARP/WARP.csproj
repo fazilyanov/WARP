@@ -68,6 +68,7 @@
   <ItemGroup>
     <Content Include="Archive\Archive.aspx" />
     <Content Include="Content\Archive\archive.css" />
+    <Content Include="Content\Archive\typeahead.bundle.min.js" />
     <Content Include="Content\bootstrap-3.3.6\css\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-3.3.6\css\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap-3.3.6\css\bootstrap.css" />
@@ -203,7 +204,7 @@
     <Content Include="Content\Buttons-1.2.1\css\common.scss" />
     <Content Include="Content\Buttons-1.2.1\css\mixins.scss" />
     <Content Include="Content\DataTables-1.10.12\js\Russian.json" />
-    <Content Include="Handler.ashx" />
+    <Content Include="Handler\TypeaheadHandler.ashx" />
     <Content Include="Content\Editor-1.5.6\css\scss\bubble.scss" />
     <Content Include="Content\Editor-1.5.6\css\scss\datatable.scss" />
     <Content Include="Content\Editor-1.5.6\css\scss\datetime.scss" />
@@ -214,6 +215,7 @@
     <Content Include="Content\Editor-1.5.6\css\scss\main.scss" />
     <Content Include="Content\Editor-1.5.6\css\scss\mixins.scss" />
     <Content Include="Content\Editor-1.5.6\css\scss\upload.scss" />
+    <Content Include="Handler\GetDataHandler.ashx" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -254,8 +256,11 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Handler.ashx.cs">
-      <DependentUpon>Handler.ashx</DependentUpon>
+    <Compile Include="Handler\GetDataHandler.ashx.cs">
+      <DependentUpon>GetDataHandler.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handler\TypeaheadHandler.ashx.cs">
+      <DependentUpon>TypeaheadHandler.ashx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
