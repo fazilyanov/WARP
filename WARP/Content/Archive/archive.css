@@ -184,6 +184,13 @@ td {
         margin: 0;
     }
 
+#scrollable-dropdown-menu .tt-menu {
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+/* IE */
+
 input[type=text]::-ms-clear {
     display: none;
 }

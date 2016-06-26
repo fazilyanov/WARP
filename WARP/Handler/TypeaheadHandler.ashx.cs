@@ -22,7 +22,7 @@ namespace WARP
             switch (table)
             {
                 default:
-                    sqlQuery = "SELECT TOP 15 ID, Name FROM " + table + " WHERE Name LIKE'" + query + "%'";
+                    sqlQuery = "SELECT TOP 30 ID, Name FROM [" + table + "] WHERE Name LIKE'%" + query + "%' ORDER by Name";
                     break;
             }
             DataTable dt = ComFunc.GetData(sqlQuery);
@@ -33,7 +33,7 @@ namespace WARP
             {
                 row = new Dictionary<string, object>();
                 row.Add("ID", dr["ID"].ToString());
-                row.Add("Name", dr["Name"].ToString());
+                row.Add("Name", dr["Name"].ToString().Replace("-",""));
                 data.Add(row);
             }
 

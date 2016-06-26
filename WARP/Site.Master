@@ -15,7 +15,7 @@
 
     <script type="text/javascript" charset="utf8" src="/content/datatables.min.js"></script>
     <script type="text/javascript" charset="utf8" src="/content/dataTables.colResize.js"></script>
-    <script type="text/javascript" charset="utf8" src="/content/archive/typeahead.bundle.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="/content/archive/typeahead.bundle.js"></script>
     <script type="text/javascript" charset="utf8" src="/content/bootstrap-combobox/js/bootstrap-combobox.js"></script>
     <script>
         function pinger() {

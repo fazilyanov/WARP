@@ -14,14 +14,14 @@ namespace WARP
         public string documentTitle;
         public TableData tableData;
 
-        protected void Page_Load(object sender, EventArgs e)
+        protected void Page_PreRender(object sender, EventArgs e)
         {
             curPage = (Page.RouteData.Values["pPage"] ?? "").ToString().Trim();
             if (curPage.Length > 0)
             {
                 browserTabTitle = ComFunc.GetArchivePageNameRus(curPage);
                 documentTitle = "Электронный архив | База: " + Master.curBaseNameRus + " | Документы | " + browserTabTitle;
-                tableData = InitTableData();
+                tableData = InitTableData(Master.curBaseName, "Archive", curPage);
             }
             else
             {
@@ -30,10 +30,13 @@ namespace WARP
             }
         }
 
-        public static TableData InitTableData()
+        public static TableData InitTableData(string curBase, string curTable, string archivePage)
         {
             TableData tableData = new TableData();
-            tableData.TableSql = "Archive";
+            tableData.BaseSql = curBase;
+            tableData.TableSql = curTable;
+            tableData.PageName = archivePage;
+
             tableData.ColumnList = new List<TableColumn>()
             {
                 new TableColumn {
@@ -70,7 +73,7 @@ namespace WARP
                 new TableColumn {
                     Caption ="Вид документа",
                     NameSql ="DocType",
-                    FilterType =TableColumnFilterType.Autocomplete,
+                    FilterType =TableColumnFilterType.DropDown,
                     Width =150,
                     LookUpTable="DocType",
                 },
@@ -120,13 +123,14 @@ namespace WARP
         public static DataTable GetData(string curBase, string curTable, string archivePage, TableData tableData, int displayStart, int displayLength, string sortCol, string sortDir)
         {
             StringBuilder sbQuery = new StringBuilder();
+            string sWhere = tableData.GenerateWhereClause();
 
             sbQuery.AppendLine("DECLARE @recordsFiltered int;");
             sbQuery.AppendLine("SELECT @recordsFiltered=count(*)");
-            sbQuery.AppendLine("FROM [dbo].[" + curBase + "Archive] a");
+            sbQuery.AppendLine("FROM [dbo].[" + curBase + curTable + "] a");
             sbQuery.AppendLine("WHERE");
             sbQuery.AppendLine("	a.Del=0");
-            sbQuery.AppendLine("	AND a.id>100000");
+            sbQuery.AppendLine(sWhere);
             sbQuery.AppendLine(";");
 
             sbQuery.AppendLine("SELECT * FROM  (");
@@ -134,10 +138,16 @@ namespace WARP
             sbQuery.AppendLine("   ,T.ID");
             sbQuery.AppendLine("   ,T.NumDoc");
             sbQuery.AppendLine("   ,T.DocDate");
+            sbQuery.AppendLine("   ,T.IdDocType");
+            sbQuery.AppendLine("   ,DT.Name as DocType");
+            sbQuery.AppendLine("   ,T.IdDocTree");
+            sbQuery.AppendLine("   ,DT2.Name as DocTree");
             sbQuery.AppendLine("   ,T.DateUpd");
-            sbQuery.AppendLine("   ,U.Name as User");
+            sbQuery.AppendLine("   ,T.IdUser");
+            sbQuery.AppendLine("   ,U.Name as [User]");
             sbQuery.AppendLine("   ,T.Prim");
             sbQuery.AppendLine("   ,T.DocContent");
+            sbQuery.AppendLine("   ,T.IdFrmContr");
             sbQuery.AppendLine("   ,F.Name as FrmContr");
             sbQuery.AppendLine("   ,T.Summ");
             sbQuery.AppendLine("   ,T.DocPack");
@@ -146,12 +156,12 @@ namespace WARP
             sbQuery.AppendLine("   LEFT JOIN [dbo].[Frm] F on T.IdFrmContr = F.ID");
             sbQuery.AppendLine("   LEFT JOIN [dbo].[User] U on T.IdUser = U.ID");
             sbQuery.AppendLine("   LEFT JOIN [dbo].[DocType] DT on T.IdDocType = DT.ID");
-            sbQuery.AppendLine("   LEFT JOIN [dbo].[DocTree] TR on T.IdDocTree = TR.ID");
+            sbQuery.AppendLine("   LEFT JOIN [dbo].[DocTree] DT2 on T.IdDocTree = DT2.ID");
             sbQuery.AppendLine(") a");
             sbQuery.AppendLine("WHERE");
             sbQuery.AppendLine("	a.Del=0");
-            sbQuery.AppendLine("	AND a.id>100000");
-            sbQuery.AppendLine("ORDER BY " + sortCol + " " + sortDir);
+            sbQuery.AppendLine(sWhere);
+            sbQuery.AppendLine("ORDER BY a.[" + sortCol + "] " + sortDir);
             sbQuery.AppendLine("OFFSET @displayStart ROWS FETCH FIRST @displayLength ROWS ONLY");
 
             SqlParameter[] sqlParameterArray = {
@@ -166,7 +176,7 @@ namespace WARP
         public static string GetJsonData(string curBase, string curTable, string archivePage, int draw, int displayStart, int displayLength, int iSortCol, string sortDir)
         {
             string ret = "";
-            TableData tableData = InitTableData();
+            TableData tableData = InitTableData(curBase, curTable, archivePage);
             string sortCol = tableData.ColumnList.Count >= iSortCol ? tableData.ColumnList[iSortCol].NameSql : "";
             DataTable dt = GetData(curBase, curTable, archivePage, tableData, displayStart, displayLength, sortCol, sortDir);
             if (dt != null)

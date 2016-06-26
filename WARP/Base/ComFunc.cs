@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Web;
 using System.Web.Caching;
 using System.Web.UI;
@@ -16,6 +18,44 @@ namespace WARP
     public class ComFunc
     {
         #region GetInfo
+        /// <summary>
+        /// Генерит HTML табличку со всеми значениями сессии
+        /// </summary>
+        public static string GetSessionValues()
+        {
+            string _ret = "<style type=\"text/css\">table {border: thin solid black;border-collapse:collapse;} td,th{ border: thin solid black;padding:5px;}</style>";
+            string _buf = "";
+            
+                string[] ignore_value = { };
+                long totalSessionBytes = 0;
+
+                _ret += "<b>Активных сессий:</b>  " + (HttpContext.Current.Application["ActiveSession"] ?? 0).ToString() + " <br/><br/>UrlReferrer:";
+                _ret += HttpContext.Current.Request.UrlReferrer + "<br/>AbsoluteUri:" + HttpContext.Current.Request.Url.AbsoluteUri + "<br/><br/>";
+                _ret += "<br/><br/><table ><caption><b>Переменные сессии</b></caption><tr><th>Ключ</th><th>Значение</th><th>Размер</th></tr>";
+                BinaryFormatter b = new BinaryFormatter();
+                foreach (string item in HttpContext.Current.Session.Contents)
+                {
+                    var m = new MemoryStream();
+                    b.Serialize(m, HttpContext.Current.Session[item]);
+                    totalSessionBytes += m.Length;
+                    _buf = "";
+                    //if (HttpContext.Current.Session[item].ToString() == "Table1")
+                    //{
+                    //    _buf = ConvertDataTableToHTML((DataTable)HttpContext.Current.Session[item]);
+                    //}
+                    //else if (HttpContext.Current.Session[item].ToString().IndexOf("href") > 0)
+                    //    _buf = "html";
+                    //else
+                        _buf = HttpContext.Current.Session[item].ToString();
+                    _ret += "<tr><td>" + item + "</td><td>" + _buf + "</td><td>" + m.Length + " байт</td></tr>";
+                }
+                _ret += "<tr><th>Всего</th><td></td><th>" + (int)totalSessionBytes / 1024 + " КБайт</th></tr>";
+                _ret += "</table><br/><br/>";
+
+                return _ret;
+            
+            
+        }
 
         #region Base
 

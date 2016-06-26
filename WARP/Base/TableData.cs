@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Web;
 
 namespace WARP
 {
@@ -20,6 +21,7 @@ namespace WARP
         Autocomplete,
         Integer,
         Money,
+        DropDown,
     }
 
     public enum TableColumnAlign
@@ -46,7 +48,9 @@ namespace WARP
 
     public class TableData
     {
+        public string BaseSql { get; set; } = string.Empty;
         public string TableSql { get; set; } = string.Empty;
+        public string PageName { get; set; } = string.Empty;
 
         public List<TableColumn> ColumnList { get; set; } = null;
 
@@ -103,17 +107,35 @@ namespace WARP
 
         public string GenerateFilterFormDialog()
         {
-            StringBuilder sbHtml = new StringBuilder();
+            StringBuilder sbResult = new StringBuilder();
             StringBuilder sbJS = new StringBuilder();
+            StringBuilder sbFunc = new StringBuilder();
 
-            sbHtml.AppendLine("    <div class=\"modal fade\" id=\"modalFilterForm\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"modalFilterForm\" aria-hidden=\"true\">");
-            sbHtml.AppendLine("        <div class=\"modal-dialog modal-lg\">");
-            sbHtml.AppendLine("            <div class=\"modal-content\">");
-            sbHtml.AppendLine("                <div class=\"modal-header\">");
-            sbHtml.AppendLine("                    <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">&times;</button>");
-            sbHtml.AppendLine("                    <h4 class=\"modal-title\">Установить фильтр</h4>");
-            sbHtml.AppendLine("                </div>");
-            sbHtml.AppendLine("                <div class=\"modal-body\">");
+            // Отправка формы
+            sbFunc.AppendLine("     function FormSend() {");
+            sbFunc.AppendLine("         var msg   = $('#filterform').serialize();");
+            sbFunc.AppendLine("         $.ajax({");
+            sbFunc.AppendLine("             type: 'POST',");
+            sbFunc.AppendLine("             url: '/Handler/SessionHandler.ashx',");
+            sbFunc.AppendLine("             data: msg,");
+            sbFunc.AppendLine("             success: function(data) {");
+            sbFunc.AppendLine("                 $('#table_id').DataTable().draw();");
+            sbFunc.AppendLine("                 $('#modalFilterForm').modal('toggle');");
+            sbFunc.AppendLine("             },");
+            sbFunc.AppendLine("         });");
+            sbFunc.AppendLine("     }");
+
+            // Форма
+            sbResult.AppendLine("    <div class=\"modal fade\" id=\"modalFilterForm\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"modalFilterForm\" aria-hidden=\"true\">");
+            sbResult.AppendLine("        <div class=\"modal-dialog modal-lg\">");
+            sbResult.AppendLine("            <div class=\"modal-content\">");
+            sbResult.AppendLine("                <div class=\"modal-header\">");
+            sbResult.AppendLine("                    <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">&times;</button>");
+            sbResult.AppendLine("                    <h4 class=\"modal-title\">Установить фильтр</h4>");
+            sbResult.AppendLine("                </div>");
+            sbResult.AppendLine("                <div class=\"modal-body\">");
+            sbResult.AppendLine("                <form name=\"filterform\" method=\"POST\" id=\"filterform\" action=\"javascript: void(null);\">");
+            sbResult.AppendLine("                   <input type=\"hidden\" name=\"page\" value=\"" + BaseSql + TableSql + PageName + "\">");
             foreach (TableColumn item in ColumnList)
             {
                 switch (item.FilterType)
@@ -121,22 +143,26 @@ namespace WARP
                     case TableColumnFilterType.String:
                         break;
 
+                    case TableColumnFilterType.DropDown:
                     case TableColumnFilterType.Autocomplete:
-                        sbHtml.AppendLine("                    <div class=\"row\">");
-                        sbHtml.AppendLine("                        <div class=\"col-sm-3\">");
-                        sbHtml.AppendLine("                            <h5>" + (string.IsNullOrEmpty(item.CaptionFilter) ? item.Caption : item.CaptionFilter) + "</h5>");
-                        sbHtml.AppendLine("                        </div>");
-                        sbHtml.AppendLine("                        <div class=\"col-sm-3\">");
-                        sbHtml.AppendLine("                             <select id=\"cond"+ item.NameSql + "\" class=\"combobox form-control input-sm\">");
-                        sbHtml.AppendLine("                                 <option></option>");
-                        sbHtml.AppendLine("                                 <option value=\"=\" selected>Равно</option>");                        
-                        sbHtml.AppendLine("                             </select>");
-                        sbHtml.AppendLine("                        </div>");
-                        sbHtml.AppendLine("                        <div class=\"col-sm-6\">");
-                        sbHtml.AppendLine("                            <input type=\"text\" id=\"" + item.NameSql + "\" class=\"form-control input-sm\" placeholder=\"Начните вводить для поиска..\">");
-                        sbHtml.AppendLine("                            <input type=\"hidden\" id=\"Id" + item.NameSql + "\">");
-                        sbHtml.AppendLine("                        </div>");
-                        sbHtml.AppendLine("                    </div>");
+                        sbResult.AppendLine("                    <div class=\"row\">");
+                        sbResult.AppendLine("                        <div class=\"col-sm-3\">");
+                        sbResult.AppendLine("                            <h5>" + (string.IsNullOrEmpty(item.CaptionFilter) ? item.Caption : item.CaptionFilter) + "</h5>");
+                        sbResult.AppendLine("                        </div>");
+                        sbResult.AppendLine("                        <div class=\"col-sm-3\">");
+                        sbResult.AppendLine("                             <select name=\"cond" + item.NameSql + "\"  id=\"cond" + item.NameSql + "\" class=\"combobox form-control input-sm\">");
+                        sbResult.AppendLine("                                 <option></option>");
+                        sbResult.AppendLine("                                 <option value=\"=\" selected>Равно</option>");
+                        sbResult.AppendLine("                             </select>");
+                        sbResult.AppendLine("                        </div>");
+                        sbResult.AppendLine("                        <div class=\"col-sm-6\">");
+                        sbResult.AppendLine("                           <div id=\"scrollable-dropdown-menu\">");
+                        sbResult.AppendLine("                               <input type=\"text\"  id=\"" + item.NameSql + "\" name=\"" + item.NameSql + "\" class=\"form-control input-sm\" placeholder=\"Начните вводить для поиска..\">");
+                        sbResult.AppendLine("                               <input type=\"hidden\" id=\"Id" + item.NameSql + "\" name=\"Id" + item.NameSql + "\">");
+                        sbResult.AppendLine("                           </div>");
+                        sbResult.AppendLine("                        </div>");
+                        sbResult.AppendLine("                    </div>");
+
                         sbJS.AppendLine();
                         sbJS.AppendLine("            // Для столбца: " + item.Caption);
                         sbJS.AppendLine("            var source" + item.NameSql + " = new Bloodhound({");
@@ -145,23 +171,25 @@ namespace WARP
                         sbJS.AppendLine("                remote: {");
                         sbJS.AppendLine("                    url: '/Handler/TypeaheadHandler.ashx?t=" + item.LookUpTable + "&q=%QUERY',");
                         sbJS.AppendLine("                    wildcard: '%QUERY'");
-                        sbJS.AppendLine("                }");
+                        sbJS.AppendLine("                },");
+                        sbJS.AppendLine("                limit: 30,");
                         sbJS.AppendLine("            });");
 
-                        sbJS.AppendLine("            $('#" + item.NameSql + "').typeahead({");
-                        sbJS.AppendLine("                minLength: 1,");
-                        sbJS.AppendLine("                highlight: true");
+                        sbJS.AppendLine("            $('#scrollable-dropdown-menu #" + item.NameSql + "').typeahead({");
+                        sbJS.AppendLine("                highlight: true,");
+                        sbJS.AppendLine("                minLength: " + (item.FilterType == TableColumnFilterType.DropDown ? "0" : "1") + ",");
                         sbJS.AppendLine("            },");
                         sbJS.AppendLine("            {");
+                        
                         sbJS.AppendLine("                name: 'th" + item.NameSql + "',");
                         sbJS.AppendLine("                display: 'Name',");
                         sbJS.AppendLine("                highlight: true,");
-                        sbJS.AppendLine("                limit: 15,");
+                        sbJS.AppendLine("                limit: 30,");
                         sbJS.AppendLine("                source: source" + item.NameSql + ",");
                         sbJS.AppendLine("            });");
 
                         sbJS.AppendLine("            $(\"#" + item.NameSql + "\").on(\"typeahead:selected typeahead:autocompleted\", function (e, datum) { $(\"#Id" + item.NameSql + "\").val(datum.ID); });");
-                        sbJS.AppendLine("            $('#cond"+ item.NameSql+"').combobox();");
+                        sbJS.AppendLine("            $('#cond" + item.NameSql + "').combobox();");
                         break;
 
                     case TableColumnFilterType.Integer:
@@ -175,21 +203,60 @@ namespace WARP
                 }
             }
 
-            sbHtml.AppendLine("                </div>");
-            sbHtml.AppendLine("                <div class=\"modal-footer\">");
-            sbHtml.AppendLine("                    <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Закрыть</button>");
-            sbHtml.AppendLine("                    <button type=\"button\" class=\"btn btn-primary\">Применить</button>");
-            sbHtml.AppendLine("                </div>");
-            sbHtml.AppendLine("            </div>");
-            sbHtml.AppendLine("        </div>");
-            sbHtml.AppendLine("    </div>");
-            sbHtml.AppendLine("    <script>");
-            sbHtml.AppendLine("        $(document).ready(function () {");
-            sbHtml.Append(sbJS.ToString());
-            sbHtml.AppendLine("        });");
-            sbHtml.AppendLine("    </script>");
+            sbResult.AppendLine("                </form>");
+            sbResult.AppendLine("                </div>");
+            sbResult.AppendLine("                <div class=\"modal-footer\">");
+            sbResult.AppendLine("                    <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Закрыть</button>");
+            sbResult.AppendLine("                    <button type=\"button\" class=\"btn btn-primary\" onclick=\"FormSend()\">Применить</button>");
+            sbResult.AppendLine("                </div>");
+            sbResult.AppendLine("            </div>");
+            sbResult.AppendLine("        </div>");
+            sbResult.AppendLine("    </div>");
+            sbResult.AppendLine("    <script>");
+            sbResult.Append(sbFunc.ToString());
+            sbResult.AppendLine("        $(document).ready(function () {");
+            sbResult.Append(sbJS.ToString());
+            sbResult.AppendLine("        });");
+            sbResult.AppendLine("    </script>");
 
-            return sbHtml.ToString();
+            return sbResult.ToString();
+        }
+
+        public string GenerateWhereClause()
+        {
+            StringBuilder sbWhere = new StringBuilder();
+            Dictionary<string, string> filterList = (Dictionary<string, string>)HttpContext.Current.Session[BaseSql + TableSql + PageName + "UserFilterList"];
+            if (filterList != null)
+            {
+                string key = string.Empty;
+                foreach (TableColumn item in ColumnList)
+                {
+                    switch (item.FilterType)
+                    {
+                        case TableColumnFilterType.String:
+                            break;
+
+                        case TableColumnFilterType.DropDown:
+                        case TableColumnFilterType.Autocomplete:
+                            key = "Id" + item.NameSql;
+                            if (filterList.ContainsKey(key))
+                            {
+                                sbWhere.AppendLine("    AND a.[Id" + item.NameSql + "] = " + filterList["Id" + item.NameSql]);
+                            }
+                            break;
+
+                        case TableColumnFilterType.Integer:
+                            break;
+
+                        case TableColumnFilterType.Money:
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+            }
+            return sbWhere.ToString();
         }
     }
 }

@@ -4,7 +4,6 @@
 
 <asp:Content ID="Content1" ContentPlaceHolderID="cph" runat="server">
     <table id="table_id" class="table table-striped table-bordered table-condensed" style="table-layout: fixed; width: 100%">
-        <%--;word-wrap:break-word;--%>
         <thead>
             <tr>
                 <%=tableData.GenerateHtmlTableColumns()%>
@@ -14,36 +13,7 @@
 
     <%=tableData.GenerateFilterFormDialog()%>
 
-    <%--<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Фильтр</h4>
-                </div>
-                <div class="modal-body">
-                    
-                        
-                    <div class="row">
-                        <div class="col-sm-3">
-                            <h5>Контрагент</h5>
-                        </div>
-                        <div class="col-sm-3">
-                            <input type="text" id="FrmContr" class="form-control input-sm" placeholder="Username">
-                            <input type="hidden" id="IdFrmContr">
-                        </div>
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control input-sm" placeholder="Username">
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
-                    <button type="button" class="btn btn-primary">Применить</button>
-                </div>
-            </div>
-        </div>
-    </div>--%>
+    
     
 
     <script>

@@ -66,8 +66,10 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Admin\Session.aspx" />
     <Content Include="Archive\Archive.aspx" />
     <Content Include="Content\Archive\archive.css" />
+    <Content Include="Content\Archive\typeahead.bundle.js" />
     <Content Include="Content\Archive\typeahead.bundle.min.js" />
     <Content Include="Content\bootstrap-3.3.6\css\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-3.3.6\css\bootstrap-theme.min.css" />
@@ -218,6 +220,7 @@
     <Content Include="Content\Editor-1.5.6\css\scss\mixins.scss" />
     <Content Include="Content\Editor-1.5.6\css\scss\upload.scss" />
     <Content Include="Handler\GetDataHandler.ashx" />
+    <Content Include="Handler\SessionHandler.ashx" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -238,6 +241,13 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Admin\Session.aspx.cs">
+      <DependentUpon>Session.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\Session.aspx.designer.cs">
+      <DependentUpon>Session.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Archive\Archive.aspx.cs">
       <DependentUpon>Archive.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -260,6 +270,9 @@
     </Compile>
     <Compile Include="Handler\GetDataHandler.ashx.cs">
       <DependentUpon>GetDataHandler.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handler\SessionHandler.ashx.cs">
+      <DependentUpon>SessionHandler.ashx</DependentUpon>
     </Compile>
     <Compile Include="Handler\TypeaheadHandler.ashx.cs">
       <DependentUpon>TypeaheadHandler.ashx</DependentUpon>
