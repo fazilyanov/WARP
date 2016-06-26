@@ -194,3 +194,11 @@ td {
 input[type=text]::-ms-clear {
     display: none;
 }
+
+/*Фильтр*/
+.filter-field {
+    font-size: 14px;
+    font-weight: bold;
+    padding-top: 2px;
+    padding-bottom: 12px;
+}

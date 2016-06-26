@@ -107,6 +107,14 @@ namespace WARP
 
         public string GenerateFilterFormDialog()
         {
+            Dictionary<string, string> filterList = (Dictionary<string, string>)HttpContext.Current.Session[BaseSql + TableSql + PageName + "UserFilterList"];
+            string id = string.Empty;
+            string text = string.Empty;
+            string idCond = string.Empty;
+            string textCond = string.Empty;
+
+            string key = string.Empty;
+
             StringBuilder sbResult = new StringBuilder();
             StringBuilder sbJS = new StringBuilder();
             StringBuilder sbFunc = new StringBuilder();
@@ -125,6 +133,18 @@ namespace WARP
             sbFunc.AppendLine("         });");
             sbFunc.AppendLine("     }");
 
+            // Очистка AC
+            sbFunc.AppendLine("     function ClearAC(name) {");
+            sbFunc.AppendLine("         $('#Id'+name).val('0');");
+            sbFunc.AppendLine("         $('#'+name).val('');");
+            sbFunc.AppendLine("     }");
+
+            // Очистка Условия
+            sbFunc.AppendLine("     function ClearCond(name) {");
+            sbFunc.AppendLine("         $('#Id'+name+'Cond').val('0');");
+            sbFunc.AppendLine("         $('#'+name+'Cond').val('');");
+            sbFunc.AppendLine("     }");
+
             // Форма
             sbResult.AppendLine("    <div class=\"modal fade\" id=\"modalFilterForm\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"modalFilterForm\" aria-hidden=\"true\">");
             sbResult.AppendLine("        <div class=\"modal-dialog modal-lg\">");
@@ -136,6 +156,7 @@ namespace WARP
             sbResult.AppendLine("                <div class=\"modal-body\">");
             sbResult.AppendLine("                <form name=\"filterform\" method=\"POST\" id=\"filterform\" action=\"javascript: void(null);\">");
             sbResult.AppendLine("                   <input type=\"hidden\" name=\"page\" value=\"" + BaseSql + TableSql + PageName + "\">");
+
             foreach (TableColumn item in ColumnList)
             {
                 switch (item.FilterType)
@@ -145,22 +166,55 @@ namespace WARP
 
                     case TableColumnFilterType.DropDown:
                     case TableColumnFilterType.Autocomplete:
+                        id = "0";
+                        text = string.Empty;
+                        idCond = "0";
+                        textCond = string.Empty;
+
+                        if (filterList != null)
+                        {
+                            key = "Id" + item.NameSql;
+                            id = filterList.ContainsKey(key) ? filterList[key] : "0";
+                            key = item.NameSql;
+                            text = (id != "0" && filterList.ContainsKey(key)) ? filterList[key] : "";
+
+                            key = "Id" + item.NameSql + "Cond";
+                            idCond = filterList.ContainsKey(key) ? filterList[key] : "0";
+                            key = item.NameSql + "Cond";
+                            textCond = (idCond != "0" && filterList.ContainsKey(key)) ? filterList[key] : "";
+                        }
+
                         sbResult.AppendLine("                    <div class=\"row\">");
+
                         sbResult.AppendLine("                        <div class=\"col-sm-3\">");
-                        sbResult.AppendLine("                            <h5>" + (string.IsNullOrEmpty(item.CaptionFilter) ? item.Caption : item.CaptionFilter) + "</h5>");
+                        sbResult.AppendLine("                            <div class=\"filter-field\">" + (string.IsNullOrEmpty(item.CaptionFilter) ? item.Caption : item.CaptionFilter) + "</div>");
                         sbResult.AppendLine("                        </div>");
+
                         sbResult.AppendLine("                        <div class=\"col-sm-3\">");
-                        sbResult.AppendLine("                             <select name=\"cond" + item.NameSql + "\"  id=\"cond" + item.NameSql + "\" class=\"combobox form-control input-sm\">");
-                        sbResult.AppendLine("                                 <option></option>");
-                        sbResult.AppendLine("                                 <option value=\"=\" selected>Равно</option>");
-                        sbResult.AppendLine("                             </select>");
+                        sbResult.AppendLine("                               <div class=\"input-group\">");
+                        sbResult.AppendLine("                                   <input type=\"text\"  id=\"" + item.NameSql + "Cond\" name=\"" + item.NameSql + "Cond\" onchange=\"if ($('#" + item.NameSql + "Cond').val().trim() == '')$('#Id" + item.NameSql + "Cond').val('0');\" ");
+                        sbResult.AppendLine("                                       value=\"\" class=\"form-control input-sm\" placeholder=\"Равно\" value=\"" + textCond + "\">");
+                        sbResult.AppendLine("                                   <span class=\"input-group-btn\">");
+                        sbResult.AppendLine("                                       <button class=\"btn btn-default btn-sm\" type=\"button\" onclick=\"ClearCond('" + item.NameSql + "')\"><span class=\"glyphicon glyphicon-remove\"></span></button>");
+                        sbResult.AppendLine("                                   </span>");
+                        sbResult.AppendLine("                               </div>");
+                        sbResult.AppendLine("                           <input type=\"hidden\" id=\"Id" + item.NameSql + "Cond\" name=\"Id" + item.NameSql + "Cond\" value=\"" + idCond + "\">");
                         sbResult.AppendLine("                        </div>");
+
                         sbResult.AppendLine("                        <div class=\"col-sm-6\">");
                         sbResult.AppendLine("                           <div id=\"scrollable-dropdown-menu\">");
-                        sbResult.AppendLine("                               <input type=\"text\"  id=\"" + item.NameSql + "\" name=\"" + item.NameSql + "\" class=\"form-control input-sm\" placeholder=\"Начните вводить для поиска..\">");
-                        sbResult.AppendLine("                               <input type=\"hidden\" id=\"Id" + item.NameSql + "\" name=\"Id" + item.NameSql + "\">");
+                        sbResult.AppendLine("                               <div class=\"input-group\">");
+                        sbResult.AppendLine("                                   <input type=\"text\"  id=\"" + item.NameSql + "\" name=\"" + item.NameSql + "\" onchange=\"if ($('#" + item.NameSql + "').val().trim() == '')$('#Id" + item.NameSql + "').val(0);\" ");
+                        sbResult.AppendLine("                                       class=\"form-control input-sm\"  value=\"" + text + "\" placeholder=\"Начните вводить для поиска..\">");
+                        sbResult.AppendLine("                                   <span class=\"input-group-btn\">");
+                        sbResult.AppendLine("                                       <button class=\"btn btn-default btn-sm\" type=\"button\"><span class=\"glyphicon glyphicon-option-horizontal\"></span></button>");
+                        sbResult.AppendLine("                                       <button class=\"btn btn-default btn-sm\" type=\"button\" onclick=\"ClearAC('" + item.NameSql + "')\"><span class=\"glyphicon glyphicon-remove\"></span></button>");
+                        sbResult.AppendLine("                                   </span>");
+                        sbResult.AppendLine("                               </div>");
                         sbResult.AppendLine("                           </div>");
+                        sbResult.AppendLine("                           <input type=\"hidden\" id=\"Id" + item.NameSql + "\" name=\"Id" + item.NameSql + "\" value=\"" + id + "\">");
                         sbResult.AppendLine("                        </div>");
+
                         sbResult.AppendLine("                    </div>");
 
                         sbJS.AppendLine();
@@ -180,7 +234,7 @@ namespace WARP
                         sbJS.AppendLine("                minLength: " + (item.FilterType == TableColumnFilterType.DropDown ? "0" : "1") + ",");
                         sbJS.AppendLine("            },");
                         sbJS.AppendLine("            {");
-                        
+
                         sbJS.AppendLine("                name: 'th" + item.NameSql + "',");
                         sbJS.AppendLine("                display: 'Name',");
                         sbJS.AppendLine("                highlight: true,");

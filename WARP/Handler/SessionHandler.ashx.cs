@@ -13,18 +13,25 @@ namespace WARP
         {
             try
             {
-                Dictionary<string, string> filterList = new Dictionary<string, string>();
-
-                foreach (string key in context.Request.Form.AllKeys)
+                // Значения Формы Фильтра
+                if (context.Request.Form["page"] != null)
                 {
-                    string val = context.Request.Form[key].ToString().Trim();
-                    if (val.Length > 0)
+                    string page = context.Request.Form["page"].ToString();
+                    Dictionary<string, string> filterList = new Dictionary<string, string>();
+
+                    foreach (string key in context.Request.Form.AllKeys)
                     {
-                        filterList.Add(key, val);
+                        string val = context.Request.Form[key].ToString().Trim();
+                        if (val.Length > 0 && val != "0")
+                        {
+                            filterList.Add(key, val);
+                        }
                     }
+                    HttpContext.Current.Session[page + "UserFilterList"] = filterList;
                 }
-                string page = context.Request.Form["page"].ToString();
-                HttpContext.Current.Session[page + "UserFilterList"] = filterList;
+                else if (true)
+                {
+                }
             }
             catch (System.Exception ex)
             {
