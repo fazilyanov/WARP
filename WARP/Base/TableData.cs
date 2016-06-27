@@ -59,7 +59,7 @@ namespace WARP
             string ret = Environment.NewLine;
             foreach (TableColumn item in ColumnList)
             {
-                ret += "                        <th>" + item.Caption + "</th>" + Environment.NewLine;
+                ret += "               <th>" + item.Caption + "</th>" + Environment.NewLine;
             }
             return ret;
         }
@@ -120,30 +120,38 @@ namespace WARP
             StringBuilder sbFunc = new StringBuilder();
 
             // Отправка формы
-            sbFunc.AppendLine("     function FormSend() {");
-            sbFunc.AppendLine("         var msg   = $('#filterform').serialize();");
-            sbFunc.AppendLine("         $.ajax({");
-            sbFunc.AppendLine("             type: 'POST',");
-            sbFunc.AppendLine("             url: '/Handler/SessionHandler.ashx',");
-            sbFunc.AppendLine("             data: msg,");
-            sbFunc.AppendLine("             success: function(data) {");
-            sbFunc.AppendLine("                 $('#table_id').DataTable().draw();");
-            sbFunc.AppendLine("                 $('#modalFilterForm').modal('toggle');");
-            sbFunc.AppendLine("             },");
-            sbFunc.AppendLine("         });");
-            sbFunc.AppendLine("     }");
+            sbFunc.AppendLine("        function FormSend() {");
+            sbFunc.AppendLine("             var msg   = $('#filterform').serialize();");
+            sbFunc.AppendLine("             $.ajax({");
+            sbFunc.AppendLine("                 type: 'POST',");
+            sbFunc.AppendLine("                 url: '/Handler/SessionHandler.ashx',");
+            sbFunc.AppendLine("                 data: msg,");
+            sbFunc.AppendLine("                 success: function(data) {");
+            sbFunc.AppendLine("                     $('#modalFilterForm').modal('toggle');");
+            sbFunc.AppendLine("                     $('#table_id').DataTable().draw();");
+            sbFunc.AppendLine("                 },");
+            sbFunc.AppendLine("             });");
+            sbFunc.AppendLine("         }");
 
             // Очистка AC
-            sbFunc.AppendLine("     function ClearAC(name) {");
-            sbFunc.AppendLine("         $('#Id'+name).val('0');");
-            sbFunc.AppendLine("         $('#'+name).val('');");
-            sbFunc.AppendLine("     }");
+            sbFunc.AppendLine("         function ClearAC(name) {");
+            sbFunc.AppendLine("             $('#Id'+name).val('0');");
+            sbFunc.AppendLine("             $('#'+name).val('');");
+            sbFunc.AppendLine("         }");
 
             // Очистка Условия
-            sbFunc.AppendLine("     function ClearCond(name) {");
-            sbFunc.AppendLine("         $('#Id'+name+'Cond').val('0');");
-            sbFunc.AppendLine("         $('#'+name+'Cond').val('');");
-            sbFunc.AppendLine("     }");
+            sbFunc.AppendLine("         function ClearCond(name) {");
+            sbFunc.AppendLine("             $('#Id'+name+'Cond').val('0');");
+            sbFunc.AppendLine("             $('#'+name+'Cond').val('');");
+            sbFunc.AppendLine("         }");
+
+            // Сбросить все
+            sbFunc.AppendLine("         function ClearAll() {");
+            sbFunc.AppendLine("             $('#act').val('clearfilter');");
+            sbFunc.AppendLine("             $(\"button[id^=\'clear\']\").click();");
+            sbFunc.AppendLine("             FormSend();");
+            sbFunc.AppendLine("         }");
+
 
             // Форма
             sbResult.AppendLine("    <div class=\"modal fade\" id=\"modalFilterForm\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"modalFilterForm\" aria-hidden=\"true\">");
@@ -155,7 +163,8 @@ namespace WARP
             sbResult.AppendLine("                </div>");
             sbResult.AppendLine("                <div class=\"modal-body\">");
             sbResult.AppendLine("                <form name=\"filterform\" method=\"POST\" id=\"filterform\" action=\"javascript: void(null);\">");
-            sbResult.AppendLine("                   <input type=\"hidden\" name=\"page\" value=\"" + BaseSql + TableSql + PageName + "\">");
+            sbResult.AppendLine("                   <input type=\"hidden\" id=\"page\" name=\"page\" value=\"" + BaseSql + TableSql + PageName + "\">");
+            sbResult.AppendLine("                   <input type=\"hidden\" id=\"act\" name=\"act\" value=\"none\">");
 
             foreach (TableColumn item in ColumnList)
             {
@@ -195,7 +204,7 @@ namespace WARP
                         sbResult.AppendLine("                                   <input type=\"text\"  id=\"" + item.NameSql + "Cond\" name=\"" + item.NameSql + "Cond\" onchange=\"if ($('#" + item.NameSql + "Cond').val().trim() == '')$('#Id" + item.NameSql + "Cond').val('0');\" ");
                         sbResult.AppendLine("                                       value=\"\" class=\"form-control input-sm\" placeholder=\"Равно\" value=\"" + textCond + "\">");
                         sbResult.AppendLine("                                   <span class=\"input-group-btn\">");
-                        sbResult.AppendLine("                                       <button class=\"btn btn-default btn-sm\" type=\"button\" onclick=\"ClearCond('" + item.NameSql + "')\"><span class=\"glyphicon glyphicon-remove\"></span></button>");
+                        sbResult.AppendLine("                                       <button id=\"clearcond" + item.NameSql + "\" class=\"btn btn-default btn-sm\" type=\"button\" onclick=\"ClearCond('" + item.NameSql + "')\"><span class=\"glyphicon glyphicon-remove\"></span></button>");
                         sbResult.AppendLine("                                   </span>");
                         sbResult.AppendLine("                               </div>");
                         sbResult.AppendLine("                           <input type=\"hidden\" id=\"Id" + item.NameSql + "Cond\" name=\"Id" + item.NameSql + "Cond\" value=\"" + idCond + "\">");
@@ -208,7 +217,7 @@ namespace WARP
                         sbResult.AppendLine("                                       class=\"form-control input-sm\"  value=\"" + text + "\" placeholder=\"Начните вводить для поиска..\">");
                         sbResult.AppendLine("                                   <span class=\"input-group-btn\">");
                         sbResult.AppendLine("                                       <button class=\"btn btn-default btn-sm\" type=\"button\"><span class=\"glyphicon glyphicon-option-horizontal\"></span></button>");
-                        sbResult.AppendLine("                                       <button class=\"btn btn-default btn-sm\" type=\"button\" onclick=\"ClearAC('" + item.NameSql + "')\"><span class=\"glyphicon glyphicon-remove\"></span></button>");
+                        sbResult.AppendLine("                                       <button class=\"btn btn-default btn-sm\" id=\"clear" + item.NameSql + "\" type=\"button\" onclick=\"ClearAC('" + item.NameSql + "')\"><span class=\"glyphicon glyphicon-remove\"></span></button>");
                         sbResult.AppendLine("                                   </span>");
                         sbResult.AppendLine("                               </div>");
                         sbResult.AppendLine("                           </div>");
@@ -260,8 +269,13 @@ namespace WARP
             sbResult.AppendLine("                </form>");
             sbResult.AppendLine("                </div>");
             sbResult.AppendLine("                <div class=\"modal-footer\">");
-            sbResult.AppendLine("                    <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Закрыть</button>");
-            sbResult.AppendLine("                    <button type=\"button\" class=\"btn btn-primary\" onclick=\"FormSend()\">Применить</button>");
+            sbResult.AppendLine("                   <div style=\"float: left;\">");
+            sbResult.AppendLine("                       <button type=\"button\" class=\"btn btn-default\" onclick=\"ClearAll()\">Сбросить все</button>");
+            sbResult.AppendLine("                   </div>");
+            sbResult.AppendLine("                   <div>");
+            sbResult.AppendLine("                       <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Закрыть</button>");
+            sbResult.AppendLine("                       <button type=\"button\" class=\"btn btn-primary\" onclick=\"$('#act').val('setfilter'); FormSend()\">Применить</button>");
+            sbResult.AppendLine("                   </div>");
             sbResult.AppendLine("                </div>");
             sbResult.AppendLine("            </div>");
             sbResult.AppendLine("        </div>");

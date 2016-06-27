@@ -1,15 +1,14 @@
 ﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Site.master.cs" Inherits="WARP.Site" EnableViewState="false" ViewStateMode="Disabled" %>
-
 <!DOCTYPE html>
 <html lang="ru">
-<head runat="server">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<head >
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>Архив документов</title>
-
+    
     <link rel="icon" href="/content/favicon.ico" />
 
-    <link rel="stylesheet" type="text/css" href="/content/datatables.min.css">
+    <link rel="stylesheet" type="text/css" href="/content/datatables.min.css"/>
     <link rel="stylesheet" type="text/css" href="/content/archive/archive.css?v=1" />
     <link rel="stylesheet" type="text/css" href="/content/bootstrap-combobox/css/bootstrap-combobox.css" />
 
@@ -17,12 +16,8 @@
     <script type="text/javascript" charset="utf8" src="/content/dataTables.colResize.js"></script>
     <script type="text/javascript" charset="utf8" src="/content/archive/typeahead.bundle.js"></script>
     <script type="text/javascript" charset="utf8" src="/content/bootstrap-combobox/js/bootstrap-combobox.js"></script>
-    <script>
-        function pinger() {
-            $.post('/site/pinger.aspx', function (result) { });
-        }
-        setInterval(pinger, 300000);
-    </script>
+    <script type="text/javascript" charset="utf8" src="/content/Archive/archive.js"></script>
+
 </head>
 <body>
     <div class="container-fluid" style="padding-top: 2px;">
@@ -36,7 +31,7 @@
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">База<span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <%=WARP.ComFunc.GetBaseHtmlList()%>
+<%=WARP.ComFunc.GetBaseHtmlList()%>
                         </ul>
                     </li>
                     <%
@@ -46,7 +41,7 @@
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Документы<span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <%=WARP.ComFunc.GetArchivePageHtmlList(curBaseName)%>
+<%=WARP.ComFunc.GetArchivePageHtmlList(curBaseName)%>
                         </ul>
                     </li>
                     <%

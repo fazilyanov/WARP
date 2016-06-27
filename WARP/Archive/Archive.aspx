@@ -11,7 +11,7 @@
         </thead>
     </table>
 
-    <%=tableData.GenerateFilterFormDialog()%>
+<%=tableData.GenerateFilterFormDialog()%>
 
     
     

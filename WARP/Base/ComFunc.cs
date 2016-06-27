@@ -83,9 +83,10 @@ namespace WARP
             string html = (HttpContext.Current.Cache[key] ?? string.Empty).ToString();
             if (html == string.Empty)
             {
+                html = Environment.NewLine;
                 foreach (DataRow row in GetBaseData().Rows)
                 {
-                    html += "<li><a href=\"" + (HttpContext.Current.Handler as Page).GetRouteUrl("default", new { pBase = row["Name"] }) + "\">" + row["NameRus"] + "</a></li>" + Environment.NewLine;
+                    html += "                           <li><a href=\"" + (HttpContext.Current.Handler as Page).GetRouteUrl("default", new { pBase = row["Name"] }) + "\">" + row["NameRus"] + "</a></li>" + Environment.NewLine;
                 }
                 HttpContext.Current.Cache.Insert(key, html, null, DateTime.Now.AddHours(12), Cache.NoSlidingExpiration);
             }
@@ -126,9 +127,10 @@ namespace WARP
             string html = (HttpContext.Current.Cache[key] ?? string.Empty).ToString();
             if (html == string.Empty)
             {
+                html = Environment.NewLine;
                 foreach (DataRow row in GetArchivePageData().Rows)
                 {
-                    html += "<li><a href=\"" + (HttpContext.Current.Handler as Page).GetRouteUrl("archive", new { pBase = curBaseName, pPage = row["Name"] }) + "\">" + row["NameRus"] + "</a></li>" + Environment.NewLine;
+                    html += "                           <li><a href=\"" + (HttpContext.Current.Handler as Page).GetRouteUrl("archive", new { pBase = curBaseName, pPage = row["Name"] }) + "\">" + row["NameRus"] + "</a></li>" + Environment.NewLine;
                 }
                 HttpContext.Current.Cache.Insert(key, html, null, DateTime.Now.AddHours(12), Cache.NoSlidingExpiration);
             }

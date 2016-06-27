@@ -69,6 +69,7 @@
     <Content Include="Admin\Session.aspx" />
     <Content Include="Archive\Archive.aspx" />
     <Content Include="Content\Archive\archive.css" />
+    <Content Include="Content\Archive\archive.js" />
     <Content Include="Content\Archive\typeahead.bundle.js" />
     <Content Include="Content\Archive\typeahead.bundle.min.js" />
     <Content Include="Content\bootstrap-3.3.6\css\bootstrap-theme.css" />

@@ -11,26 +11,32 @@ namespace WARP
     {
         public void ProcessRequest(HttpContext context)
         {
+            string page = string.Empty;
+            string act = context.Request["act"] ?? string.Empty;
             try
             {
-                // Значения Формы Фильтра
-                if (context.Request.Form["page"] != null)
+                switch (act)
                 {
-                    string page = context.Request.Form["page"].ToString();
-                    Dictionary<string, string> filterList = new Dictionary<string, string>();
+                    case "setfilter":// Значения Формы Фильтра
+                        page = context.Request.Form["page"].ToString();
+                        Dictionary<string, string> filterList = new Dictionary<string, string>();
 
-                    foreach (string key in context.Request.Form.AllKeys)
-                    {
-                        string val = context.Request.Form[key].ToString().Trim();
-                        if (val.Length > 0 && val != "0")
+                        foreach (string key in context.Request.Form.AllKeys)
                         {
-                            filterList.Add(key, val);
+                            string val = context.Request.Form[key].ToString().Trim();
+                            if (val.Length > 0 && val != "0")
+                            {
+                                filterList.Add(key, val);
+                            }
                         }
-                    }
-                    HttpContext.Current.Session[page + "UserFilterList"] = filterList;
-                }
-                else if (true)
-                {
+                        HttpContext.Current.Session[page + "UserFilterList"] = filterList;
+                        break;
+                    case "clearfilter":
+                        page = context.Request.Form["page"].ToString();
+                        HttpContext.Current.Session[page + "UserFilterList"] = null;
+                        break;  
+                    default:
+                        break;
                 }
             }
             catch (System.Exception ex)
