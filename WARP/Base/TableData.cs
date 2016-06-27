@@ -5,6 +5,7 @@ using System.Web;
 
 namespace WARP
 {
+    
     public enum TableColumnType
     {
         String,
@@ -113,12 +114,15 @@ namespace WARP
             string idCond = string.Empty;
             string textCond = string.Empty;
 
+            string stringCondSelector = string.Empty;
+
             string key = string.Empty;
 
             StringBuilder sbResult = new StringBuilder();
             StringBuilder sbJS = new StringBuilder();
             StringBuilder sbFunc = new StringBuilder();
 
+            // Общие функции для элементов формы
             // Отправка формы
             sbFunc.AppendLine("        function FormSend() {");
             sbFunc.AppendLine("             var msg   = $('#filterform').serialize();");
@@ -132,18 +136,21 @@ namespace WARP
             sbFunc.AppendLine("                 },");
             sbFunc.AppendLine("             });");
             sbFunc.AppendLine("         }");
+            sbFunc.AppendLine();
 
             // Очистка AC
             sbFunc.AppendLine("         function ClearAC(name) {");
             sbFunc.AppendLine("             $('#Id'+name).val('0');");
             sbFunc.AppendLine("             $('#'+name).val('');");
             sbFunc.AppendLine("         }");
+            sbFunc.AppendLine();
 
             // Очистка Условия
             sbFunc.AppendLine("         function ClearCond(name) {");
             sbFunc.AppendLine("             $('#Id'+name+'Cond').val('0');");
             sbFunc.AppendLine("             $('#'+name+'Cond').val('');");
             sbFunc.AppendLine("         }");
+            sbFunc.AppendLine();
 
             // Сбросить все
             sbFunc.AppendLine("         function ClearAll() {");
@@ -151,7 +158,7 @@ namespace WARP
             sbFunc.AppendLine("             $(\"button[id^=\'clear\']\").click();");
             sbFunc.AppendLine("             FormSend();");
             sbFunc.AppendLine("         }");
-
+            sbFunc.AppendLine();
 
             // Форма
             sbResult.AppendLine("    <div class=\"modal fade\" id=\"modalFilterForm\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"modalFilterForm\" aria-hidden=\"true\">");
@@ -168,9 +175,58 @@ namespace WARP
 
             foreach (TableColumn item in ColumnList)
             {
+                if (item.FilterType != TableColumnFilterType.None)
+                {
+                    sbResult.AppendLine("                    <div class=\"row\">");
+                    sbResult.AppendLine("                        <div class=\"col-sm-3\">");
+                    sbResult.AppendLine("                            <div class=\"filter-field\">" + (string.IsNullOrEmpty(item.CaptionFilter) ? item.Caption : item.CaptionFilter) + "</div>");
+                    sbResult.AppendLine("                        </div>");
+                }
                 switch (item.FilterType)
                 {
                     case TableColumnFilterType.String:
+                        stringCondSelector += (stringCondSelector.Length > 0 ? "," : "") + "#" + item.NameSql + "Cond";
+
+                        text = string.Empty;
+                        idCond = "0";
+                        textCond = string.Empty;
+
+                        if (filterList != null)
+                        {
+                            key = item.NameSql;
+                            text = (filterList.ContainsKey(key)) ? filterList[key] : "";
+
+                            key = "Id" + item.NameSql + "Cond";
+                            idCond = filterList.ContainsKey(key) ? filterList[key] : "0";
+                            key = item.NameSql + "Cond";
+                            textCond = (idCond != "0" && filterList.ContainsKey(key)) ? filterList[key] : "";
+                        }
+
+                        sbResult.AppendLine("                        <div class=\"col-sm-3\">");
+                        sbResult.AppendLine("                               <div class=\"input-group\">");
+                        sbResult.AppendLine("                                   <input type=\"text\"  id=\"" + item.NameSql + "Cond\" name=\"" + item.NameSql + "Cond\" onchange=\"if ($('#" + item.NameSql + "Cond').val().trim() == '')$('#Id" + item.NameSql + "Cond').val('0');\" ");
+                        sbResult.AppendLine("                                       value=\"\" class=\"form-control input-sm filter-input\" placeholder=\"Содержит\" value=\"" + textCond + "\">");
+                        sbResult.AppendLine("                                   <span class=\"input-group-btn\">");
+                        sbResult.AppendLine("                                       <button id=\"clearcond" + item.NameSql + "\" class=\"btn btn-default btn-sm\" type=\"button\" onclick=\"ClearCond('" + item.NameSql + "')\"><span class=\"glyphicon glyphicon-remove\"></span></button>");
+                        sbResult.AppendLine("                                   </span>");
+                        sbResult.AppendLine("                               </div>");
+                        sbResult.AppendLine("                           <input type=\"hidden\" id=\"Id" + item.NameSql + "Cond\" name=\"Id" + item.NameSql + "Cond\" value=\"" + idCond + "\">");
+                        sbResult.AppendLine("                        </div>");
+
+                        sbResult.AppendLine("                        <div class=\"col-sm-6\">");
+                        sbResult.AppendLine("                           <div id=\"scrollable-dropdown-menu\">");
+                        sbResult.AppendLine("                               <div class=\"input-group\">");
+                        sbResult.AppendLine("                                   <input type=\"text\"  id=\"" + item.NameSql + "\" name=\"" + item.NameSql + "\" onchange=\"if ($('#" + item.NameSql + "').val().trim() == '')$('#Id" + item.NameSql + "').val(0);\" ");
+                        sbResult.AppendLine("                                       class=\"form-control input-sm filter-input\"  value=\"" + text + "\" placeholder=\"Текст для поиска\">");
+                        sbResult.AppendLine("                                   <span class=\"input-group-btn\">");
+                        sbResult.AppendLine("                                       <button class=\"btn btn-default btn-sm\" type=\"button\"><span class=\"glyphicon glyphicon-option-horizontal\"></span></button>");
+                        sbResult.AppendLine("                                       <button class=\"btn btn-default btn-sm\" id=\"clear" + item.NameSql + "\" type=\"button\" onclick=\"ClearAC('" + item.NameSql + "')\"><span class=\"glyphicon glyphicon-remove\"></span></button>");
+                        sbResult.AppendLine("                                   </span>");
+                        sbResult.AppendLine("                               </div>");
+                        sbResult.AppendLine("                           </div>");
+                        sbResult.AppendLine("                        </div>");
+
+                        sbResult.AppendLine("                    </div>");
                         break;
 
                     case TableColumnFilterType.DropDown:
@@ -193,16 +249,10 @@ namespace WARP
                             textCond = (idCond != "0" && filterList.ContainsKey(key)) ? filterList[key] : "";
                         }
 
-                        sbResult.AppendLine("                    <div class=\"row\">");
-
-                        sbResult.AppendLine("                        <div class=\"col-sm-3\">");
-                        sbResult.AppendLine("                            <div class=\"filter-field\">" + (string.IsNullOrEmpty(item.CaptionFilter) ? item.Caption : item.CaptionFilter) + "</div>");
-                        sbResult.AppendLine("                        </div>");
-
                         sbResult.AppendLine("                        <div class=\"col-sm-3\">");
                         sbResult.AppendLine("                               <div class=\"input-group\">");
                         sbResult.AppendLine("                                   <input type=\"text\"  id=\"" + item.NameSql + "Cond\" name=\"" + item.NameSql + "Cond\" onchange=\"if ($('#" + item.NameSql + "Cond').val().trim() == '')$('#Id" + item.NameSql + "Cond').val('0');\" ");
-                        sbResult.AppendLine("                                       value=\"\" class=\"form-control input-sm\" placeholder=\"Равно\" value=\"" + textCond + "\">");
+                        sbResult.AppendLine("                                       value=\"\" class=\"form-control input-sm filter-input\" placeholder=\"Равно\" value=\"" + textCond + "\">");
                         sbResult.AppendLine("                                   <span class=\"input-group-btn\">");
                         sbResult.AppendLine("                                       <button id=\"clearcond" + item.NameSql + "\" class=\"btn btn-default btn-sm\" type=\"button\" onclick=\"ClearCond('" + item.NameSql + "')\"><span class=\"glyphicon glyphicon-remove\"></span></button>");
                         sbResult.AppendLine("                                   </span>");
@@ -214,7 +264,7 @@ namespace WARP
                         sbResult.AppendLine("                           <div id=\"scrollable-dropdown-menu\">");
                         sbResult.AppendLine("                               <div class=\"input-group\">");
                         sbResult.AppendLine("                                   <input type=\"text\"  id=\"" + item.NameSql + "\" name=\"" + item.NameSql + "\" onchange=\"if ($('#" + item.NameSql + "').val().trim() == '')$('#Id" + item.NameSql + "').val(0);\" ");
-                        sbResult.AppendLine("                                       class=\"form-control input-sm\"  value=\"" + text + "\" placeholder=\"Начните вводить для поиска..\">");
+                        sbResult.AppendLine("                                       class=\"form-control input-sm filter-input\"  value=\"" + text + "\" placeholder=\"Начните вводить для поиска по справочнику..\">");
                         sbResult.AppendLine("                                   <span class=\"input-group-btn\">");
                         sbResult.AppendLine("                                       <button class=\"btn btn-default btn-sm\" type=\"button\"><span class=\"glyphicon glyphicon-option-horizontal\"></span></button>");
                         sbResult.AppendLine("                                       <button class=\"btn btn-default btn-sm\" id=\"clear" + item.NameSql + "\" type=\"button\" onclick=\"ClearAC('" + item.NameSql + "')\"><span class=\"glyphicon glyphicon-remove\"></span></button>");
@@ -237,22 +287,23 @@ namespace WARP
                         sbJS.AppendLine("                },");
                         sbJS.AppendLine("                limit: 30,");
                         sbJS.AppendLine("            });");
+                        sbJS.AppendLine();
 
                         sbJS.AppendLine("            $('#scrollable-dropdown-menu #" + item.NameSql + "').typeahead({");
                         sbJS.AppendLine("                highlight: true,");
                         sbJS.AppendLine("                minLength: " + (item.FilterType == TableColumnFilterType.DropDown ? "0" : "1") + ",");
                         sbJS.AppendLine("            },");
                         sbJS.AppendLine("            {");
-
                         sbJS.AppendLine("                name: 'th" + item.NameSql + "',");
                         sbJS.AppendLine("                display: 'Name',");
                         sbJS.AppendLine("                highlight: true,");
                         sbJS.AppendLine("                limit: 30,");
                         sbJS.AppendLine("                source: source" + item.NameSql + ",");
                         sbJS.AppendLine("            });");
-
+                        sbJS.AppendLine();
                         sbJS.AppendLine("            $(\"#" + item.NameSql + "\").on(\"typeahead:selected typeahead:autocompleted\", function (e, datum) { $(\"#Id" + item.NameSql + "\").val(datum.ID); });");
-                        sbJS.AppendLine("            $('#cond" + item.NameSql + "').combobox();");
+                        sbJS.AppendLine();
+
                         break;
 
                     case TableColumnFilterType.Integer:
@@ -264,6 +315,39 @@ namespace WARP
                     default:
                         break;
                 }
+            }
+
+            // Если есть поиск по стороковым полям
+            if (stringCondSelector.Length > 0)
+            {
+                sbJS.AppendLine("            // Для строковых условий: ");
+                sbJS.AppendLine("            var sourceStringCond = new Bloodhound({");
+                sbJS.AppendLine("                datumTokenizer: Bloodhound.tokenizers.whitespace,");
+                sbJS.AppendLine("                queryTokenizer: Bloodhound.tokenizers.whitespace,");
+                sbJS.AppendLine("                remote: {");
+                sbJS.AppendLine("                    url: '/Handler/sourceStringCond.json',");
+                sbJS.AppendLine("                },");
+                sbJS.AppendLine("                limit: 30,");
+                sbJS.AppendLine("            });");
+                sbJS.AppendLine();
+
+                sbJS.AppendLine("            $('" + stringCondSelector + "').typeahead({");
+                sbJS.AppendLine("                highlight: true,");
+                sbJS.AppendLine("                minLength: 0,");
+                sbJS.AppendLine("            },");
+                sbJS.AppendLine("            {");
+                sbJS.AppendLine("                name: 'thStringCond',");
+                sbJS.AppendLine("                display: 'Name',");
+                sbJS.AppendLine("                highlight: true,");
+                sbJS.AppendLine("                limit: 30,");
+                sbJS.AppendLine("                source: sourceStringCond,");
+                sbJS.AppendLine("            });");
+                sbJS.AppendLine();
+                foreach (string item in stringCondSelector.Split(','))
+                {
+                    sbJS.AppendLine("            $(\"" + item + "\").on(\"typeahead:selected typeahead:autocompleted\", function (e, datum) { $(\"#Id" + item.Substring(1) + "\").val(datum.ID); });");
+                }
+                sbJS.AppendLine();
             }
 
             sbResult.AppendLine("                </form>");
@@ -297,11 +381,45 @@ namespace WARP
             if (filterList != null)
             {
                 string key = string.Empty;
+                string value = string.Empty;
                 foreach (TableColumn item in ColumnList)
                 {
                     switch (item.FilterType)
                     {
                         case TableColumnFilterType.String:
+                            key = item.NameSql;
+                            if (filterList.ContainsKey(key))
+                            {
+                                value = filterList[key];
+                                string buf = "    AND a.[" + item.NameSql + "]";
+                                key = "Id" + item.NameSql + "Cond";
+                                if (filterList.ContainsKey(key))
+                                {
+                                    switch (filterList[key])
+                                    {
+                                        case "1":
+                                            buf += " = '" + value + "'";
+                                            break;
+
+                                        case "2":
+                                            buf += " LIKE '" + value + "%'";
+                                            break;
+
+                                        case "3":
+                                            buf += " LIKE '%" + value + "'";
+                                            break;
+
+                                        default:
+                                            buf += " LIKE '%" + value + "%'";
+                                            break;
+                                    }
+                                }
+                                else
+                                {
+                                    buf += " LIKE '%" + value + "%'";
+                                }
+                                sbWhere.AppendLine(buf);
+                            }
                             break;
 
                         case TableColumnFilterType.DropDown:
@@ -309,7 +427,7 @@ namespace WARP
                             key = "Id" + item.NameSql;
                             if (filterList.ContainsKey(key))
                             {
-                                sbWhere.AppendLine("    AND a.[Id" + item.NameSql + "] = " + filterList["Id" + item.NameSql]);
+                                sbWhere.AppendLine("    AND a.[" + key + "] = " + filterList[key]);
                             }
                             break;
 

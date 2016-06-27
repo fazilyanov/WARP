@@ -222,6 +222,8 @@
     <Content Include="Content\Editor-1.5.6\css\scss\upload.scss" />
     <Content Include="Handler\GetDataHandler.ashx" />
     <Content Include="Handler\SessionHandler.ashx" />
+    <Content Include="Handler\sourceStringCond.json" />
+    <Content Include="Handler\SaveDataHandler.ashx" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -268,6 +270,9 @@
     </Compile>
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Handler\SaveDataHandler.ashx.cs">
+      <DependentUpon>SaveDataHandler.ashx</DependentUpon>
     </Compile>
     <Compile Include="Handler\GetDataHandler.ashx.cs">
       <DependentUpon>GetDataHandler.ashx</DependentUpon>

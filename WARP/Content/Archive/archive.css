@@ -157,7 +157,7 @@ td {
 
 .tt-menu { /* used to be tt-dropdown-menu in older versions */
     width: 422px;
-    margin-top: 4px;
+    margin-top: 35px;
     padding: 4px 0;
     background-color: #fff;
     border: 1px solid #ccc;
@@ -201,4 +201,7 @@ input[type=text]::-ms-clear {
     font-weight: bold;
     padding-top: 2px;
     padding-bottom: 12px;
+}
+.filter-input {
+    font-weight: bold !important;
 }

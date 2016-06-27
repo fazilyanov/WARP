@@ -31,30 +31,36 @@
             $('#curPageTitle').text('<%=documentTitle%>');
 
             editor = new $.fn.dataTable.Editor({
-                ajax: "/Handler/GetDataHandler.ashx?curBase=<%=Master.curBaseName%>&curTable=<%=tableData.TableSql%>&curPage=<%=curPage%>",
+                ajax: "/Handler/SaveDataHandler.ashx?curBase=<%=Master.curBaseName%>&curTable=<%=tableData.TableSql%>&curPage=<%=curPage%>",
                 table: "#table_id",
                 idSrc: 'ID',
                 fields: [
                     {
-                        label: "NumDoc:",
+                        label: "Номер документа:",
                         name: "NumDoc",
                     },
                     {
-                        label: "Prim:",
+                        label: "Примечание:",
                         name: "Prim"
+                    },
+                    {
+                        label: "Содержание:",
+                        name: "DocContent"
                     },
                 ]
             });
+            //$('#table_id').on('click', 'tbody td:not(:first-child)', function (e) {
+            //    editor.inline(this);
+            //});
 
             $('#table_id').DataTable({
-                dom: '<"row top-toolbar"<"col-sm-4"B><"col-sm-4"p><"col-sm-4"i>>Zrt',
+                dom: '<"row top-toolbar"<"col-sm-4"B><"col-sm-4"p><"col-sm-4"i>>Zrt',                
                 processing: true,
                 serverSide: true,
                 ajax: "/Handler/GetDataHandler.ashx?curBase=<%=Master.curBaseName%>&curTable=<%=tableData.TableSql%>&curPage=<%=curPage%>",
                 "columns": [
                     <%=tableData.GenerateJSTableColumns()%>
                 ],
-
                 autoWidth: false,
                 select: true,
                 colReorder: {

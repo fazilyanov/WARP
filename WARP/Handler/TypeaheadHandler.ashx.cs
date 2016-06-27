@@ -21,6 +21,9 @@ namespace WARP
             string sqlQuery = string.Empty;
             switch (table)
             {
+                case "DocType":
+                    sqlQuery = "SELECT ID, Name FROM [" + table + "] ORDER by Name";
+                    break;
                 default:
                     sqlQuery = "SELECT TOP 30 ID, Name FROM [" + table + "] WHERE Name LIKE'%" + query + "%' ORDER by Name";
                     break;

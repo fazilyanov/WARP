@@ -18,6 +18,7 @@ namespace WARP
     public class ComFunc
     {
         #region GetInfo
+
         /// <summary>
         /// Генерит HTML табличку со всеми значениями сессии
         /// </summary>
@@ -25,36 +26,34 @@ namespace WARP
         {
             string _ret = "<style type=\"text/css\">table {border: thin solid black;border-collapse:collapse;} td,th{ border: thin solid black;padding:5px;}</style>";
             string _buf = "";
-            
-                string[] ignore_value = { };
-                long totalSessionBytes = 0;
 
-                _ret += "<b>Активных сессий:</b>  " + (HttpContext.Current.Application["ActiveSession"] ?? 0).ToString() + " <br/><br/>UrlReferrer:";
-                _ret += HttpContext.Current.Request.UrlReferrer + "<br/>AbsoluteUri:" + HttpContext.Current.Request.Url.AbsoluteUri + "<br/><br/>";
-                _ret += "<br/><br/><table ><caption><b>Переменные сессии</b></caption><tr><th>Ключ</th><th>Значение</th><th>Размер</th></tr>";
-                BinaryFormatter b = new BinaryFormatter();
-                foreach (string item in HttpContext.Current.Session.Contents)
-                {
-                    var m = new MemoryStream();
-                    b.Serialize(m, HttpContext.Current.Session[item]);
-                    totalSessionBytes += m.Length;
-                    _buf = "";
-                    //if (HttpContext.Current.Session[item].ToString() == "Table1")
-                    //{
-                    //    _buf = ConvertDataTableToHTML((DataTable)HttpContext.Current.Session[item]);
-                    //}
-                    //else if (HttpContext.Current.Session[item].ToString().IndexOf("href") > 0)
-                    //    _buf = "html";
-                    //else
-                        _buf = HttpContext.Current.Session[item].ToString();
-                    _ret += "<tr><td>" + item + "</td><td>" + _buf + "</td><td>" + m.Length + " байт</td></tr>";
-                }
-                _ret += "<tr><th>Всего</th><td></td><th>" + (int)totalSessionBytes / 1024 + " КБайт</th></tr>";
-                _ret += "</table><br/><br/>";
+            string[] ignore_value = { };
+            long totalSessionBytes = 0;
 
-                return _ret;
-            
-            
+            _ret += "<b>Активных сессий:</b>  " + (HttpContext.Current.Application["ActiveSession"] ?? 0).ToString() + " <br/><br/>UrlReferrer:";
+            _ret += HttpContext.Current.Request.UrlReferrer + "<br/>AbsoluteUri:" + HttpContext.Current.Request.Url.AbsoluteUri + "<br/><br/>";
+            _ret += "<br/><br/><table ><caption><b>Переменные сессии</b></caption><tr><th>Ключ</th><th>Значение</th><th>Размер</th></tr>";
+            BinaryFormatter b = new BinaryFormatter();
+            foreach (string item in HttpContext.Current.Session.Contents)
+            {
+                var m = new MemoryStream();
+                b.Serialize(m, HttpContext.Current.Session[item]);
+                totalSessionBytes += m.Length;
+                _buf = "";
+                //if (HttpContext.Current.Session[item].ToString() == "Table1")
+                //{
+                //    _buf = ConvertDataTableToHTML((DataTable)HttpContext.Current.Session[item]);
+                //}
+                //else if (HttpContext.Current.Session[item].ToString().IndexOf("href") > 0)
+                //    _buf = "html";
+                //else
+                _buf = HttpContext.Current.Session[item].ToString();
+                _ret += "<tr><td>" + item + "</td><td>" + _buf + "</td><td>" + m.Length + " байт</td></tr>";
+            }
+            _ret += "<tr><th>Всего</th><td></td><th>" + (int)totalSessionBytes / 1024 + " КБайт</th></tr>";
+            _ret += "</table><br/><br/>";
+
+            return _ret;
         }
 
         #region Base
@@ -256,6 +255,41 @@ namespace WARP
             try
             {
                 ret = sqlCommand.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                LogSqlError(ex.Message.Trim(), sqlCommand.CommandText, sqlParameterArray);
+            }
+            finally
+            {
+                sqlConnection.Close();
+            }
+            return ret;
+        }
+
+        /// <summary>
+        /// Выполняет запрос
+        /// </summary>
+        /// <param name="query">SQL запрос</param>
+        /// <param name="connString">Строка подключения</param>
+        /// <param name="timeout">Таймаут (По умолчанию - 120)</param>
+        /// <returns>Количество строк, "-1" - ошибка</returns>
+        /// <remarks>аааааа</remarks>
+        public static int ExecuteNonQueryTransaction(string query, SqlParameter[] sqlParameterArray = null, int timeout = 120)
+        {
+            int ret = -1;
+            SqlCommand sqlCommand;
+            SqlConnection sqlConnection = new SqlConnection(Properties.Settings.Default.ConnectionString);
+            sqlConnection.Open();
+
+            SqlTransaction sqlTransaction = sqlConnection.BeginTransaction();
+            sqlCommand = new SqlCommand(query, sqlConnection, sqlTransaction);
+            try
+            {
+                if (sqlParameterArray != null) sqlCommand.Parameters.AddRange(sqlParameterArray);
+                sqlCommand.CommandTimeout = timeout;
+                ret = sqlCommand.ExecuteNonQuery();
+                sqlTransaction.Commit();
             }
             catch (Exception ex)
             {
