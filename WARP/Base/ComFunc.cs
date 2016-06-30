@@ -293,7 +293,9 @@ namespace WARP
             }
             catch (Exception ex)
             {
+                sqlTransaction.Rollback();
                 LogSqlError(ex.Message.Trim(), sqlCommand.CommandText, sqlParameterArray);
+                
             }
             finally
             {
@@ -454,7 +456,7 @@ namespace WARP
         }
 
         /// <summary>
-        ///
+        ///  Логирует SQL ошибки
         /// </summary>
         /// <param name="errorText">Сообщение исключения</param>
         /// <param name="sqlQuery">Запрос в котором произошла ошибка</param>

@@ -72,6 +72,22 @@
     <Content Include="Content\Archive\archive.js" />
     <Content Include="Content\Archive\typeahead.bundle.js" />
     <Content Include="Content\Archive\typeahead.bundle.min.js" />
+    <Content Include="Content\AutoFill-2.1.2\css\autoFill.bootstrap.css" />
+    <Content Include="Content\AutoFill-2.1.2\css\autoFill.bootstrap.min.css" />
+    <Content Include="Content\AutoFill-2.1.2\css\autoFill.dataTables.css" />
+    <Content Include="Content\AutoFill-2.1.2\css\autoFill.dataTables.min.css" />
+    <Content Include="Content\AutoFill-2.1.2\css\autoFill.foundation.css" />
+    <Content Include="Content\AutoFill-2.1.2\css\autoFill.foundation.min.css" />
+    <Content Include="Content\AutoFill-2.1.2\css\autoFill.jqueryui.css" />
+    <Content Include="Content\AutoFill-2.1.2\css\autoFill.jqueryui.min.css" />
+    <Content Include="Content\AutoFill-2.1.2\js\autoFill.bootstrap.js" />
+    <Content Include="Content\AutoFill-2.1.2\js\autoFill.bootstrap.min.js" />
+    <Content Include="Content\AutoFill-2.1.2\js\autoFill.foundation.js" />
+    <Content Include="Content\AutoFill-2.1.2\js\autoFill.foundation.min.js" />
+    <Content Include="Content\AutoFill-2.1.2\js\autoFill.jqueryui.js" />
+    <Content Include="Content\AutoFill-2.1.2\js\autoFill.jqueryui.min.js" />
+    <Content Include="Content\AutoFill-2.1.2\js\dataTables.autoFill.js" />
+    <Content Include="Content\AutoFill-2.1.2\js\dataTables.autoFill.min.js" />
     <Content Include="Content\bootstrap-3.3.6\css\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-3.3.6\css\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap-3.3.6\css\bootstrap.css" />
@@ -80,8 +96,6 @@
     <Content Include="Content\bootstrap-3.3.6\js\bootstrap.js" />
     <Content Include="Content\bootstrap-3.3.6\js\bootstrap.min.js" />
     <Content Include="Content\bootstrap-3.3.6\js\npm.js" />
-    <Content Include="Content\bootstrap-combobox\css\bootstrap-combobox.css" />
-    <Content Include="Content\bootstrap-combobox\js\bootstrap-combobox.js" />
     <Content Include="Content\Buttons-1.2.1\css\buttons.bootstrap.css" />
     <Content Include="Content\Buttons-1.2.1\css\buttons.bootstrap.min.css" />
     <Content Include="Content\Buttons-1.2.1\css\buttons.dataTables.css" />
@@ -182,9 +196,51 @@
     <Content Include="Content\jQuery-2.2.3\jquery-2.2.3.min.js" />
     <Content Include="Content\JSZip-2.5.0\jszip.js" />
     <Content Include="Content\JSZip-2.5.0\jszip.min.js" />
+    <Content Include="Content\KeyTable-2.1.2\css\keyTable.bootstrap.css" />
+    <Content Include="Content\KeyTable-2.1.2\css\keyTable.bootstrap.min.css" />
+    <Content Include="Content\KeyTable-2.1.2\css\keyTable.dataTables.css" />
+    <Content Include="Content\KeyTable-2.1.2\css\keyTable.dataTables.min.css" />
+    <Content Include="Content\KeyTable-2.1.2\css\keyTable.foundation.css" />
+    <Content Include="Content\KeyTable-2.1.2\css\keyTable.foundation.min.css" />
+    <Content Include="Content\KeyTable-2.1.2\css\keyTable.jqueryui.css" />
+    <Content Include="Content\KeyTable-2.1.2\css\keyTable.jqueryui.min.css" />
+    <Content Include="Content\KeyTable-2.1.2\js\dataTables.keyTable.js" />
+    <Content Include="Content\KeyTable-2.1.2\js\dataTables.keyTable.min.js" />
     <Content Include="Content\pdfmake-0.1.18\build\pdfmake.js" />
     <Content Include="Content\pdfmake-0.1.18\build\pdfmake.min.js" />
     <Content Include="Content\pdfmake-0.1.18\build\vfs_fonts.js" />
+    <Content Include="Content\Quill-0.20.1\quill.base.css" />
+    <Content Include="Content\Quill-0.20.1\quill.base.min.css" />
+    <Content Include="Content\Quill-0.20.1\quill.js" />
+    <Content Include="Content\Quill-0.20.1\quill.min.js" />
+    <Content Include="Content\Quill-0.20.1\quill.snow.css" />
+    <Content Include="Content\Quill-0.20.1\quill.snow.min.css" />
+    <Content Include="Content\Responsive-2.1.0\css\responsive.bootstrap.css" />
+    <Content Include="Content\Responsive-2.1.0\css\responsive.bootstrap.min.css" />
+    <Content Include="Content\Responsive-2.1.0\css\responsive.dataTables.css" />
+    <Content Include="Content\Responsive-2.1.0\css\responsive.dataTables.min.css" />
+    <Content Include="Content\Responsive-2.1.0\css\responsive.foundation.css" />
+    <Content Include="Content\Responsive-2.1.0\css\responsive.foundation.min.css" />
+    <Content Include="Content\Responsive-2.1.0\css\responsive.jqueryui.css" />
+    <Content Include="Content\Responsive-2.1.0\css\responsive.jqueryui.min.css" />
+    <Content Include="Content\Responsive-2.1.0\js\dataTables.responsive.js" />
+    <Content Include="Content\Responsive-2.1.0\js\dataTables.responsive.min.js" />
+    <Content Include="Content\Responsive-2.1.0\js\responsive.bootstrap.js" />
+    <Content Include="Content\Responsive-2.1.0\js\responsive.bootstrap.min.js" />
+    <Content Include="Content\Responsive-2.1.0\js\responsive.foundation.js" />
+    <Content Include="Content\Responsive-2.1.0\js\responsive.foundation.min.js" />
+    <Content Include="Content\Responsive-2.1.0\js\responsive.jqueryui.js" />
+    <Content Include="Content\Responsive-2.1.0\js\responsive.jqueryui.min.js" />
+    <Content Include="Content\RowReorder-1.1.2\css\rowReorder.bootstrap.css" />
+    <Content Include="Content\RowReorder-1.1.2\css\rowReorder.bootstrap.min.css" />
+    <Content Include="Content\RowReorder-1.1.2\css\rowReorder.dataTables.css" />
+    <Content Include="Content\RowReorder-1.1.2\css\rowReorder.dataTables.min.css" />
+    <Content Include="Content\RowReorder-1.1.2\css\rowReorder.foundation.css" />
+    <Content Include="Content\RowReorder-1.1.2\css\rowReorder.foundation.min.css" />
+    <Content Include="Content\RowReorder-1.1.2\css\rowReorder.jqueryui.css" />
+    <Content Include="Content\RowReorder-1.1.2\css\rowReorder.jqueryui.min.css" />
+    <Content Include="Content\RowReorder-1.1.2\js\dataTables.rowReorder.js" />
+    <Content Include="Content\RowReorder-1.1.2\js\dataTables.rowReorder.min.js" />
     <Content Include="Content\Select-1.2.0\css\select.bootstrap.css" />
     <Content Include="Content\Select-1.2.0\css\select.bootstrap.min.css" />
     <Content Include="Content\Select-1.2.0\css\select.dataTables.css" />
@@ -195,6 +251,26 @@
     <Content Include="Content\Select-1.2.0\css\select.jqueryui.min.css" />
     <Content Include="Content\Select-1.2.0\js\dataTables.select.js" />
     <Content Include="Content\Select-1.2.0\js\dataTables.select.min.js" />
+    <Content Include="Content\Select2-4.0.1\css\select2.css" />
+    <Content Include="Content\Select2-4.0.1\css\select2.min.css" />
+    <Content Include="Content\Select2-4.0.1\js\select2.full.js" />
+    <Content Include="Content\Select2-4.0.1\js\select2.full.min.js" />
+    <Content Include="Content\Select2-4.0.1\js\select2.js" />
+    <Content Include="Content\Select2-4.0.1\js\select2.min.js" />
+    <Content Include="Content\Selectize-0.12.1\css\selectize.bootstrap2.css" />
+    <Content Include="Content\Selectize-0.12.1\css\selectize.bootstrap2.min.css" />
+    <Content Include="Content\Selectize-0.12.1\css\selectize.bootstrap3.css" />
+    <Content Include="Content\Selectize-0.12.1\css\selectize.bootstrap3.min.css" />
+    <Content Include="Content\Selectize-0.12.1\css\selectize.css" />
+    <Content Include="Content\Selectize-0.12.1\css\selectize.default.css" />
+    <Content Include="Content\Selectize-0.12.1\css\selectize.default.min.css" />
+    <Content Include="Content\Selectize-0.12.1\css\selectize.legacy.css" />
+    <Content Include="Content\Selectize-0.12.1\css\selectize.legacy.min.css" />
+    <Content Include="Content\Selectize-0.12.1\css\selectize.min.css" />
+    <Content Include="Content\Selectize-0.12.1\js\selectize.js" />
+    <Content Include="Content\Selectize-0.12.1\js\selectize.min.js" />
+    <Content Include="Content\Selectize-0.12.1\js\standalone\selectize.js" />
+    <Content Include="Content\Selectize-0.12.1\js\standalone\selectize.min.js" />
     <Content Include="Default.aspx" />
     <Content Include="Global.asax" />
     <Content Include="packages.config" />
@@ -224,6 +300,7 @@
     <Content Include="Handler\SessionHandler.ashx" />
     <Content Include="Handler\sourceStringCond.json" />
     <Content Include="Handler\SaveDataHandler.ashx" />
+    <None Include="Properties\PublishProfiles\Test.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -241,7 +318,9 @@
     <Content Include="Site\AppError.aspx" />
     <Content Include="Site\Logon.aspx" />
     <Content Include="Site\Pinger.aspx" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Admin\Session.aspx.cs">
@@ -325,12 +404,7 @@
       <DependentUpon>Pinger.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Content\AutoFill-2.1.2\css\" />
-    <Folder Include="Content\AutoFill-2.1.2\js\" />
-    <Folder Include="Content\KeyTable-2.1.2\css\" />
-    <Folder Include="Content\KeyTable-2.1.2\js\" />
-  </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

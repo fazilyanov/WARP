@@ -5,14 +5,23 @@ using System.Web;
 
 namespace WARP
 {
-    
-    public enum TableColumnType
+    public enum TableColumnAlign
     {
+        Left,
+        Center,
+        Right,
+    }
+
+    public enum TableColumnEditType
+    {
+        None,
+        CurrentUser,
+        CurrentDateTime,
         String,
+        Autocomplete,
         Integer,
         Money,
-        DateTime,
-        Date,
+        DropDown,
     }
 
     public enum TableColumnFilterType
@@ -24,88 +33,39 @@ namespace WARP
         Money,
         DropDown,
     }
-
-    public enum TableColumnAlign
+    public enum TableColumnType
     {
-        Left,
-        Center,
-        Right,
+        String,
+        Integer,
+        Money,
+        DateTime,
+        Date,
     }
 
     public class TableColumn
     {
+        public TableColumnAlign Align { get; set; } = TableColumnAlign.Left;
         public string Caption { get; set; } = string.Empty;
-        public string CaptionShort { get; set; } = string.Empty;
         public string CaptionFilter { get; set; } = string.Empty;
+        public string CaptionShort { get; set; } = string.Empty;
+        public int EditMax { get; set; } = -1;
+        public int EditMin { get; set; } = -1;
+        public TableColumnEditType EditType { get; set; } = TableColumnEditType.None;
+        public string FilterDefaultValue { get; set; } = string.Empty;
+        public TableColumnFilterType FilterType { get; set; } = TableColumnFilterType.None;
+        public string LookUpField { get; set; } = string.Empty;
+        public string LookUpTable { get; set; } = string.Empty;
         public string NameSql { get; set; } = string.Empty;
         public TableColumnType Type { get; set; } = TableColumnType.String;
         public int Width { get; set; } = 100;
-        public TableColumnAlign Align { get; set; } = TableColumnAlign.Left;
-        public TableColumnFilterType FilterType { get; set; } = TableColumnFilterType.None;
-        public string DefaultFilterValue { get; set; } = string.Empty;
-        public string LookUpTable { get; set; } = string.Empty;
-        public string LookUpField { get; set; } = string.Empty;
     }
 
     public class TableData
     {
         public string BaseSql { get; set; } = string.Empty;
-        public string TableSql { get; set; } = string.Empty;
-        public string PageName { get; set; } = string.Empty;
-
         public List<TableColumn> ColumnList { get; set; } = null;
-
-        public string GenerateHtmlTableColumns()
-        {
-            string ret = Environment.NewLine;
-            foreach (TableColumn item in ColumnList)
-            {
-                ret += "               <th>" + item.Caption + "</th>" + Environment.NewLine;
-            }
-            return ret;
-        }
-
-        public string GenerateJSTableColumns()
-        {
-            string ret = Environment.NewLine;
-            foreach (TableColumn item in ColumnList)
-            {
-                ret += "                    { \"data\": \"" + item.NameSql + "\", className:\"dt-body-" + item.Align.ToString().ToLower() + "\", \"width\": \"" + item.Width + "px\" }," + Environment.NewLine;
-            }
-            return ret;
-        }
-
-        public string GetDefaultSql(string curBase, string curTable, string sortCol, string sortDir)
-        {
-            StringBuilder sbWhere = new StringBuilder();
-            StringBuilder sbQuery = new StringBuilder();
-            sbQuery.AppendLine("DECLARE @recordsFiltered int;");
-            sbQuery.AppendLine("SELECT @recordsFiltered=count(*)");
-            sbQuery.AppendLine("FROM [dbo].[" + curBase + curTable + "] a");
-            sbQuery.AppendLine("WHERE");
-            sbQuery.AppendLine("	a.Del=0");
-            sbQuery.AppendLine(sbWhere.ToString());
-
-            sbQuery.AppendLine(";");
-
-            sbQuery.AppendLine("SELECT * FROM  (");
-            sbQuery.AppendLine("   SELECT @recordsFiltered AS recordsFiltered");
-            foreach (TableColumn item in ColumnList)
-            {
-                sbQuery.AppendLine("   ,T." + item.NameSql);
-            }
-            sbQuery.AppendLine("   ,T.Del");
-            sbQuery.AppendLine("   FROM [dbo].[" + curBase + curTable + "] T");
-            sbQuery.AppendLine(") a");
-            sbQuery.AppendLine("WHERE");
-            sbQuery.AppendLine("	a.Del=0");
-            sbQuery.AppendLine(sbWhere.ToString());
-            sbQuery.AppendLine("ORDER BY " + sortCol + " " + sortDir);
-            sbQuery.AppendLine("OFFSET @displayStart ROWS FETCH FIRST @displayLength ROWS ONLY");
-
-            return sbQuery.ToString();
-        }
-
+        public string PageName { get; set; } = string.Empty;
+        public string TableSql { get; set; } = string.Empty;
         public string GenerateFilterFormDialog()
         {
             Dictionary<string, string> filterList = (Dictionary<string, string>)HttpContext.Current.Session[BaseSql + TableSql + PageName + "UserFilterList"];
@@ -373,6 +333,52 @@ namespace WARP
 
             return sbResult.ToString();
         }
+        public string GenerateHtmlTableColumns()
+        {
+            string ret = Environment.NewLine;
+            foreach (TableColumn item in ColumnList)
+            {
+                ret += "               <th>" + item.Caption + "</th>" + Environment.NewLine;
+            }
+            return ret;
+        }
+        /// <summary>
+        /// Генерит список js полей для editor'а
+        /// </summary>
+        /// <returns></returns>
+        public string GenerateJSEditorTableColumns()
+        {
+            string ret = Environment.NewLine;
+            foreach (TableColumn item in ColumnList)
+            {
+                switch (item.EditType)
+                {
+                    case TableColumnEditType.String:
+                    case TableColumnEditType.Autocomplete:
+                    case TableColumnEditType.Integer:
+                    case TableColumnEditType.Money:
+                    case TableColumnEditType.DropDown:
+                        ret += "                    { label: \"" + item.Caption + ":\", name: \"" + item.NameSql + "\" }," + Environment.NewLine;
+                        break;
+
+                    case TableColumnEditType.None:
+                    case TableColumnEditType.CurrentUser:
+                    case TableColumnEditType.CurrentDateTime:
+                        break;
+                }
+            }
+            return ret;
+        }
+
+        public string GenerateJSTableColumns()
+        {
+            string ret = Environment.NewLine;
+            foreach (TableColumn item in ColumnList)
+            {
+                ret += "                    { \"data\": \"" + item.NameSql + "\", className:\"dt-body-" + item.Align.ToString().ToLower() + "\", \"width\": \"" + item.Width + "px\" }," + Environment.NewLine;
+            }
+            return ret;
+        }
 
         public string GenerateWhereClause()
         {
@@ -443,6 +449,37 @@ namespace WARP
                 }
             }
             return sbWhere.ToString();
+        }
+
+        public string GetDefaultSql(string curBase, string curTable, string sortCol, string sortDir)
+        {
+            StringBuilder sbWhere = new StringBuilder();
+            StringBuilder sbQuery = new StringBuilder();
+            sbQuery.AppendLine("DECLARE @recordsFiltered int;");
+            sbQuery.AppendLine("SELECT @recordsFiltered=count(*)");
+            sbQuery.AppendLine("FROM [dbo].[" + curBase + curTable + "] a");
+            sbQuery.AppendLine("WHERE");
+            sbQuery.AppendLine("	a.Del=0");
+            sbQuery.AppendLine(sbWhere.ToString());
+
+            sbQuery.AppendLine(";");
+
+            sbQuery.AppendLine("SELECT * FROM  (");
+            sbQuery.AppendLine("   SELECT @recordsFiltered AS recordsFiltered");
+            foreach (TableColumn item in ColumnList)
+            {
+                sbQuery.AppendLine("   ,T." + item.NameSql);
+            }
+            sbQuery.AppendLine("   ,T.Del");
+            sbQuery.AppendLine("   FROM [dbo].[" + curBase + curTable + "] T");
+            sbQuery.AppendLine(") a");
+            sbQuery.AppendLine("WHERE");
+            sbQuery.AppendLine("	a.Del=0");
+            sbQuery.AppendLine(sbWhere.ToString());
+            sbQuery.AppendLine("ORDER BY " + sortCol + " " + sortDir);
+            sbQuery.AppendLine("OFFSET @displayStart ROWS FETCH FIRST @displayLength ROWS ONLY");
+
+            return sbQuery.ToString();
         }
     }
 }

@@ -31,11 +31,11 @@ namespace WARP
                     buf = item.Replace("data[", "").Replace("]", "").Split('[');
                     if (rows.ContainsKey(buf[0]))
                     {
-                        rows[buf[0]].Add(new RequestData { FieldName = buf[1], FieldValue = context.Request.Form[item] });
+                        rows[buf[0]].Add(new RequestData { FieldName = buf[1], FieldValue = context.Request.Form[item].Trim() });
                     }
                     else
                     {
-                        rows.Add(buf[0], new List<RequestData> { new RequestData { FieldName = buf[1], FieldValue = context.Request.Form[item] } });
+                        rows.Add(buf[0], new List<RequestData> { new RequestData { FieldName = buf[1], FieldValue = context.Request.Form[item].Trim() } });
                     }
                 }
             }
@@ -43,14 +43,14 @@ namespace WARP
             switch (curTable)
             {
                 case "Archive":
-                    Archive.SaveData(curBase, curTable, curPage, action, rows);
-                    string w = "0";
-                    foreach (string item in rows.Keys)
-                    {
-                        w += "," + item;
-                    }
+                    context.Response.Write(Archive.SaveData(curBase, curTable, curPage, action, rows));
+                    //string w = "0";
+                    //foreach (string item in rows.Keys)
+                    //{
+                    //    w += "," + item;
+                    //}
 
-                    context.Response.Write( Archive.GetJsonData(curBase, curTable, curPage, 0, 0, 500, 0, "asc", w));
+                    //context.Response( Archive.GetJsonData(curBase, curTable, curPage, 0, 0, 500, 0, "asc", w));
                     break;
 
                 default:

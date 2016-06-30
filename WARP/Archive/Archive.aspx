@@ -11,13 +11,10 @@
         </thead>
     </table>
 
-<%=tableData.GenerateFilterFormDialog()%>
-
-    
-    
+    <%=tableData.GenerateFilterFormDialog()%>
 
     <script>
-     
+
         // Для выбора вручную страницы
         //var table = $('#table_id').DataTable(); table.page(4).draw('page');
         $(window).bind('resize', function () {
@@ -35,26 +32,44 @@
                 table: "#table_id",
                 idSrc: 'ID',
                 fields: [
-                    {
-                        label: "Номер документа:",
-                        name: "NumDoc",
+                    <%=tableData.GenerateJSEditorTableColumns()%>
+                ],
+                i18n: {
+                    create: {
+                        button: "Новая запись",
+                        title: "Создание новой записи",
+                        submit: "Создать"
                     },
-                    {
-                        label: "Примечание:",
-                        name: "Prim"
+                    edit: {
+                        button: "Редактировать",
+                        title: "Редактирование записи",
+                        submit: "Сохранить"
                     },
-                    {
-                        label: "Содержание:",
-                        name: "DocContent"
+                    remove: {
+                        button: "Удалить",
+                        title: "Удаление",
+                        submit: "Подтвердить удаление",
+                        confirm: {
+                            _: "Подтвердите удаление %d записей?",
+                            1: "Подтвердите удаление записи?"
+                        }
                     },
-                ]
+                    error: {
+                        system: "Произошла ошибка"
+                    },
+                    multi: {
+                        title: "Множественное редактирование",
+                        info: "Выбранные записи содержат разное значение для этого поля, для замены новым значением всех записей, кликните по этому полю ",
+                        restore: "Отменить"
+                    },
+                }
             });
             //$('#table_id').on('click', 'tbody td:not(:first-child)', function (e) {
             //    editor.inline(this);
             //});
 
-            $('#table_id').DataTable({
-                dom: '<"row top-toolbar"<"col-sm-4"B><"col-sm-4"p><"col-sm-4"i>>Zrt',                
+            var table = $('#table_id').DataTable({
+                dom: '<"row top-toolbar"<"col-sm-4"B><"col-sm-4"p><"col-sm-4"i>>Zrt',
                 processing: true,
                 serverSide: true,
                 ajax: "/Handler/GetDataHandler.ashx?curBase=<%=Master.curBaseName%>&curTable=<%=tableData.TableSql%>&curPage=<%=curPage%>",
@@ -79,9 +94,27 @@
                 ],
                 pagingType6: "simple",
                 buttons: [
-                    { extend: 'create', editor: editor, className: 'btn-sm', },
-                    { extend: 'edit', editor: editor, className: 'btn-sm', },
-                    { extend: 'remove', editor: editor, className: 'btn-sm', },
+                    { extend: 'create', editor: editor, className: 'btn-sm', key: "l", text: '<span class="glyphicon glyphicon-plus" title="Создать новую запись"></span>' },
+                    { extend: 'edit', editor: editor, className: 'btn-sm', key: "h", text: '<span class="glyphicon glyphicon-pencil" title="Редактировать запись"></span>' },
+                    {
+                        extend: "selectedSingle",
+                        className: 'btn-sm',
+                        text: '<span class="glyphicon glyphicon-duplicate" title="Создать новую запись копированием текущей"></span>',
+                        action: function (e, dt, node, config) {
+                            var values = editor.edit(
+                                    table.row({ selected: true }).index(),
+                                    false
+                                )
+                                .val();
+                            editor
+                                .create({
+                                    title: 'Создание копированием записи',
+                                    buttons: 'Создать'
+                                })
+                                .set(values);
+                        }
+                    },
+                    { extend: 'remove', editor: editor, className: 'btn-sm btn-space', key: "e", text: '<span class="glyphicon glyphicon-trash" title="Удалить текущую запись"></span>' },
                     {
                         extend: 'collection',
                         text: 'Настройка таблицы',
@@ -110,6 +143,7 @@
                         action: function (e, dt, node, config) {
                             $('#modalFilterForm').modal();
                         },
+                        key:"a",
                         className: "btn-sm",
                     }
 

@@ -133,6 +133,10 @@ td {
 .top-toolbar {
     padding-top: 5px;
 }
+/*Пустое пространство между кнопками в тулбаре*/
+.btn-space {
+    margin-right: 10px;
+}
 
 /* Выполнение */
 .dataTables_processing {
@@ -202,6 +206,7 @@ input[type=text]::-ms-clear {
     padding-top: 2px;
     padding-bottom: 12px;
 }
+
 .filter-input {
     font-weight: bold !important;
 }
