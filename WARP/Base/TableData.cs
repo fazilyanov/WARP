@@ -24,6 +24,7 @@ namespace WARP
         DropDown,
     }
 
+    // TODO : Показывать установленный фильтр
     public enum TableColumnFilterType
     {
         None,
@@ -33,6 +34,7 @@ namespace WARP
         Money,
         DropDown,
     }
+
     public enum TableColumnType
     {
         String,
@@ -66,6 +68,7 @@ namespace WARP
         public List<TableColumn> ColumnList { get; set; } = null;
         public string PageName { get; set; } = string.Empty;
         public string TableSql { get; set; } = string.Empty;
+
         public string GenerateFilterFormDialog()
         {
             Dictionary<string, string> filterList = (Dictionary<string, string>)HttpContext.Current.Session[BaseSql + TableSql + PageName + "UserFilterList"];
@@ -333,6 +336,7 @@ namespace WARP
 
             return sbResult.ToString();
         }
+
         public string GenerateHtmlTableColumns()
         {
             string ret = Environment.NewLine;
@@ -342,10 +346,8 @@ namespace WARP
             }
             return ret;
         }
-        /// <summary>
-        /// Генерит список js полей для editor'а
-        /// </summary>
-        /// <returns></returns>
+
+        // Генерит список js полей для editor'а
         public string GenerateJSEditorTableColumns()
         {
             string ret = Environment.NewLine;
@@ -354,11 +356,13 @@ namespace WARP
                 switch (item.EditType)
                 {
                     case TableColumnEditType.String:
+                        ret += "                    { label: \"" + item.Caption + ":\", name: \"" + item.NameSql + "\" }," + Environment.NewLine;
+                        break;
+
                     case TableColumnEditType.Autocomplete:
                     case TableColumnEditType.Integer:
                     case TableColumnEditType.Money:
                     case TableColumnEditType.DropDown:
-                        ret += "                    { label: \"" + item.Caption + ":\", name: \"" + item.NameSql + "\" }," + Environment.NewLine;
                         break;
 
                     case TableColumnEditType.None:

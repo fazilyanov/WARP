@@ -158,7 +158,6 @@ namespace WARP
                     Type = TableColumnType.Date,
                     Width = 85,
                     Align = TableColumnAlign.Center,
-
                 },
                 new TableColumn {
                     Caption = "Содержание",
@@ -222,7 +221,7 @@ namespace WARP
             SqlConnection sqlConnection = new SqlConnection(Properties.Settings.Default.ConnectionString);
             sqlConnection.Open();
             SqlTransaction sqlTransaction = sqlConnection.BeginTransaction();
-            SqlCommand sqlCommand = new SqlCommand(string.Empty, sqlConnection);
+            SqlCommand sqlCommand = new SqlCommand(query.ToString(), sqlConnection, sqlTransaction); 
 
             try
             {
@@ -251,7 +250,7 @@ namespace WARP
                             query.AppendLine("WHERE ID = @ID");
                             param.Add(new SqlParameter { ParameterName = "@ID", SqlDbType = SqlDbType.Int, Value = pair.Key });
 
-                            sqlCommand = new SqlCommand(query.ToString(), sqlConnection);
+                            sqlCommand = new SqlCommand(query.ToString(), sqlConnection, sqlTransaction);
                             sqlCommand.Parameters.AddRange(param.ToArray());
                             sqlCommand.ExecuteNonQuery();
                             //sqlCommand.CommandTimeout = 30;
@@ -268,13 +267,13 @@ namespace WARP
             }
             catch (Exception ex)
             {
+                sqlTransaction.Rollback();
                 ComFunc.LogSqlError(ex.Message.Trim(), sqlCommand.CommandText, param.ToArray());
             }
             finally
             {
                 sqlConnection.Close();
             }
-
             return ret;
         }
 

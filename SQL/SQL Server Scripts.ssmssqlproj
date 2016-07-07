@@ -1,0 +1,214 @@
+<?xml version="1.0"?>
+<SqlWorkbenchSqlProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="SQL Server Scripts">
+  <Items>
+    <LogicalFolder Name="Connections" Type="2" Sorted="true">
+      <Items>
+        <ConnectionNode Name="192.168.100.209:fazl">
+          <Created>2016-07-07T10:26:30.5466631+05:00</Created>
+          <Type>SQL</Type>
+          <Server>192.168.100.209</Server>
+          <UserName>fazl</UserName>
+          <Authentication>SQL</Authentication>
+          <InitialDB>WARP</InitialDB>
+          <LoginTimeout>15</LoginTimeout>
+          <ExecutionTimeout>0</ExecutionTimeout>
+          <ConnectionProtocol>NotSpecified</ConnectionProtocol>
+          <ApplicationName>Microsoft SQL Server Management Studio - Query</ApplicationName>
+        </ConnectionNode>
+      </Items>
+    </LogicalFolder>
+    <LogicalFolder Name="Queries" Type="0" Sorted="true">
+      <Items>
+        <FileNode Name="Truncate.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:192.168.100.209:False:fazl</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>192.168.100.209</AssociatedConnSrvName>
+          <AssociatedConnUserName>fazl</AssociatedConnUserName>
+          <FullPath>Truncate.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Все месяцы года для пользователя.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:192.168.100.209:False:fazl</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>192.168.100.209</AssociatedConnSrvName>
+          <AssociatedConnUserName>fazl</AssociatedConnUserName>
+          <FullPath>Все месяцы года для пользователя.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Выгрузка за пол года Archive.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:192.168.100.209:False:fazl</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>192.168.100.209</AssociatedConnSrvName>
+          <AssociatedConnUserName>fazl</AssociatedConnUserName>
+          <FullPath>Выгрузка за пол года Archive.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Выгрузка использующихся из depart.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:192.168.100.209:False:fazl</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>192.168.100.209</AssociatedConnSrvName>
+          <AssociatedConnUserName>fazl</AssociatedConnUserName>
+          <FullPath>Выгрузка использующихся из depart.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Выгрузка использующихся из structur.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:192.168.100.209:False:fazl</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>192.168.100.209</AssociatedConnSrvName>
+          <AssociatedConnUserName>fazl</AssociatedConnUserName>
+          <FullPath>Выгрузка использующихся из structur.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Выгрузка файлов из версий.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:192.168.100.209:False:fazl</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>192.168.100.209</AssociatedConnSrvName>
+          <AssociatedConnUserName>fazl</AssociatedConnUserName>
+          <FullPath>Выгрузка файлов из версий.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Выгрузка файлов по Коду ЭА.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:192.168.100.209:False:fazl</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>192.168.100.209</AssociatedConnSrvName>
+          <AssociatedConnUserName>fazl</AssociatedConnUserName>
+          <FullPath>Выгрузка файлов по Коду ЭА.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Выгрузка файлов по пакету.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:192.168.100.209:False:fazl</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>192.168.100.209</AssociatedConnSrvName>
+          <AssociatedConnUserName>fazl</AssociatedConnUserName>
+          <FullPath>Выгрузка файлов по пакету.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Выгрузка файлов.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:192.168.100.209:False:fazl</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>192.168.100.209</AssociatedConnSrvName>
+          <AssociatedConnUserName>fazl</AssociatedConnUserName>
+          <FullPath>Выгрузка файлов.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Добавить все базы.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:192.168.100.209:False:fazl</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>192.168.100.209</AssociatedConnSrvName>
+          <AssociatedConnUserName>fazl</AssociatedConnUserName>
+          <FullPath>Добавить все базы.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Дубли основных версий.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:192.168.100.209:False:fazl</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>192.168.100.209</AssociatedConnSrvName>
+          <AssociatedConnUserName>fazl</AssociatedConnUserName>
+          <FullPath>Дубли основных версий.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Заменить доступ к базе.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:192.168.100.209:False:fazl</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>192.168.100.209</AssociatedConnSrvName>
+          <AssociatedConnUserName>fazl</AssociatedConnUserName>
+          <FullPath>Заменить доступ к базе.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Заполнение каталогов.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:192.168.100.209:False:fazl</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>192.168.100.209</AssociatedConnSrvName>
+          <AssociatedConnUserName>fazl</AssociatedConnUserName>
+          <FullPath>Заполнение каталогов.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Импорт кодов проектов.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:192.168.100.209:False:fazl</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>192.168.100.209</AssociatedConnSrvName>
+          <AssociatedConnUserName>fazl</AssociatedConnUserName>
+          <FullPath>Импорт кодов проектов.sql</FullPath>
+        </FileNode>
+        <FileNode Name="История запросов.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:192.168.100.209:False:fazl</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>192.168.100.209</AssociatedConnSrvName>
+          <AssociatedConnUserName>fazl</AssociatedConnUserName>
+          <FullPath>История запросов.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Комплекты 4 новых поля.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:192.168.100.209:False:fazl</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>192.168.100.209</AssociatedConnSrvName>
+          <AssociatedConnUserName>fazl</AssociatedConnUserName>
+          <FullPath>Комплекты 4 новых поля.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Копирование таблиц.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:192.168.100.209:False:fazl</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>192.168.100.209</AssociatedConnSrvName>
+          <AssociatedConnUserName>fazl</AssociatedConnUserName>
+          <FullPath>Копирование таблиц.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Копия роли.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:192.168.100.209:False:fazl</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>192.168.100.209</AssociatedConnSrvName>
+          <AssociatedConnUserName>fazl</AssociatedConnUserName>
+          <FullPath>Копия роли.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Новое поле во всех базах.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Новое поле во всех базах.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Основные таблицы импорт.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Основные таблицы импорт.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Отчет для Кубатиной.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Отчет для Кубатиной.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Представление для всех баз.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Представление для всех баз.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Принят к учету замена и дефолт.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Принят к учету замена и дефолт.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Проверка на зацикливание в дереве.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Проверка на зацикливание в дереве.sql</FullPath>
+        </FileNode>
+        <FileNode Name="РавильВыгрузка.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>РавильВыгрузка.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Создание каталогов.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Создание каталогов.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Создание нового пользователя пока нет нового сервера.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Создание нового пользователя пока нет нового сервера.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Таблицы Архива Схема.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Таблицы Архива Схема.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Текущее время на сервере.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Текущее время на сервере.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Текущие подключения.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Текущие подключения.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Файлы для кодов ЭА.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Файлы для кодов ЭА.sql</FullPath>
+        </FileNode>
+      </Items>
+    </LogicalFolder>
+    <LogicalFolder Name="Miscellaneous" Type="3" Sorted="true">
+      <Items />
+    </LogicalFolder>
+  </Items>
+</SqlWorkbenchSqlProject>
