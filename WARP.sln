@@ -7,6 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WARP", "WARP\WARP.csproj", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{2B9E7763-B966-4728-9835-718EECDD9978}"
 	ProjectSection(SolutionItems) = preProject
+		SQL\SQL Server Scripts.ssmssln = SQL\SQL Server Scripts.ssmssln
 		Other\todo.snippet = Other\todo.snippet
 		Other\Шаблон Профайлера.tdf = Other\Шаблон Профайлера.tdf
 	EndProjectSection

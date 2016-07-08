@@ -25,6 +25,12 @@
           <AssociatedConnUserName>fazl</AssociatedConnUserName>
           <FullPath>Truncate.sql</FullPath>
         </FileNode>
+        <FileNode Name="TruncateNtzArchive.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:192.168.100.209:False:fazl</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>192.168.100.209</AssociatedConnSrvName>
+          <AssociatedConnUserName>fazl</AssociatedConnUserName>
+          <FullPath>TruncateNtzArchive.sql</FullPath>
+        </FileNode>
         <FileNode Name="Все месяцы года для пользователя.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:192.168.100.209:False:fazl</AssociatedConnectionMoniker>
           <AssociatedConnSrvName>192.168.100.209</AssociatedConnSrvName>

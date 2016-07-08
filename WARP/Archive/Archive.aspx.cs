@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Text;
+using System.Web;
 using System.Web.Script.Serialization;
 
 namespace WARP
@@ -14,7 +15,7 @@ namespace WARP
         public string documentTitle;
         public TableData tableData;
 
-        public static DataTable GetData(string curBase, string curTable, string archivePage, TableData tableData, int displayStart, int displayLength, string sortCol, string sortDir, string where = "")
+        public static DataTable GetData(string curBase, string curTable, string archivePage, TableData tableData, int displayStart, int displayLength, string sortCol, string sortDir, string ids = "")
         {
             StringBuilder sbQuery = new StringBuilder();
             string sWhere = tableData.GenerateWhereClause();
@@ -25,9 +26,9 @@ namespace WARP
             sbQuery.AppendLine("WHERE");
             sbQuery.AppendLine("	a.Del=0");
             sbQuery.AppendLine(sWhere);
-            if (where.Length > 0)
+            if (ids.Length > 0)
             {
-                sbQuery.AppendLine(" AND a.id in (" + where + ")");
+                sbQuery.AppendLine(" AND a.id in (" + ids + ")");
             }
             sbQuery.AppendLine(";");
 
@@ -59,9 +60,9 @@ namespace WARP
             sbQuery.AppendLine("WHERE");
             sbQuery.AppendLine("	a.Del=0");
             sbQuery.AppendLine(sWhere);
-            if (where.Length > 0)
+            if (ids.Length > 0)
             {
-                sbQuery.AppendLine(" AND a.id in (" + where + ")");
+                sbQuery.AppendLine(" AND a.id in (" + ids + ")");
             }
             sbQuery.AppendLine("ORDER BY a.[" + sortCol + "] " + sortDir);
             sbQuery.AppendLine("OFFSET @displayStart ROWS FETCH FIRST @displayLength ROWS ONLY");
@@ -75,12 +76,12 @@ namespace WARP
             return dt;
         }
 
-        public static string GetJsonData(string curBase, string curTable, string archivePage, int draw, int displayStart, int displayLength, int iSortCol, string sortDir, string where = "")
+        public static string GetJsonData(string curBase, string curTable, string archivePage, int draw, int displayStart, int displayLength, int iSortCol, string sortDir, string ids = "")
         {
             string ret = "";
             TableData tableData = InitTableData(curBase, curTable, archivePage);
             string sortCol = tableData.ColumnList.Count >= iSortCol ? tableData.ColumnList[iSortCol].NameSql : "";
-            DataTable dt = GetData(curBase, curTable, archivePage, tableData, displayStart, displayLength, sortCol, sortDir, where);
+            DataTable dt = GetData(curBase, curTable, archivePage, tableData, displayStart, displayLength, sortCol, sortDir, ids);
             if (dt != null)
             {
                 var result = new
@@ -204,11 +205,18 @@ namespace WARP
             return tableData;
         }
 
-        public static bool SaveData(string curBase, string curTable, string curPage, string action, Dictionary<string, List<RequestData>> rows)
+        public static string SaveData(string curBase, string curTable, string curPage, string action, Dictionary<string, List<RequestData>> rows)
         {
-            bool ret = false;
+            // JSON
+            string result = string.Empty;
 
-            //Запрос
+            // Список редактируемых ID
+            string ids = string.Empty;
+
+            //
+            JavaScriptSerializer javaScriptSerializer = new JavaScriptSerializer();
+
+            // Запрос
             StringBuilder query = new StringBuilder();
 
             // Список параметров
@@ -217,11 +225,14 @@ namespace WARP
             // Инитим нашу таблицу
             TableData tableData = InitTableData(curBase, curTable, curPage);
 
+            // TODO :
+            // Проверка всякая
+
             // Открываем подключение, начинаем общую транзакцию
             SqlConnection sqlConnection = new SqlConnection(Properties.Settings.Default.ConnectionString);
             sqlConnection.Open();
             SqlTransaction sqlTransaction = sqlConnection.BeginTransaction();
-            SqlCommand sqlCommand = new SqlCommand(query.ToString(), sqlConnection, sqlTransaction); 
+            SqlCommand sqlCommand = new SqlCommand(query.ToString(), sqlConnection, sqlTransaction);
 
             try
             {
@@ -240,20 +251,28 @@ namespace WARP
                             query = new StringBuilder();
                             param = new List<SqlParameter>();
 
+                            // Копируем текущую строку в таблицу истрории
+                            query.AppendLine("INSERT INTO [dbo].[" + curBase + curTable + "History] Select * from[dbo].[" + curBase + curTable + "] where ID = @ID;");
+
+                            // Обновляем запись в главной таблице
                             query.AppendLine("UPDATE[dbo].[" + curBase + curTable + "] SET");
-                            query.AppendLine("     [Del] = 0");
+                            query.AppendLine("     [IdUser] = @IdUser"); // Пользователь внесший изменения
+                            query.AppendLine("    ,[DateUpd] = GetDate()"); // Дата внесения
                             foreach (RequestData rd in pair.Value)
                             {
                                 query.AppendLine("    ,[" + rd.FieldName + "] = @" + rd.FieldName);
                                 param.Add(new SqlParameter { ParameterName = "@" + rd.FieldName, SqlDbType = SqlDbType.NVarChar, Value = rd.FieldValue });
                             }
                             query.AppendLine("WHERE ID = @ID");
+
                             param.Add(new SqlParameter { ParameterName = "@ID", SqlDbType = SqlDbType.Int, Value = pair.Key });
+                            param.Add(new SqlParameter { ParameterName = "@IdUser", SqlDbType = SqlDbType.Int, Value = HttpContext.Current.Session["UserId"].ToString() });
 
                             sqlCommand = new SqlCommand(query.ToString(), sqlConnection, sqlTransaction);
                             sqlCommand.Parameters.AddRange(param.ToArray());
                             sqlCommand.ExecuteNonQuery();
-                            //sqlCommand.CommandTimeout = 30;
+
+                            ids += pair.Key + ","; // Запоминаем все id
                         }
 
                         break;
@@ -267,6 +286,7 @@ namespace WARP
             }
             catch (Exception ex)
             {
+                result = "Ошибка при сохранении: "+ ex.Message.Trim();
                 sqlTransaction.Rollback();
                 ComFunc.LogSqlError(ex.Message.Trim(), sqlCommand.CommandText, param.ToArray());
             }
@@ -274,7 +294,32 @@ namespace WARP
             {
                 sqlConnection.Close();
             }
-            return ret;
+
+            // Если нет ошибок
+            if (string.IsNullOrEmpty(result))
+            {
+                // Получаем обновленные данные по этим id из базы
+                DataTable dt = GetData(curBase, curTable, curPage, tableData, 0, 500, "ID", "asc", ids.Substring(0, ids.Length - 1));
+
+                // Возвращаем JSON
+                if (dt != null)
+                {
+                    var buf = new { data = ComFunc.GetFormatData(tableData, dt) };
+                    result = javaScriptSerializer.Serialize(buf);
+                }
+                else
+                {
+                    var buf = new { error = "Обновленные данные не получены" };
+                    result = javaScriptSerializer.Serialize(buf);
+                }
+            }
+            else // Если есть ошибка при сохранении
+            {
+                var buf = new { error = result };
+                result = javaScriptSerializer.Serialize(buf);
+            }
+
+            return result;
         }
 
         protected void Page_PreRender(object sender, EventArgs e)
