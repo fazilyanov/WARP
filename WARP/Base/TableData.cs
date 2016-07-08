@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
 using System.Text;
 using System.Web;
 
@@ -52,6 +55,7 @@ namespace WARP
         public string CaptionShort { get; set; } = string.Empty;
         public int EditMax { get; set; } = -1;
         public int EditMin { get; set; } = -1;
+        public bool EditRequired { get; set; } = false;
         public TableColumnEditType EditType { get; set; } = TableColumnEditType.None;
         public string FilterDefaultValue { get; set; } = string.Empty;
         public TableColumnFilterType FilterType { get; set; } = TableColumnFilterType.None;
@@ -455,6 +459,7 @@ namespace WARP
             return sbWhere.ToString();
         }
 
+        // TODO :  Разобраться
         public string GetDefaultSql(string curBase, string curTable, string sortCol, string sortDir)
         {
             StringBuilder sbWhere = new StringBuilder();
@@ -484,6 +489,137 @@ namespace WARP
             sbQuery.AppendLine("OFFSET @displayStart ROWS FETCH FIRST @displayLength ROWS ONLY");
 
             return sbQuery.ToString();
+        }
+
+        internal string Check(string curBase, string curTable, string curPage, string action, Dictionary<string, List<RequestData>> rows)
+        {
+            List<FieldErrors> fieldErrors = new List<FieldErrors>();
+
+            // Проверяем каждую пару, для первой или единственной строки
+            foreach (RequestData rd in rows.First().Value)
+            {
+                // Флаг для прерывания проверки или продолжения проверки
+                bool resume = true;
+
+                // Ищем настройки для этого поля, по переданному имени поля
+                TableColumn tableColumn = ColumnList.Find(x => x.NameSql == rd.FieldName);
+
+                // Проверяем тип введенных данных
+
+                // Обязательность заполнения поля
+                if (resume && tableColumn.EditRequired && string.IsNullOrEmpty(rd.FieldValue))
+                {
+                    fieldErrors.Add(new FieldErrors { name = tableColumn.NameSql, status = "Поле обязательно для заполнения" });
+                    resume = false;
+                }
+
+                // Ограничения
+                if (resume)
+                {
+                    switch (tableColumn.EditType)
+                    {
+                        case TableColumnEditType.CurrentDateTime:
+                            break;
+
+                        case TableColumnEditType.String:
+                            if (tableColumn.EditMax > -1 && rd.FieldValue.Length > tableColumn.EditMax)
+                            {
+                                fieldErrors.Add(new FieldErrors { name = tableColumn.NameSql, status = "Максимально допустимая длина поля: " + tableColumn.EditMax + " симв." });
+                                resume = false;
+                            }
+
+                            if (tableColumn.EditMin > -1 && rd.FieldValue.Length < tableColumn.EditMin)
+                            {
+                                fieldErrors.Add(new FieldErrors { name = tableColumn.NameSql, status = "Минимально допустимая длина поля: " + tableColumn.EditMax + " симв." });
+                                resume = false;
+                            }
+                            break;
+
+                        case TableColumnEditType.Integer:
+                        case TableColumnEditType.Money:
+                            // TODO :
+                            break;
+                    }
+                }
+            }
+        }//{"fieldErrors":[{"name":"first_name","status":"This field is required"},{"name":"last_name","status":"This field is required"}],"data":[]}
+
+        public string Save(string curBase, string curTable, string curPage, string action, Dictionary<string, List<RequestData>> rows)
+        {
+            string result = string.Empty;
+
+            // Запрос
+            StringBuilder query = new StringBuilder();
+
+            // Список параметров
+            List<SqlParameter> param = new List<SqlParameter>();
+
+            // Открываем подключение, начинаем общую транзакцию
+            SqlConnection sqlConnection = new SqlConnection(Properties.Settings.Default.ConnectionString);
+            sqlConnection.Open();
+            SqlTransaction sqlTransaction = sqlConnection.BeginTransaction();
+            SqlCommand sqlCommand = new SqlCommand(query.ToString(), sqlConnection, sqlTransaction);
+
+            try
+            {
+                // Выбираем переданное действие
+                switch (action)
+                {
+                    case "create":
+
+                        break;
+
+                    case "edit":
+
+                        // Для каждой переданной строки с данными, создаем строку запроса и параметры к ней, выполняем запрос
+                        foreach (KeyValuePair<string, List<RequestData>> pair in rows)
+                        {
+                            query = new StringBuilder();
+                            param = new List<SqlParameter>();
+
+                            // Копируем текущую строку в таблицу истрории
+                            query.AppendLine("INSERT INTO [dbo].[" + curBase + curTable + "History] Select * from[dbo].[" + curBase + curTable + "] where ID = @ID;");
+
+                            // Обновляем запись в главной таблице
+                            query.AppendLine("UPDATE[dbo].[" + curBase + curTable + "] SET");
+                            query.AppendLine("     [IdUser] = @IdUser"); // Пользователь внесший изменения
+                            query.AppendLine("    ,[DateUpd] = GetDate()"); // Дата внесения
+                            foreach (RequestData rd in pair.Value)
+                            {
+                                query.AppendLine("    ,[" + rd.FieldName + "] = @" + rd.FieldName);
+                                param.Add(new SqlParameter { ParameterName = "@" + rd.FieldName, SqlDbType = SqlDbType.NVarChar, Value = rd.FieldValue });
+                            }
+                            query.AppendLine("WHERE ID = @ID");
+
+                            param.Add(new SqlParameter { ParameterName = "@ID", SqlDbType = SqlDbType.Int, Value = pair.Key });
+                            param.Add(new SqlParameter { ParameterName = "@IdUser", SqlDbType = SqlDbType.Int, Value = HttpContext.Current.Session["UserId"].ToString() });
+
+                            sqlCommand = new SqlCommand(query.ToString(), sqlConnection, sqlTransaction);
+                            sqlCommand.Parameters.AddRange(param.ToArray());
+                            sqlCommand.ExecuteNonQuery();
+                        }
+
+                        break;
+
+                    case "remove":
+                        break;
+                }
+
+                // Если ошибок не было коммитим
+                sqlTransaction.Commit();
+            }
+            catch (Exception ex)
+            {
+                result = "Ошибка при сохранении: " + ex.Message.Trim();
+                sqlTransaction.Rollback();
+                ComFunc.LogSqlError(ex.Message.Trim(), sqlCommand.CommandText, param.ToArray());
+            }
+            finally
+            {
+                sqlConnection.Close();
+            }
+
+            return result;
         }
     }
 }

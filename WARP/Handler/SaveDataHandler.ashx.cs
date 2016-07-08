@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Data;
 using System.Web;
 using System.Web.SessionState;
 
@@ -9,6 +8,12 @@ namespace WARP
     {
         public string FieldName { get; set; }
         public string FieldValue { get; set; }
+    }
+
+    public class FieldErrors
+    {
+        public string name { get; set; }
+        public string status { get; set; }
     }
 
     /// <summary>
@@ -30,7 +35,6 @@ namespace WARP
             // Список переданных строк, ключ - ID
             Dictionary<string, List<RequestData>> rows = new Dictionary<string, List<RequestData>>();
 
-
             // Парсим переданные параметры
             string[] buf;
             foreach (string item in context.Request.Form.AllKeys)
@@ -44,7 +48,6 @@ namespace WARP
                     }
                     else // Если нет, создаем ее
                     {
-                       
                         rows.Add(buf[0], new List<RequestData> { new RequestData { FieldName = buf[1], FieldValue = context.Request.Form[item].Trim() } });
                     }
                 }
@@ -55,10 +58,7 @@ namespace WARP
                 case "Archive":
                     // Сохраняем
                     context.Response.Write(Archive.SaveData(curBase, curTable, curPage, action, rows));
-                    
 
-                    
-                    
                     //{
                     //"data": [
                     //            {
@@ -73,8 +73,6 @@ namespace WARP
                     //            }
                     //        ]
                     //}
-
-
 
                     ////string w = "0";
                     //foreach (string item in rows.Keys)

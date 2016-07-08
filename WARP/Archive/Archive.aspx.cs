@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Text;
-using System.Web;
 using System.Web.Script.Serialization;
 
 namespace WARP
@@ -136,6 +135,7 @@ namespace WARP
                     Width = 300,
                     FilterType = TableColumnFilterType.String,
                     EditType = TableColumnEditType.String,
+                    EditRequired = true,
                     EditMax = 250,
                 },
                 new TableColumn {
@@ -205,99 +205,40 @@ namespace WARP
             return tableData;
         }
 
+        private static string CheckSave(string curBase, string curTable, string curPage, string action, Dictionary<string, List<RequestData>> rows)
+        {
+            throw new NotImplementedException();
+        }
+
         public static string SaveData(string curBase, string curTable, string curPage, string action, Dictionary<string, List<RequestData>> rows)
         {
-            // JSON
+            //
             string result = string.Empty;
-
-            // Список редактируемых ID
-            string ids = string.Empty;
 
             //
             JavaScriptSerializer javaScriptSerializer = new JavaScriptSerializer();
 
-            // Запрос
-            StringBuilder query = new StringBuilder();
-
-            // Список параметров
-            List<SqlParameter> param = new List<SqlParameter>();
-
             // Инитим нашу таблицу
             TableData tableData = InitTableData(curBase, curTable, curPage);
 
-            // TODO :
-            // Проверка всякая
+            // Чекаем на простые условия (обязательность, длинна и тд)
+            result = tableData.Check(curBase, curTable, curPage, action, rows);
 
-            // Открываем подключение, начинаем общую транзакцию
-            SqlConnection sqlConnection = new SqlConnection(Properties.Settings.Default.ConnectionString);
-            sqlConnection.Open();
-            SqlTransaction sqlTransaction = sqlConnection.BeginTransaction();
-            SqlCommand sqlCommand = new SqlCommand(query.ToString(), sqlConnection, sqlTransaction);
+            // Чекаем на условия конкретной таблицы
+            result = CheckSave(curBase, curTable, curPage, action, rows);
 
-            try
-            {
-                // Выбираем переданное действие
-                switch (action)
-                {
-                    case "create":
-
-                        break;
-
-                    case "edit":
-
-                        // Для каждой переданной строки с данными, создаем строку запроса и параметры к ней, выполняем запрос
-                        foreach (KeyValuePair<string, List<RequestData>> pair in rows)
-                        {
-                            query = new StringBuilder();
-                            param = new List<SqlParameter>();
-
-                            // Копируем текущую строку в таблицу истрории
-                            query.AppendLine("INSERT INTO [dbo].[" + curBase + curTable + "History] Select * from[dbo].[" + curBase + curTable + "] where ID = @ID;");
-
-                            // Обновляем запись в главной таблице
-                            query.AppendLine("UPDATE[dbo].[" + curBase + curTable + "] SET");
-                            query.AppendLine("     [IdUser] = @IdUser"); // Пользователь внесший изменения
-                            query.AppendLine("    ,[DateUpd] = GetDate()"); // Дата внесения
-                            foreach (RequestData rd in pair.Value)
-                            {
-                                query.AppendLine("    ,[" + rd.FieldName + "] = @" + rd.FieldName);
-                                param.Add(new SqlParameter { ParameterName = "@" + rd.FieldName, SqlDbType = SqlDbType.NVarChar, Value = rd.FieldValue });
-                            }
-                            query.AppendLine("WHERE ID = @ID");
-
-                            param.Add(new SqlParameter { ParameterName = "@ID", SqlDbType = SqlDbType.Int, Value = pair.Key });
-                            param.Add(new SqlParameter { ParameterName = "@IdUser", SqlDbType = SqlDbType.Int, Value = HttpContext.Current.Session["UserId"].ToString() });
-
-                            sqlCommand = new SqlCommand(query.ToString(), sqlConnection, sqlTransaction);
-                            sqlCommand.Parameters.AddRange(param.ToArray());
-                            sqlCommand.ExecuteNonQuery();
-
-                            ids += pair.Key + ","; // Запоминаем все id
-                        }
-
-                        break;
-
-                    case "remove":
-                        break;
-                }
-
-                // Если ошибок не было коммитим
-                sqlTransaction.Commit();
-            }
-            catch (Exception ex)
-            {
-                result = "Ошибка при сохранении: "+ ex.Message.Trim();
-                sqlTransaction.Rollback();
-                ComFunc.LogSqlError(ex.Message.Trim(), sqlCommand.CommandText, param.ToArray());
-            }
-            finally
-            {
-                sqlConnection.Close();
-            }
+            tableData.Save(curBase, curTable, curPage, action, rows);
 
             // Если нет ошибок
             if (string.IsNullOrEmpty(result))
             {
+                // Список редактируемых ID
+                string ids = string.Empty;
+                foreach (string key in rows.Keys)
+                {
+                    ids += key + ",";
+                }
+
                 // Получаем обновленные данные по этим id из базы
                 DataTable dt = GetData(curBase, curTable, curPage, tableData, 0, 500, "ID", "asc", ids.Substring(0, ids.Length - 1));
 
