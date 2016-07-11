@@ -183,7 +183,10 @@ namespace WARP
                             break;
 
                         case TableColumnType.Date:
-                            row.Add(column.NameSql, ((DateTime)dr[column.NameSql]).ToString("dd.MM.yyyy"));
+                            if (dr[column.NameSql] is DBNull)
+                                row.Add(column.NameSql, string.Empty);
+                            else
+                                row.Add(column.NameSql, ((DateTime)dr[column.NameSql]).ToString("dd.MM.yyyy"));
                             break;
 
                         case TableColumnType.String:
@@ -295,7 +298,6 @@ namespace WARP
             {
                 sqlTransaction.Rollback();
                 LogSqlError(ex.Message.Trim(), sqlCommand.CommandText, sqlParameterArray);
-                
             }
             finally
             {

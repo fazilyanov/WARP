@@ -9,11 +9,6 @@
 
     <link rel="icon" href="/Content/favicon.ico" />
 
-    <%--<link rel="stylesheet" type="text/css" href="/Content/datatables.min.css" />
-    
-
-    <script type="text/javascript" charset="utf8" src="/Content/datatables.min.js"></script>--%>
-
     <link rel="stylesheet" type="text/css" href="/Content/Bootstrap-3.3.6/css/bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="/Content/Quill-0.20.1/quill.snow.css" />
     <link rel="stylesheet" type="text/css" href="/Content/Select2-4.0.1/css/select2.css" />

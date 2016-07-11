@@ -118,16 +118,14 @@ namespace WARP
                     NameSql = "DateUpd",
                     Type = TableColumnType.DateTime,
                     Width = 110,
-                    Align = TableColumnAlign.Center,
-                    EditType = TableColumnEditType.CurrentDateTime,
+                    Align = TableColumnAlign.Center
                 },
                 new TableColumn {
                     Caption = "Оператор",
                     NameSql = "User",
-                    FilterType = TableColumnFilterType.Autocomplete,
+                    //FilterType = TableColumnFilterType.Autocomplete,
                     Width = 150,
-                    LookUpTable = "User",
-                    EditType = TableColumnEditType.CurrentUser,
+                    LookUpTable = "User"
                 },
                 new TableColumn {
                     Caption = "Номер документа",
@@ -144,6 +142,7 @@ namespace WARP
                     FilterType = TableColumnFilterType.Autocomplete,
                     Width = 150,
                     LookUpTable = "DocTree",
+                    EditRequired = true,
                 },
                 new TableColumn {
                     Caption = "Вид документа",
@@ -151,7 +150,8 @@ namespace WARP
                     FilterType = TableColumnFilterType.DropDown,
                     Width = 150,
                     LookUpTable = "DocType",
-                    EditType = TableColumnEditType.DropDown,
+                    //EditType = TableColumnEditType.DropDown,
+                    EditRequired = true,
                 },
                 new TableColumn {
                     Caption = "Дата докум.",
@@ -159,6 +159,7 @@ namespace WARP
                     Type = TableColumnType.Date,
                     Width = 85,
                     Align = TableColumnAlign.Center,
+                    EditRequired = true,
                 },
                 new TableColumn {
                     Caption = "Содержание",
@@ -175,7 +176,8 @@ namespace WARP
                     Width = 250,
                     FilterType = TableColumnFilterType.Autocomplete,
                     LookUpTable = "Frm",
-                    EditType = TableColumnEditType.Autocomplete,
+                    //EditType = TableColumnEditType.Autocomplete,
+                    EditRequired = true,
                 },
                 new TableColumn {
                     Caption = "Сумма",
@@ -183,7 +185,8 @@ namespace WARP
                     Type = TableColumnType.Money,
                     Width = 100,
                     Align = TableColumnAlign.Right,
-                    EditType = TableColumnEditType.Money,
+                    //EditType = TableColumnEditType.Money,
+                    EditDefaultText = "0.00",
                 },
                 new TableColumn {
                     Caption = "Пакет",
@@ -191,7 +194,8 @@ namespace WARP
                     Type = TableColumnType.Integer,
                     Width = 50,
                     Align = TableColumnAlign.Center,
-                   EditType = TableColumnEditType.Integer,
+                    //EditType = TableColumnEditType.Integer,
+                    EditDefaultText = "0",
                 },
                 new TableColumn {
                     Caption = "Примечание",
@@ -207,59 +211,50 @@ namespace WARP
 
         private static string CheckSave(string curBase, string curTable, string curPage, string action, Dictionary<string, List<RequestData>> rows)
         {
-            throw new NotImplementedException();
+
+            // TODO : проверка при удлении на использование
+            return string.Empty;
         }
 
         public static string SaveData(string curBase, string curTable, string curPage, string action, Dictionary<string, List<RequestData>> rows)
         {
-            //
+            // Ответ
             string result = string.Empty;
 
-            //
+            // AJAX|JSON
             JavaScriptSerializer javaScriptSerializer = new JavaScriptSerializer();
 
             // Инитим нашу таблицу
             TableData tableData = InitTableData(curBase, curTable, curPage);
 
             // Чекаем на простые условия (обязательность, длинна и тд)
-            result = tableData.Check(curBase, curTable, curPage, action, rows);
+            if (action != "remove")
+                result = tableData.Check(curBase, curTable, curPage, action, rows);
 
             // Чекаем на условия конкретной таблицы
-            result = CheckSave(curBase, curTable, curPage, action, rows);
+            if (string.IsNullOrEmpty(result))
+                result = CheckSave(curBase, curTable, curPage, action, rows);
 
-            tableData.Save(curBase, curTable, curPage, action, rows);
+            // Сохраняем
+            if (string.IsNullOrEmpty(result))
+                result = tableData.Save(curBase, curTable, curPage, action, rows);
 
-            // Если нет ошибок
+            // Если все прошло гладко, отправляем гриду обновленные данные
             if (string.IsNullOrEmpty(result))
             {
                 // Список редактируемых ID
                 string ids = string.Empty;
-                foreach (string key in rows.Keys)
-                {
-                    ids += key + ",";
-                }
+                foreach (string key in rows.Keys) ids += key + ",";
 
                 // Получаем обновленные данные по этим id из базы
                 DataTable dt = GetData(curBase, curTable, curPage, tableData, 0, 500, "ID", "asc", ids.Substring(0, ids.Length - 1));
 
                 // Возвращаем JSON
                 if (dt != null)
-                {
-                    var buf = new { data = ComFunc.GetFormatData(tableData, dt) };
-                    result = javaScriptSerializer.Serialize(buf);
-                }
+                    result = javaScriptSerializer.Serialize(new { data = ComFunc.GetFormatData(tableData, dt) });
                 else
-                {
-                    var buf = new { error = "Обновленные данные не получены" };
-                    result = javaScriptSerializer.Serialize(buf);
-                }
+                    result = javaScriptSerializer.Serialize(new { error = "Обновленные данные не получены" });
             }
-            else // Если есть ошибка при сохранении
-            {
-                var buf = new { error = result };
-                result = javaScriptSerializer.Serialize(buf);
-            }
-
             return result;
         }
 
