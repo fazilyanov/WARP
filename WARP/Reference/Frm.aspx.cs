@@ -8,6 +8,7 @@ namespace WARP
 {
     public partial class Frm : System.Web.UI.Page
     {
+        !!!!!!!!!!!!!!!!!!!
         public string curPage;
         public string browserTabTitle;
         public string documentTitle;

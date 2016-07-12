@@ -98,6 +98,8 @@ namespace WARP
         public string SortCol { get; set; } = "ID"; // Столбец для сортировки
         public TableSortDir SortDir { get; set; } = TableSortDir.Desc; // Направление сортировки
         public List<TableColumn> ColumnList { get; set; } = null; // Список полей
+        public string BrowserTabTitle { get; set; } = string.Empty; // Текст на вкладке браузера
+        public string PageTitle { get; set; } = string.Empty; // Текст в шапке грида
 
         #endregion Свойства
 
@@ -131,8 +133,9 @@ namespace WARP
 
         #endregion Инициализация
 
-        #region HTML|JS
+        #region Генерация HTML|JS
 
+        // Форма для фильтра
         public string GenerateFilterFormDialog()
         {
             Dictionary<string, string> filterList = (Dictionary<string, string>)HttpContext.Current.Session[BaseSql + TableSql + PageName + "UserFilterList"];
@@ -151,6 +154,7 @@ namespace WARP
 
             // Общие функции для элементов формы
             // Отправка формы
+            sbFunc.AppendLine();
             sbFunc.AppendLine("        function FormSend() {");
             sbFunc.AppendLine("             var msg   = $('#filterform').serialize();");
             sbFunc.AppendLine("             $.ajax({");
@@ -391,8 +395,9 @@ namespace WARP
             sbResult.AppendLine("            </div>");
             sbResult.AppendLine("        </div>");
             sbResult.AppendLine("    </div>");
+            sbResult.AppendLine();
             sbResult.AppendLine("    <script>");
-            sbResult.Append(sbFunc.ToString());
+            sbResult.AppendLine(sbFunc.ToString());
             sbResult.AppendLine("        $(document).ready(function () {");
             sbResult.Append(sbJS.ToString());
             sbResult.AppendLine("        });");
@@ -401,17 +406,26 @@ namespace WARP
             return sbResult.ToString();
         }
 
-        public string GenerateHtmlTableColumns()
+        // HTML Таблица
+        public string GenerateHtmlTable()
         {
-            string ret = Environment.NewLine;
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendLine("<table id=\"table_id\" class=\"table table-striped table-bordered table-condensed\" style=\"table-layout: fixed; width: 100%\">");
+            sb.AppendLine("        <thead>");
+            sb.AppendLine("            <tr>");
             foreach (TableColumn item in ColumnList)
             {
-                ret += "               <th>" + item.Caption + "</th>" + Environment.NewLine;
+                sb.AppendLine("               <th>" + item.Caption + "</th>");
             }
-            return ret;
+            sb.AppendLine("            </tr>");
+            sb.AppendLine("        </thead>");
+            sb.AppendLine("    </table>");
+
+            return sb.ToString();
         }
 
-        // Генерит список js полей для editor'а
+        // Список полей для editor'а
         public string GenerateJSEditorTableColumns()
         {
             StringBuilder sb = new StringBuilder().AppendLine();
@@ -447,6 +461,7 @@ namespace WARP
             //}
         }
 
+        // Список полей для грида
         public string GenerateJSTableColumns()
         {
             string ret = Environment.NewLine;
@@ -457,7 +472,190 @@ namespace WARP
             return ret;
         }
 
-        #endregion HTML|JS
+        // Скрипт бинда изменения размеров рабочей области
+        public string GenerateJSWindowsResize()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine();
+            sb.AppendLine("        // Авторазмер");
+            sb.AppendLine("        $(window).bind('resize', function () {");
+            sb.AppendLine("            $('.dataTables_scrollBody').css('height', ($(window).height() - 125) + 'px');");
+            sb.AppendLine("        });");
+            return sb.ToString();
+        }
+
+        // Кнопоки грида
+        public string GenerateJSTableButtons()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("                    { extend: 'create', editor: editor, className: 'btn-sm', key: \"l\", text: '<span class=\"glyphicon glyphicon-plus\" title=\"Создать новую запись\"></span>' },");
+            sb.AppendLine("                    { extend: 'edit', editor: editor, className: 'btn-sm', key: \"h\", text: '<span class=\"glyphicon glyphicon-pencil\" title=\"Редактировать запись\"></span>' },");
+            sb.AppendLine("                    {");
+            sb.AppendLine("                        extend: \"selectedSingle\",");
+            sb.AppendLine("                        className: 'btn-sm',");
+            sb.AppendLine("                        text: '<span class=\"glyphicon glyphicon-duplicate\" title=\"Создать новую запись копированием текущей\"></span>',");
+            sb.AppendLine("                        action: function (e, dt, node, config) {");
+            sb.AppendLine("                            var values = editor.edit(");
+            sb.AppendLine("                                    table.row({ selected: true }).index(),");
+            sb.AppendLine("                                    false");
+            sb.AppendLine("                                )");
+            sb.AppendLine("                                .val();");
+            sb.AppendLine("                            editor");
+            sb.AppendLine("                                .create({");
+            sb.AppendLine("                                    title: 'Создание копированием записи',");
+            sb.AppendLine("                                    buttons: 'Создать'");
+            sb.AppendLine("                                })");
+            sb.AppendLine("                                .set(values);");
+            sb.AppendLine("                        }");
+            sb.AppendLine("                    },");
+            sb.AppendLine("                    { extend: 'remove', editor: editor, className: 'btn-sm btn-space', key: \"e\", text: '<span class=\"glyphicon glyphicon-trash\" title=\"Удалить текущую запись\"></span>' },");
+            sb.AppendLine("                    {");
+            sb.AppendLine("                        extend: 'collection',");
+            sb.AppendLine("                        text: 'Настройка таблицы',");
+            sb.AppendLine("                        buttons: [");
+            sb.AppendLine("                            {");
+            sb.AppendLine("                                extend: 'colvis',");
+            sb.AppendLine("                                text: 'Видимость столбцов',");
+            sb.AppendLine("                                postfixButtons: ['colvisRestore']");
+            sb.AppendLine("                            },");
+            sb.AppendLine("                            {");
+            sb.AppendLine("                                extend: 'pageLength',");
+            sb.AppendLine("                                text: 'Записей на страницу'");
+            sb.AppendLine("                            },");
+            sb.AppendLine("                            {");
+            sb.AppendLine("                                text: 'Сбросить все настройки',");
+            sb.AppendLine("                                action: function (e, dt, node, config) {");
+            sb.AppendLine("                                    dt.state.clear();");
+            sb.AppendLine("                                    window.location.reload();");
+            sb.AppendLine("                                }");
+            sb.AppendLine("                            }");
+            sb.AppendLine("                        ],");
+            sb.AppendLine("                        className: \"btn-sm\",");
+            sb.AppendLine("                    },");
+            sb.AppendLine("                    {");
+            sb.AppendLine("                        text: 'Фильтр',");
+            sb.AppendLine("                        action: function (e, dt, node, config) {");
+            sb.AppendLine("                            $('#modalFilterForm').modal();");
+            sb.AppendLine("                        },");
+            sb.AppendLine("                        key: \"a\",");
+            sb.AppendLine("                        className: \"btn-sm\",");
+            sb.AppendLine("                    }");
+            return sb.ToString();
+        }
+
+        // Список количества записей на странице
+        public string GenerateJSTableLengthMenu()
+        {
+            return "[30, 100, 200, 500], ['30 строк', '100 строк', '200 строк', '500 строк']";
+        }
+
+        // Editor
+        public string GenerateJSEditorInit()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine();
+            sb.AppendLine("            editor = new $.fn.dataTable.Editor({");
+            sb.AppendLine("                ajax: \"/Handler/SaveDataHandler.ashx?curBase=" + BaseSql + "&curTable=" + TableSql + "&curPage=" + PageName + "\",");
+            sb.AppendLine("                table: \"#table_id\",");
+            sb.AppendLine("                idSrc: 'ID',");
+            sb.AppendLine("                fields: [");
+            sb.AppendLine(GenerateJSEditorTableColumns());
+            sb.AppendLine("                ],");
+            sb.AppendLine("                i18n: {");
+            sb.AppendLine("                    create: {");
+            sb.AppendLine("                        button: \"Новая запись\",");
+            sb.AppendLine("                        title: \"Создание новой записи\",");
+            sb.AppendLine("                        submit: \"Создать\"");
+            sb.AppendLine("                    },");
+            sb.AppendLine("                    edit: {");
+            sb.AppendLine("                        button: \"Редактировать\",");
+            sb.AppendLine("                        title: \"Редактирование записи\",");
+            sb.AppendLine("                        submit: \"Сохранить\"");
+            sb.AppendLine("                    },");
+            sb.AppendLine("                    remove: {");
+            sb.AppendLine("                        button: \"Удалить\",");
+            sb.AppendLine("                        title: \"Удаление\",");
+            sb.AppendLine("                        submit: \"Подтвердить удаление\",");
+            sb.AppendLine("                        confirm: {");
+            sb.AppendLine("                            _: \"Подтвердите удаление %d записей?\",");
+            sb.AppendLine("                            1: \"Подтвердите удаление записи?\"");
+            sb.AppendLine("                        }");
+            sb.AppendLine("                    },");
+            sb.AppendLine("                    error: {");
+            sb.AppendLine("                        system: \"Произошла ошибка\"");
+            sb.AppendLine("                    },");
+            sb.AppendLine("                    multi: {");
+            sb.AppendLine("                        title: \"Множественное редактирование\",");
+            sb.AppendLine("                        restore: \"Отменить\"");
+            sb.AppendLine("                    },");
+            sb.AppendLine("                }");
+            sb.AppendLine("            });");
+            return sb.ToString();
+        }
+
+        // Grid
+        public string GenerateJSDataTable()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("            var table = $('#table_id').DataTable({");
+            sb.AppendLine("                dom: '<\"row top-toolbar\"<\"col-sm-4\"B><\"col-sm-4\"p><\"col-sm-4\"i>>Zrt',");
+            sb.AppendLine("                processing: true,");
+            sb.AppendLine("                serverSide: true,");
+            sb.AppendLine("                ajax: \"/Handler/GetDataHandler.ashx?curBase=" + BaseSql + "&curTable=" + TableSql + "&curPage=" + PageName + "\",");
+            sb.AppendLine("                columns: [");
+            sb.AppendLine(GenerateJSTableColumns());
+            sb.AppendLine("                ],");
+            sb.AppendLine("                autoWidth: false,");
+            sb.AppendLine("                select: true,");
+            sb.AppendLine("                colReorder: {realtime: false},");
+            sb.AppendLine("                colResize: {\"tableWidthFixed\": true},");
+            sb.AppendLine("                stateSave: true,");
+            sb.AppendLine("                scrollY: ($(window).height() - 125) + \"px\",");
+            sb.AppendLine("                scrollX: true,");
+            sb.AppendLine("                scrollCollapse: false,");
+            sb.AppendLine("                lengthMenu: [" + GenerateJSTableLengthMenu() + "],");
+            sb.AppendLine("                pagingType6: \"simple\",");
+            sb.AppendLine("                buttons: [");
+            sb.AppendLine(GenerateJSTableButtons());
+            sb.AppendLine("                ],");
+            sb.AppendLine("                language: {");
+            sb.AppendLine("                    url: '/content/DataTables-1.10.12/js/Russian.json'");
+            sb.AppendLine("                }");
+            sb.AppendLine("            });");
+            return sb.ToString();
+        }
+
+        // Собирает все вместе
+        public string GenerateHtml()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            // Таблица HTML
+            sb.AppendLine(GenerateHtmlTable());
+
+            // Фильтр
+            sb.AppendLine(GenerateFilterFormDialog());
+
+            //d
+
+            sb.AppendLine("    <script>");
+            sb.AppendLine("        var editor;");
+            sb.AppendLine(GenerateJSWindowsResize());
+            sb.AppendLine("        $(document).ready(function () {");
+            sb.AppendLine();
+            sb.AppendLine("            $('#curPageTitle').text('" + PageTitle + "');");
+            sb.AppendLine("            document.title = '" + BrowserTabTitle + "';");
+            sb.AppendLine(GenerateJSEditorInit());
+            sb.AppendLine(GenerateJSDataTable());
+
+            sb.AppendLine("            $(window).resize();");
+            sb.AppendLine("        });");
+            sb.AppendLine("    </script>");
+
+            return sb.ToString();
+        }
+
+        #endregion Генерация HTML|JS
 
         #region Получение данных
 
