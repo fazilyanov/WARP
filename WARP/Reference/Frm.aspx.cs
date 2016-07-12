@@ -34,37 +34,6 @@ namespace WARP
             return tableData;
         }
 
-        public static DataTable GetData(string curBase, string curTable, string archivePage, TableData tableData, int displayStart, int displayLength, string sortCol, string sortDir)
-        {
-            SqlParameter[] sqlParameterArray = {
-                new SqlParameter { ParameterName = "@displayStart", SqlDbType = SqlDbType.Int, Value = displayStart },
-                new SqlParameter { ParameterName = "@displayLength", SqlDbType = SqlDbType.Int, Value = displayLength }
-            };
-
-            DataTable dt = ComFunc.GetData(tableData.GetDefaultSql(curBase, curTable, sortCol, sortDir), sqlParameterArray);
-            return dt;
-        }
-
-        public static string GetJsonData(string curBase, string curTable, string archivePage, int draw, int displayStart, int displayLength, int iSortCol, string sortDir)
-        {
-            string ret = "";
-            TableData tableData = InitTableData();
-            string sortCol = tableData.ColumnList.Count >= iSortCol ? tableData.ColumnList[iSortCol].NameSql : "";
-            DataTable dt = GetData(curBase, curTable, archivePage, tableData, displayStart, displayLength, sortCol, sortDir);
-            if (dt != null)
-            {
-                var result = new
-                {
-                    draw,
-                    recordsTotal = (int)ComFunc.ExecuteScalar("SELECT COUNT(*) FROM [dbo].[" + curBase + curTable + "]"),
-                    recordsFiltered = Convert.ToInt32(dt.Rows.Count > 0 ? dt.Rows[0]["recordsFiltered"] : 0),
-                    data = ComFunc.GetFormatData(tableData, dt)
-                };
-
-                JavaScriptSerializer js = new JavaScriptSerializer();
-                ret = js.Serialize(result);
-            }
-            return ret;
-        }
+               
     }
 }

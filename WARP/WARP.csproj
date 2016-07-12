@@ -339,6 +339,7 @@
     </Compile>
     <Compile Include="Base\ArchivePage.cs" />
     <Compile Include="Base\ComFunc.cs" />
+    <Compile Include="Base\TableDataArchive.cs" />
     <Compile Include="Base\TableData.cs" />
     <Compile Include="Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>

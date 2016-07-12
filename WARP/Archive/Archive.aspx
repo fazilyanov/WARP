@@ -3,6 +3,9 @@
 <%@ MasterType VirtualPath="~/Site.master" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="cph" runat="server">
+    <%=tableData.GenerateHtml()%>
+
+    
     <table id="table_id" class="table table-striped table-bordered table-condensed" style="table-layout: fixed; width: 100%">
         <thead>
             <tr>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Web;
@@ -48,6 +49,20 @@ namespace WARP
         Date,
     }
 
+    public enum TableAction
+    {
+        None,
+        Create,
+        Edit,
+        Remove
+    }
+
+    public enum TableSortDir
+    {
+        Asc,
+        Desc
+    }
+
     public class TableColumn
     {
         public TableColumnAlign Align { get; set; } = TableColumnAlign.Left;
@@ -72,10 +87,51 @@ namespace WARP
 
     public class TableData
     {
-        public string BaseSql { get; set; } = string.Empty;
-        public List<TableColumn> ColumnList { get; set; } = null;
-        public string PageName { get; set; } = string.Empty;
-        public string TableSql { get; set; } = string.Empty;
+        #region Свойства
+
+        public string BaseSql { get; set; } = string.Empty; // База
+        public string TableSql { get; set; } = string.Empty; // Таблица
+        public string PageName { get; set; } = string.Empty; // Страница
+        public int DrawCount { get; set; } = 0; // Счетчик запросов от грида, нужно его возвращать неизменным
+        public int DisplayStart { get; set; } = 0; // Количество строк, которые нужно пропустить
+        public int DisplayLength { get; set; } = 500; // Количество строк, которые нужно показать
+        public string SortCol { get; set; } = "ID"; // Столбец для сортировки
+        public TableSortDir SortDir { get; set; } = TableSortDir.Desc; // Направление сортировки
+        public List<TableColumn> ColumnList { get; set; } = null; // Список полей
+
+        #endregion Свойства
+
+        #region Инициализация
+
+        // Конструктор
+        public TableData()
+        {
+        }
+
+        // Инициализация
+        public void Init(string baseSql, string tableSql, string pageName)
+        {
+            BaseSql = baseSql;
+            TableSql = tableSql;
+            PageName = pageName;
+        }
+
+        // Инициализация
+        public void Init(string baseSql, string tableSql, string pageName, int drawCount, int displayStart, int displayLength, int sortCol, string sortDir)
+        {
+            BaseSql = baseSql;
+            TableSql = tableSql;
+            PageName = pageName;
+            DrawCount = drawCount;
+            DisplayStart = displayStart;
+            DisplayLength = displayLength;
+            SortCol = ColumnList.Count >= sortCol ? ColumnList[sortCol].NameSql : string.Empty;
+            SortDir = sortDir == "asc" ? TableSortDir.Asc : TableSortDir.Desc;
+        }
+
+        #endregion Инициализация
+
+        #region HTML|JS
 
         public string GenerateFilterFormDialog()
         {
@@ -401,6 +457,10 @@ namespace WARP
             return ret;
         }
 
+        #endregion HTML|JS
+
+        #region Получение данных
+
         public string GenerateWhereClause()
         {
             StringBuilder sbWhere = new StringBuilder();
@@ -472,39 +532,118 @@ namespace WARP
             return sbWhere.ToString();
         }
 
-        // TODO :  Разобраться
-        public string GetDefaultSql(string curBase, string curTable, string sortCol, string sortDir)
+        public virtual DataTable GetData(string ids = null)
         {
-            StringBuilder sbWhere = new StringBuilder();
             StringBuilder sbQuery = new StringBuilder();
+            string sWhere = GenerateWhereClause();
+
             sbQuery.AppendLine("DECLARE @recordsFiltered int;");
             sbQuery.AppendLine("SELECT @recordsFiltered=count(*)");
-            sbQuery.AppendLine("FROM [dbo].[" + curBase + curTable + "] a");
+            sbQuery.AppendLine("FROM [dbo].[" + BaseSql + TableSql + "] a");
             sbQuery.AppendLine("WHERE");
             sbQuery.AppendLine("	a.Del=0");
-            sbQuery.AppendLine(sbWhere.ToString());
-
+            sbQuery.AppendLine(sWhere);
+            if (!string.IsNullOrEmpty(ids))
+                sbQuery.AppendLine(" AND a.id in (" + ids + ")");
             sbQuery.AppendLine(";");
 
             sbQuery.AppendLine("SELECT * FROM  (");
             sbQuery.AppendLine("   SELECT @recordsFiltered AS recordsFiltered");
-            foreach (TableColumn item in ColumnList)
-            {
-                sbQuery.AppendLine("   ,T." + item.NameSql);
-            }
-            sbQuery.AppendLine("   ,T.Del");
-            sbQuery.AppendLine("   FROM [dbo].[" + curBase + curTable + "] T");
+            sbQuery.AppendLine("   ,T.*");
+            sbQuery.AppendLine("   FROM [dbo].[" + BaseSql + TableSql + "] T");
+            sbQuery.AppendLine("   LEFT JOIN [dbo].[Frm] F on T.IdFrmContr = F.ID");
+            sbQuery.AppendLine("   LEFT JOIN [dbo].[User] U on T.IdUser = U.ID");
+            sbQuery.AppendLine("   LEFT JOIN [dbo].[DocType] DT on T.IdDocType = DT.ID");
+            sbQuery.AppendLine("   LEFT JOIN [dbo].[DocTree] DT2 on T.IdDocTree = DT2.ID");
             sbQuery.AppendLine(") a");
             sbQuery.AppendLine("WHERE");
             sbQuery.AppendLine("	a.Del=0");
-            sbQuery.AppendLine(sbWhere.ToString());
-            sbQuery.AppendLine("ORDER BY " + sortCol + " " + sortDir);
+            sbQuery.AppendLine(sWhere);
+            if (!string.IsNullOrEmpty(ids))
+                sbQuery.AppendLine(" AND a.id in (" + ids + ")");
+
+            sbQuery.AppendLine("ORDER BY a.[" + SortCol + "] " + SortDir);
             sbQuery.AppendLine("OFFSET @displayStart ROWS FETCH FIRST @displayLength ROWS ONLY");
 
-            return sbQuery.ToString();
+            SqlParameter[] sqlParameterArray = {
+                new SqlParameter { ParameterName = "@displayStart", SqlDbType = SqlDbType.Int, Value = DisplayStart },
+                new SqlParameter { ParameterName = "@displayLength", SqlDbType = SqlDbType.Int, Value = DisplayLength }
+            };
+
+            DataTable dt = ComFunc.GetData(sbQuery.ToString(), sqlParameterArray);
+            return dt;
+
+            return null;
         }
 
-        internal string Check(string curBase, string curTable, string curPage, string action, Dictionary<string, List<RequestData>> rows)
+        private List<Dictionary<string, object>> GetFormatData(DataTable dt)
+        {
+            List<Dictionary<string, object>> data = new List<Dictionary<string, object>>();
+            Dictionary<string, object> row;
+            CultureInfo ruRu = CultureInfo.CreateSpecificCulture("ru-RU");
+            foreach (DataRow dr in dt.Rows)
+            {
+                row = new Dictionary<string, object>();
+
+                foreach (TableColumn column in ColumnList)
+                {
+                    switch (column.Type)
+                    {
+                        case TableColumnType.Integer:
+                            row.Add(column.NameSql, Convert.ToInt32(dr[column.NameSql]));
+                            break;
+
+                        case TableColumnType.Money:
+                            row.Add(column.NameSql, String.Format(ruRu, "{0:0,0.00}", Convert.ToDecimal(dr[column.NameSql])));
+                            break;
+
+                        case TableColumnType.DateTime:
+                            row.Add(column.NameSql, ((DateTime)dr[column.NameSql]).ToString("dd.MM.yyyy HH:mm:ss"));
+                            break;
+
+                        case TableColumnType.Date:
+                            if (dr[column.NameSql] is DBNull)
+                                row.Add(column.NameSql, string.Empty);
+                            else
+                                row.Add(column.NameSql, ((DateTime)dr[column.NameSql]).ToString("dd.MM.yyyy"));
+                            break;
+
+                        case TableColumnType.String:
+                        default:
+                            row.Add(column.NameSql, dr[column.NameSql].ToString());
+                            break;
+                    }
+                }
+                data.Add(row);
+            }
+            return data;
+        }
+
+        public string GetJsonData()
+        {
+            string ret = string.Empty;
+            DataTable dt = GetData();
+            if (dt != null)
+            {
+                var result = new
+                {
+                    draw = DrawCount,
+                    recordsTotal = (int)ComFunc.ExecuteScalar("SELECT COUNT(*) FROM [dbo].[" + BaseSql + TableSql + "]"),
+                    recordsFiltered = Convert.ToInt32(dt.Rows.Count > 0 ? dt.Rows[0]["recordsFiltered"] : 0),
+                    data = GetFormatData(dt)
+                };
+
+                JavaScriptSerializer js = new JavaScriptSerializer();
+                ret = js.Serialize(result);
+            }
+            return ret;
+        }
+
+        #endregion Получение данных
+
+        #region Редактирование
+
+        internal string Validate(Dictionary<string, List<RequestData>> rows)
         {
             List<FieldErrors> fieldErrors = new List<FieldErrors>();
 
@@ -586,7 +725,52 @@ namespace WARP
             }
         }
 
-        public string Save(string curBase, string curTable, string curPage, string action, Dictionary<string, List<RequestData>> rows)
+        public virtual string Check(TableAction tableAction, Dictionary<string, List<RequestData>> rows)
+        {
+            // TODO : проверка при удлении на использование
+            return string.Empty;
+        }
+
+        public string Process(TableAction tableAction, Dictionary<string, List<RequestData>> requestRows)
+        {
+            // Ответ
+            string result = string.Empty;
+
+            // AJAX|JSON
+            JavaScriptSerializer javaScriptSerializer = new JavaScriptSerializer();
+
+            // Чекаем на простые условия (обязательность, длинна и тд)
+            if (tableAction != TableAction.Remove)
+                result = Validate(requestRows);
+
+            // Чекаем на условия конкретной таблицы
+            if (string.IsNullOrEmpty(result))
+                result = Check(tableAction, requestRows);
+
+            // Сохраняем
+            if (string.IsNullOrEmpty(result))
+                result = Save(tableAction, requestRows);
+
+            // Если все прошло гладко, отправляем гриду обновленные данные
+            if (string.IsNullOrEmpty(result))
+            {
+                // Список редактируемых ID
+                string ids = string.Empty;
+                foreach (string key in requestRows.Keys) ids += key + ",";
+
+                // Получаем обновленные данные по этим id из базы
+                DataTable dt = GetData(ids.Substring(0, ids.Length - 1));
+
+                // Возвращаем JSON
+                if (dt != null)
+                    result = javaScriptSerializer.Serialize(new { data = GetFormatData(dt) });
+                else
+                    result = javaScriptSerializer.Serialize(new { error = "Обновленные данные не получены" });
+            }
+            return result;
+        }
+
+        public string Save(TableAction tableAction, Dictionary<string, List<RequestData>> rows)
         {
             string result = string.Empty;
 
@@ -605,9 +789,9 @@ namespace WARP
             try
             {
                 // Выбираем переданное действие
-                switch (action)
+                switch (tableAction)
                 {
-                    case "create":
+                    case TableAction.Create:
                         // Для каждой переданной строки с данными, создаем строку запроса и параметры к ней, выполняем запрос
                         foreach (KeyValuePair<string, List<RequestData>> pair in rows)
                         {
@@ -615,7 +799,7 @@ namespace WARP
                             param = new List<SqlParameter>();
 
                             // Обновляем запись в главной таблице
-                            query.AppendLine("INSERT INTO [dbo].[" + curBase + curTable + "]");
+                            query.AppendLine("INSERT INTO [dbo].[" + BaseSql + TableSql + "]");
                             query.AppendLine("    ([IdUser]"); // Пользователь внесший изменения
                             query.AppendLine("    ,[DateUpd]"); // Дата внесения
 
@@ -624,8 +808,8 @@ namespace WARP
                             query.AppendLine("    )");
 
                             query.AppendLine("VALUES ");
-                            query.AppendLine("    (@IdUser"); 
-                            query.AppendLine("    ,GetDate()"); 
+                            query.AppendLine("    (@IdUser");
+                            query.AppendLine("    ,GetDate()");
                             param.Add(new SqlParameter { ParameterName = "@ID", SqlDbType = SqlDbType.Int, Value = pair.Key });
                             param.Add(new SqlParameter { ParameterName = "@IdUser", SqlDbType = SqlDbType.Int, Value = HttpContext.Current.Session["UserId"].ToString() });
                             foreach (RequestData rd in pair.Value)
@@ -641,7 +825,7 @@ namespace WARP
                         }
                         break;
 
-                    case "edit":
+                    case TableAction.Edit:
                         // Для каждой переданной строки с данными, создаем строку запроса и параметры к ней, выполняем запрос
                         foreach (KeyValuePair<string, List<RequestData>> pair in rows)
                         {
@@ -649,10 +833,10 @@ namespace WARP
                             param = new List<SqlParameter>();
 
                             // Копируем текущую строку в таблицу истрории
-                            query.AppendLine("INSERT INTO [dbo].[" + curBase + curTable + "History] Select * from[dbo].[" + curBase + curTable + "] where ID = @ID;");
+                            query.AppendLine("INSERT INTO [dbo].[" + BaseSql + TableSql + "History] Select * from[dbo].[" + BaseSql + TableSql + "] where ID = @ID;");
 
                             // Обновляем запись в главной таблице
-                            query.AppendLine("UPDATE[dbo].[" + curBase + curTable + "] SET");
+                            query.AppendLine("UPDATE[dbo].[" + BaseSql + TableSql + "] SET");
                             query.AppendLine("     [IdUser] = @IdUser"); // Пользователь внесший изменения
                             query.AppendLine("    ,[DateUpd] = GetDate()"); // Дата внесения
                             foreach (RequestData rd in pair.Value)
@@ -670,18 +854,18 @@ namespace WARP
                             sqlCommand.ExecuteNonQuery();
                         }
                         break;
-                    // TODO : удалять из основной и версий совсем устаревшие данные (полгода), routine
-                    case "remove":
+
+                    case TableAction.Remove:// TODO : удалять из основной и версий совсем устаревшие данные (полгода), routine
                         foreach (KeyValuePair<string, List<RequestData>> pair in rows)
                         {
                             query = new StringBuilder();
                             param = new List<SqlParameter>();
 
                             // Копируем текущую строку в таблицу истрории
-                            query.AppendLine("INSERT INTO [dbo].[" + curBase + curTable + "History] Select * from[dbo].[" + curBase + curTable + "] where ID = @ID;");
+                            query.AppendLine("INSERT INTO [dbo].[" + BaseSql + TableSql + "History] Select * from[dbo].[" + BaseSql + TableSql + "] where ID = @ID;");
 
                             // Обновляем запись в главной таблице
-                            query.AppendLine("UPDATE[dbo].[" + curBase + curTable + "] SET");
+                            query.AppendLine("UPDATE[dbo].[" + BaseSql + TableSql + "] SET");
                             query.AppendLine("     [IdUser] = @IdUser"); // Пользователь внесший изменения
                             query.AppendLine("    ,[DateUpd] = GetDate()"); // Дата внесения
                             query.AppendLine("    ,[Del] = 1"); // Дата внесения
@@ -693,7 +877,7 @@ namespace WARP
                             sqlCommand = new SqlCommand(query.ToString(), sqlConnection, sqlTransaction);
                             sqlCommand.Parameters.AddRange(param.ToArray());
                             sqlCommand.ExecuteNonQuery();
-                            result = "{}";
+                            result = "{}"; // После удаления, грид должен получить пустой объект
                         }
                         break;
                 }
@@ -716,5 +900,7 @@ namespace WARP
 
             return result;
         }
+
+        #endregion Редактирование
     }
 }

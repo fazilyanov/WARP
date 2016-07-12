@@ -30,10 +30,24 @@ namespace WARP
             // Страница
             string curPage = context.Request["curPage"];
             // Действие
-            string action = context.Request["action"];
+            TableAction tableAction = TableAction.None;
+            switch (context.Request["action"])
+            {
+                case "create":
+                    tableAction = TableAction.Create;
+                    break;
+
+                case "edit":
+                    tableAction = TableAction.Edit;
+                    break;
+
+                case "remove":
+                    tableAction = TableAction.Remove;
+                    break;
+            }
 
             // Список переданных строк, ключ - ID
-            Dictionary<string, List<RequestData>> rows = new Dictionary<string, List<RequestData>>();
+            Dictionary<string, List<RequestData>> requestRows = new Dictionary<string, List<RequestData>>();
 
             // Парсим переданные параметры
             string[] buf;
@@ -42,13 +56,13 @@ namespace WARP
                 if (item != "action") // Пропускаем параметр «action»
                 {
                     buf = item.Replace("data[", "").Replace("]", "").Split('[');
-                    if (rows.ContainsKey(buf[0])) // Если в списке есть строка для текущего ключа, просто добавляем оставшиеся Имя/Значение поля
+                    if (requestRows.ContainsKey(buf[0])) // Если в списке есть строка для текущего ключа, просто добавляем оставшиеся Имя/Значение поля
                     {
-                        rows[buf[0]].Add(new RequestData { FieldName = buf[1], FieldValue = context.Request.Form[item].Trim() });
+                        requestRows[buf[0]].Add(new RequestData { FieldName = buf[1], FieldValue = context.Request.Form[item].Trim() });
                     }
                     else // Если нет, создаем ее
                     {
-                        rows.Add(buf[0], new List<RequestData> { new RequestData { FieldName = buf[1], FieldValue = context.Request.Form[item].Trim() } });
+                        requestRows.Add(buf[0], new List<RequestData> { new RequestData { FieldName = buf[1], FieldValue = context.Request.Form[item].Trim() } });
                     }
                 }
             }
@@ -57,7 +71,9 @@ namespace WARP
             {
                 case "Archive":
                     // Сохраняем
-                    context.Response.Write(Archive.SaveData(curBase, curTable, curPage, action, rows));
+                    TableDataArchive tableData = new TableDataArchive();
+                    tableData.Init(curBase, curTable, curPage);
+                    context.Response.Write(tableData.Process(tableAction, requestRows));
 
                     //{
                     //"data": [
