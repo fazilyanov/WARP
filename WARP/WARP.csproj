@@ -339,7 +339,6 @@
     </Compile>
     <Compile Include="Base\ArchivePage.cs" />
     <Compile Include="Base\ComFunc.cs" />
-    <Compile Include="Base\TableDataArchive.cs" />
     <Compile Include="Base\TableData.cs" />
     <Compile Include="Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>
@@ -371,7 +370,6 @@
     </Compile>
     <Compile Include="Reference\Frm.aspx.cs">
       <DependentUpon>Frm.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Reference\Frm.aspx.designer.cs">
       <DependentUpon>Frm.aspx</DependentUpon>

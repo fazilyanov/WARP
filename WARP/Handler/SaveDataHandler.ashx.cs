@@ -66,42 +66,22 @@ namespace WARP
                     }
                 }
             }
-
+            TableData tableData = null;
             switch (curTable)
             {
                 case "Archive":
-                    // Сохраняем
-                    TableDataArchive tableData = new TableDataArchive();
-                    tableData.Init(curBase, curTable, curPage);
-                    context.Response.Write(tableData.Process(tableAction, requestRows));
+                    tableData = new TableDataArchive();
+                    break;
 
-                    //{
-                    //"data": [
-                    //            {
-                    //                 "DT_RowId":   "row_29",
-                    //                "first_name": "Fiona",
-                    //                "last_name":  "Green",
-                    //                "position":   "Chief Operating Officer (COO)",
-                    //                "office":     "San Francisco",
-                    //                "extn":       "2947",
-                    //                "salary":     "850000",
-                    //                "start_date": "2010-03-11"
-                    //            }
-                    //        ]
-                    //}
-
-                    ////string w = "0";
-                    //foreach (string item in rows.Keys)
-                    //{
-                    //    w += "," + item;
-                    //}
-
-                    //context.Response( Archive.GetJsonData(curBase, curTable, curPage, 0, 0, 500, 0, "asc", w));
+                case "Frm":
+                    tableData = new TableDataFrm();
                     break;
 
                 default:
                     break;
             }
+            tableData.Init(curBase, curTable, curPage);
+            context.Response.Write(tableData.Process(tableAction, requestRows));
         }
 
         public bool IsReusable

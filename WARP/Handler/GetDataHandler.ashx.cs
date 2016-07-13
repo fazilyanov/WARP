@@ -28,10 +28,15 @@ namespace WARP
                 case "Archive":
                     tableData = new TableDataArchive();
                     break;
+
                 case "Frm":
-                case "User":
-                    tableData = new TableData();
+                    tableData = new TableDataFrm();
                     break;
+
+                case "User":
+
+                    break;
+
                 default:
                     break;
             }

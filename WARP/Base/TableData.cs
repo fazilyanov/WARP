@@ -110,6 +110,14 @@ namespace WARP
         {
         }
 
+
+        // Инициализация
+        public void Init(string baseSql, string tableSql)
+        {
+            BaseSql = baseSql;
+            TableSql = tableSql;
+        }
+
         // Инициализация
         public void Init(string baseSql, string tableSql, string pageName)
         {
@@ -748,11 +756,9 @@ namespace WARP
             sbQuery.AppendLine("SELECT * FROM  (");
             sbQuery.AppendLine("   SELECT @recordsFiltered AS recordsFiltered");
             sbQuery.AppendLine("   ,T.*");
+            sbQuery.AppendLine("   ,U.Name as [User]");
             sbQuery.AppendLine("   FROM [dbo].[" + BaseSql + TableSql + "] T");
-            sbQuery.AppendLine("   LEFT JOIN [dbo].[Frm] F on T.IdFrmContr = F.ID");
             sbQuery.AppendLine("   LEFT JOIN [dbo].[User] U on T.IdUser = U.ID");
-            sbQuery.AppendLine("   LEFT JOIN [dbo].[DocType] DT on T.IdDocType = DT.ID");
-            sbQuery.AppendLine("   LEFT JOIN [dbo].[DocTree] DT2 on T.IdDocTree = DT2.ID");
             sbQuery.AppendLine(") a");
             sbQuery.AppendLine("WHERE");
             sbQuery.AppendLine("	a.Del=0");
@@ -796,7 +802,10 @@ namespace WARP
                             break;
 
                         case TableColumnType.DateTime:
-                            row.Add(column.NameSql, ((DateTime)dr[column.NameSql]).ToString("dd.MM.yyyy HH:mm:ss"));
+                            if (dr[column.NameSql] is DBNull)
+                                row.Add(column.NameSql, string.Empty);
+                            else
+                                row.Add(column.NameSql, ((DateTime)dr[column.NameSql]).ToString("dd.MM.yyyy HH:mm:ss"));
                             break;
 
                         case TableColumnType.Date:
