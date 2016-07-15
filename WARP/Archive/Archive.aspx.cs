@@ -13,100 +13,100 @@ namespace WARP
             ColumnList = new List<TableColumn>()
             {
                 new TableColumn {
-                    Caption = "ID",
-                    NameSql = "ID",
-                    Type = TableColumnType.Integer,
-                    Width = 30,
+                    ViewCaption = "Код ЭА",
+                    DataNameSql = "IDH",
+                    DataType = TableColumnType.Integer,
+                    ViewWidth = 30,
                     EditType = TableColumnEditType.None,
                 },
                 new TableColumn {
-                    Caption = "Дата редак.",
-                    NameSql = "DateUpd",
-                    Type = TableColumnType.DateTime,
-                    Width = 30,
-                    Align = TableColumnAlign.Center
+                    ViewCaption = "Дата редак.",
+                    DataNameSql = "DateUpd",
+                    DataType = TableColumnType.DateTime,
+                    ViewWidth = 30,
+                    ViewAlign = TableColumnAlign.Center
                 },
                 new TableColumn {
-                    Caption = "Оператор",
-                    NameSql = "User",
+                    ViewCaption = "Оператор",
+                    DataNameSql = "User",
                     //FilterType = TableColumnFilterType.Autocomplete,
-                    Width = 40,
-                    LookUpTable = "User"
+                    ViewWidth = 40,
+                    DataLookUpTable = "User"
                 },
                 new TableColumn {
-                    Caption = "Номер документа",
-                    NameSql = "NumDoc",
-                    Width = 300,
+                    ViewCaption = "Номер документа",
+                    DataNameSql = "NumDoc",
+                    ViewWidth = 300,
                     FilterType = TableColumnFilterType.String,
                     EditType = TableColumnEditType.String,
                     EditRequired = true,
                     EditMax = 250,
                 },
                 new TableColumn {
-                    Caption = "Документ",
-                    NameSql = "DocTree",
+                    ViewCaption = "Документ",
+                    DataNameSql = "DocTree",
                     FilterType = TableColumnFilterType.Autocomplete,
-                    Width = 150,
-                    LookUpTable = "DocTree",
+                    ViewWidth = 150,
+                    DataLookUpTable = "DocTree",
                     EditRequired = true,
                 },
                 new TableColumn {
-                    Caption = "Вид документа",
-                    NameSql = "DocType",
+                    ViewCaption = "Вид документа",
+                    DataNameSql = "DocType",
                     FilterType = TableColumnFilterType.DropDown,
-                    Width = 150,
-                    LookUpTable = "DocType",
+                    ViewWidth = 150,
+                    DataLookUpTable = "DocType",
                     //EditType = TableColumnEditType.DropDown,
                     EditRequired = true,
                 },
                 new TableColumn {
-                    Caption = "Дата докум.",
-                    NameSql = "DocDate",
-                    Type = TableColumnType.Date,
-                    Width = 85,
-                    Align = TableColumnAlign.Center,
+                    ViewCaption = "Дата докум.",
+                    DataNameSql = "DocDate",
+                    DataType = TableColumnType.Date,
+                    ViewWidth = 85,
+                    ViewAlign = TableColumnAlign.Center,
                     EditRequired = true,
                 },
                 new TableColumn {
-                    Caption = "Содержание",
-                    NameSql = "DocContent",
-                    Width = 300,
+                    ViewCaption = "Содержание",
+                    DataNameSql = "DocContent",
+                    ViewWidth = 300,
                     FilterType = TableColumnFilterType.String,
                     EditType = TableColumnEditType.String,
                     EditMax = 250,
                 },
                 new TableColumn
                 {
-                    Caption = "Контрагент",
-                    NameSql = "FrmContr",
-                    Width = 250,
+                    ViewCaption = "Контрагент",
+                    DataNameSql = "FrmContr",
+                    ViewWidth = 250,
                     FilterType = TableColumnFilterType.Autocomplete,
-                    LookUpTable = "Frm",
+                    DataLookUpTable = "Frm",
                     //EditType = TableColumnEditType.Autocomplete,
                     EditRequired = true,
                 },
                 new TableColumn {
-                    Caption = "Сумма",
-                    NameSql = "Summ",
-                    Type = TableColumnType.Money,
-                    Width = 100,
-                    Align = TableColumnAlign.Right,
+                    ViewCaption = "Сумма",
+                    DataNameSql = "Summ",
+                    DataType = TableColumnType.Money,
+                    ViewWidth = 100,
+                    ViewAlign = TableColumnAlign.Right,
                     //EditType = TableColumnEditType.Money,
                     EditDefaultText = "0.00",
                 },
                 new TableColumn {
-                    Caption = "Пакет",
-                    NameSql = "DocPack",
-                    Type = TableColumnType.Integer,
-                    Width = 50,
-                    Align = TableColumnAlign.Center,
+                    ViewCaption = "Пакет",
+                    DataNameSql = "DocPack",
+                    DataType = TableColumnType.Integer,
+                    ViewWidth = 50,
+                    ViewAlign = TableColumnAlign.Center,
                     //EditType = TableColumnEditType.Integer,
                     EditDefaultText = "0",
                 },
                 new TableColumn {
-                    Caption = "Примечание",
-                    NameSql = "Prim",
-                    Width = 300,
+                    ViewCaption = "Примечание",
+                    DataNameSql = "Prim",
+                    ViewWidth = 300,
                     FilterType = TableColumnFilterType.String,
                     EditType = TableColumnEditType.String,
                     EditMax = 250,
@@ -117,29 +117,43 @@ namespace WARP
         public override DataTable GetData(string ids = null)
         {
             StringBuilder sbQuery = new StringBuilder();
-            string sWhere = GenerateWhereClause();
+            // Условия отборки
+            StringBuilder sbWhere = new StringBuilder();
+
+            if (!ShowDelRows)
+                sbWhere.AppendLine("	a.Del=0 ");
+            else
+                sbWhere.AppendLine("	a.Del=1 ");
+
+            if (!ShowNoneActiveRows)
+                sbWhere.AppendLine("	AND a.Active=1 ");
+
+            sbWhere.AppendLine(GenerateWhereClause());
+
+            if (!string.IsNullOrEmpty(ids))
+                sbWhere.AppendLine("    AND a.id in (" + ids + ")");
 
             sbQuery.AppendLine("DECLARE @recordsFiltered int;");
             sbQuery.AppendLine("SELECT @recordsFiltered=count(*)");
-            sbQuery.AppendLine("FROM [dbo].[" + BaseSql + TableSql + "] a");
+            sbQuery.AppendLine("FROM [dbo].[" + SqlBase + TableSql + "] a");
             sbQuery.AppendLine("WHERE");
-            sbQuery.AppendLine("	a.Del=0");
-            sbQuery.AppendLine(sWhere);
-            if (!string.IsNullOrEmpty(ids))
-                sbQuery.AppendLine(" AND a.id in (" + ids + ")");
+            sbQuery.AppendLine(sbWhere.ToString());
             sbQuery.AppendLine(";");
 
             sbQuery.AppendLine("SELECT * FROM  (");
             sbQuery.AppendLine("   SELECT @recordsFiltered AS recordsFiltered");
-            sbQuery.AppendLine("   ,T.ID");
+            sbQuery.AppendLine("   ,T.IDH");
+            sbQuery.AppendLine("   ,T.Active");
+            sbQuery.AppendLine("   ,T.Del");
+            sbQuery.AppendLine("   ,T.DateUpd");
+            sbQuery.AppendLine("   ,T.IdUser");
+            //
             sbQuery.AppendLine("   ,T.NumDoc");
             sbQuery.AppendLine("   ,T.DocDate");
             sbQuery.AppendLine("   ,T.IdDocType");
             sbQuery.AppendLine("   ,DT.Name as DocType");
             sbQuery.AppendLine("   ,T.IdDocTree");
             sbQuery.AppendLine("   ,DT2.Name as DocTree");
-            sbQuery.AppendLine("   ,T.DateUpd");
-            sbQuery.AppendLine("   ,T.IdUser");
             sbQuery.AppendLine("   ,U.Name as [User]");
             sbQuery.AppendLine("   ,T.Prim");
             sbQuery.AppendLine("   ,T.DocContent");
@@ -147,19 +161,14 @@ namespace WARP
             sbQuery.AppendLine("   ,F.Name as FrmContr");
             sbQuery.AppendLine("   ,T.Summ");
             sbQuery.AppendLine("   ,T.DocPack");
-            sbQuery.AppendLine("   ,T.Del");
-            sbQuery.AppendLine("   FROM [dbo].[" + BaseSql + TableSql + "] T");
+            sbQuery.AppendLine("   FROM [dbo].[" + SqlBase + TableSql + "] T");
             sbQuery.AppendLine("   LEFT JOIN [dbo].[Frm] F on T.IdFrmContr = F.ID");
             sbQuery.AppendLine("   LEFT JOIN [dbo].[User] U on T.IdUser = U.ID");
             sbQuery.AppendLine("   LEFT JOIN [dbo].[DocType] DT on T.IdDocType = DT.ID");
             sbQuery.AppendLine("   LEFT JOIN [dbo].[DocTree] DT2 on T.IdDocTree = DT2.ID");
             sbQuery.AppendLine(") a");
             sbQuery.AppendLine("WHERE");
-            sbQuery.AppendLine("	a.Del=0");
-            sbQuery.AppendLine(sWhere);
-            if (!string.IsNullOrEmpty(ids))
-                sbQuery.AppendLine(" AND a.id in (" + ids + ")");
-
+            sbQuery.AppendLine(sbWhere.ToString());
             sbQuery.AppendLine("ORDER BY a.[" + SortCol + "] " + SortDir);
             sbQuery.AppendLine("OFFSET @displayStart ROWS FETCH FIRST @displayLength ROWS ONLY");
 

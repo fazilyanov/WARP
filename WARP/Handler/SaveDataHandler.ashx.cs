@@ -81,7 +81,9 @@ namespace WARP
                     break;
             }
             tableData.Init(curBase, curTable, curPage);
-            context.Response.Write(tableData.Process(tableAction, requestRows));
+            tableData.Action = tableAction;
+            tableData.RequestRows = requestRows;
+            context.Response.Write(tableData.Process());
         }
 
         public bool IsReusable

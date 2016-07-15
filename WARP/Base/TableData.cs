@@ -10,6 +10,14 @@ using System.Web.Script.Serialization;
 
 namespace WARP
 {
+    public enum TableAction
+    {
+        None,
+        Create,
+        Edit,
+        Remove
+    }
+
     public enum TableColumnAlign
     {
         Left,
@@ -29,7 +37,6 @@ namespace WARP
         DropDown,
     }
 
-    // TODO : Показывать установленный фильтр
     public enum TableColumnFilterType
     {
         None,
@@ -49,57 +56,120 @@ namespace WARP
         Date,
     }
 
-    public enum TableAction
-    {
-        None,
-        Create,
-        Edit,
-        Remove
-    }
-
     public enum TableSortDir
     {
         Asc,
         Desc
     }
 
+    // Описывает столбец таблицы
     public class TableColumn
     {
-        public TableColumnAlign Align { get; set; } = TableColumnAlign.Left;
-        public string Caption { get; set; } = string.Empty;
-        public string CaptionFilter { get; set; } = string.Empty;
-        public string CaptionShort { get; set; } = string.Empty;
-        public int EditMax { get; set; } = -1;
-        public int EditMin { get; set; } = -1;
-        public bool EditRequired { get; set; } = false;
-        public string EditDefaultId { get; set; } = string.Empty;
+        // TODO : использутся?
+        public string DataLookUpField { get; set; } = string.Empty;
+
+        // TODO :  использутся?
+        public string DataLookUpTable { get; set; } = string.Empty;
+
+        // Имя поля в SQL таблице
+        public string DataNameSql { get; set; } = string.Empty;
+
+        public TableColumnType DataType { get; set; } = TableColumnType.String;
+
+        // Разрешено ли менять поле при массовом редактировании
+        public bool EditBulk { get; set; } = false;
+
+        // Текст по умолчанию для значений из спарвочника
         public string EditDefaultText { get; set; } = string.Empty;
-        public string EditFieldInfo { get; set; } = string.Empty; // Подсказка снизу поля при редактировании
+
+        // Значение по умолчанию или ID для значений из спарвочника
+        public string EditDefaultValue { get; set; } = string.Empty;
+
+        // Подсказка снизу для поля при редактировании
+        public string EditFieldInfo { get; set; } = string.Empty;
+
+        // Максимальная длинна для текста или значение для целочисленных данных
+        public int EditMax { get; set; } = -1;
+
+        // Минимальная длинна для текста или значение для целочисленных данных
+        public int EditMin { get; set; } = -1;
+
+        // Обязательность заполнения
+        public bool EditRequired { get; set; } = false;
+
+        // Типы редактирования (влияет на контролы, правила сохранения и тд)
         public TableColumnEditType EditType { get; set; } = TableColumnEditType.None;
+
+        // Заголовок для формы фильтров, если не указан, используется обычный заголовок
+        public string FilterCaption { get; set; } = string.Empty;
+
+        // Предустановленный фильтр для поля
         public string FilterDefaultValue { get; set; } = string.Empty;
+
+        // Тип фильтра
         public TableColumnFilterType FilterType { get; set; } = TableColumnFilterType.None;
-        public string LookUpField { get; set; } = string.Empty;
-        public string LookUpTable { get; set; } = string.Empty;
-        public string NameSql { get; set; } = string.Empty;
-        public TableColumnType Type { get; set; } = TableColumnType.String;
-        public int Width { get; set; } = 100;
+
+        // Выравнивание в ячейке текста
+        public TableColumnAlign ViewAlign { get; set; } = TableColumnAlign.Left;
+
+        // Заголовок столбца (Грид, карточка, форма редактирования и тд)
+        public string ViewCaption { get; set; } = string.Empty;
+
+        // Короткий заголовок, пока не использую
+        public string ViewCaptionShort { get; set; } = string.Empty;
+
+        // Ширина поля в гриде
+        public int ViewWidth { get; set; } = 100;
     }
 
     public class TableData
     {
         #region Свойства
 
-        public string BaseSql { get; set; } = string.Empty; // База
-        public string TableSql { get; set; } = string.Empty; // Таблица
-        public string PageName { get; set; } = string.Empty; // Страница
-        public int DrawCount { get; set; } = 0; // Счетчик запросов от грида, нужно его возвращать неизменным
-        public int DisplayStart { get; set; } = 0; // Количество строк, которые нужно пропустить
-        public int DisplayLength { get; set; } = 500; // Количество строк, которые нужно показать
-        public string SortCol { get; set; } = "ID"; // Столбец для сортировки
-        public TableSortDir SortDir { get; set; } = TableSortDir.Desc; // Направление сортировки
-        public List<TableColumn> ColumnList { get; set; } = null; // Список полей
-        public string BrowserTabTitle { get; set; } = string.Empty; // Текст на вкладке браузера
-        public string PageTitle { get; set; } = string.Empty; // Текст в шапке грида
+        // Список строк переданных для редактирования
+        public Dictionary<string, List<RequestData>> RequestRows = null;
+
+        // Тип операции переданный гридом при редактировании
+        public TableAction Action { get; set; } = TableAction.None;
+
+        // База | Организация
+        public string SqlBase { get; set; } = string.Empty;
+
+        // Текст на вкладке браузера
+        public string BrowserTabTitle { get; set; } = string.Empty;
+
+        // Список полей
+        public List<TableColumn> ColumnList { get; set; } = null;
+
+        // Количество строк, которые нужно показать
+        public int DisplayLength { get; set; } = 500;
+
+        // Количество строк, которые нужно пропустить
+        public int DisplayStart { get; set; } = 0;
+
+        // Счетчик запросов от грида, нужно его возвращать неизменным
+        public int DrawCount { get; set; } = 0;
+
+        // Страница
+        public string PageName { get; set; } = string.Empty;
+
+        // Текст в шапке грида
+        public string PageTitle { get; set; } = string.Empty;
+
+        // Столбец для сортировки
+        public string SortCol { get; set; } = "ID";
+
+        // Направление сортировки
+        public TableSortDir SortDir { get; set; } = TableSortDir.Desc;
+
+        // Таблица
+        public string TableSql { get; set; } = string.Empty;
+
+        // Показывать записи с пометкой на удаление
+        public bool ShowDelRows { get; set; } = false;
+
+        // Показывать предыдущие версии
+        public bool ShowNoneActiveRows { get; set; } = false;
 
         #endregion Свойства
 
@@ -110,18 +180,17 @@ namespace WARP
         {
         }
 
-
         // Инициализация
         public void Init(string baseSql, string tableSql)
         {
-            BaseSql = baseSql;
+            SqlBase = baseSql;
             TableSql = tableSql;
         }
 
         // Инициализация
         public void Init(string baseSql, string tableSql, string pageName)
         {
-            BaseSql = baseSql;
+            SqlBase = baseSql;
             TableSql = tableSql;
             PageName = pageName;
         }
@@ -129,13 +198,13 @@ namespace WARP
         // Инициализация
         public void Init(string baseSql, string tableSql, string pageName, int drawCount, int displayStart, int displayLength, int sortCol, string sortDir)
         {
-            BaseSql = baseSql;
+            SqlBase = baseSql;
             TableSql = tableSql;
             PageName = pageName;
             DrawCount = drawCount;
             DisplayStart = displayStart;
             DisplayLength = displayLength;
-            SortCol = ColumnList.Count >= sortCol ? ColumnList[sortCol].NameSql : string.Empty;
+            SortCol = ColumnList.Count >= sortCol ? ColumnList[sortCol].DataNameSql : string.Empty;
             SortDir = sortDir == "asc" ? TableSortDir.Asc : TableSortDir.Desc;
         }
 
@@ -146,7 +215,7 @@ namespace WARP
         // Форма для фильтра
         public string GenerateFilterFormDialog()
         {
-            Dictionary<string, string> filterList = (Dictionary<string, string>)HttpContext.Current.Session[BaseSql + TableSql + PageName + "UserFilterList"];
+            Dictionary<string, string> filterList = (Dictionary<string, string>)HttpContext.Current.Session[SqlBase + TableSql + PageName + "UserFilterList"];
             string id = string.Empty;
             string text = string.Empty;
             string idCond = string.Empty;
@@ -209,7 +278,7 @@ namespace WARP
             sbResult.AppendLine("                </div>");
             sbResult.AppendLine("                <div class=\"modal-body\">");
             sbResult.AppendLine("                <form name=\"filterform\" method=\"POST\" id=\"filterform\" action=\"javascript: void(null);\">");
-            sbResult.AppendLine("                   <input type=\"hidden\" id=\"page\" name=\"page\" value=\"" + BaseSql + TableSql + PageName + "\">");
+            sbResult.AppendLine("                   <input type=\"hidden\" id=\"page\" name=\"page\" value=\"" + SqlBase + TableSql + PageName + "\">");
             sbResult.AppendLine("                   <input type=\"hidden\" id=\"act\" name=\"act\" value=\"none\">");
 
             foreach (TableColumn item in ColumnList)
@@ -218,13 +287,13 @@ namespace WARP
                 {
                     sbResult.AppendLine("                    <div class=\"row\">");
                     sbResult.AppendLine("                        <div class=\"col-sm-3\">");
-                    sbResult.AppendLine("                            <div class=\"filter-field\">" + (string.IsNullOrEmpty(item.CaptionFilter) ? item.Caption : item.CaptionFilter) + "</div>");
+                    sbResult.AppendLine("                            <div class=\"filter-field\">" + (string.IsNullOrEmpty(item.FilterCaption) ? item.ViewCaption : item.FilterCaption) + "</div>");
                     sbResult.AppendLine("                        </div>");
                 }
                 switch (item.FilterType)
                 {
                     case TableColumnFilterType.String:
-                        stringCondSelector += (stringCondSelector.Length > 0 ? "," : "") + "#" + item.NameSql + "Cond";
+                        stringCondSelector += (stringCondSelector.Length > 0 ? "," : "") + "#" + item.DataNameSql + "Cond";
 
                         text = string.Empty;
                         idCond = "0";
@@ -232,34 +301,34 @@ namespace WARP
 
                         if (filterList != null)
                         {
-                            key = item.NameSql;
+                            key = item.DataNameSql;
                             text = (filterList.ContainsKey(key)) ? filterList[key] : "";
 
-                            key = "Id" + item.NameSql + "Cond";
+                            key = "Id" + item.DataNameSql + "Cond";
                             idCond = filterList.ContainsKey(key) ? filterList[key] : "0";
-                            key = item.NameSql + "Cond";
+                            key = item.DataNameSql + "Cond";
                             textCond = (idCond != "0" && filterList.ContainsKey(key)) ? filterList[key] : "";
                         }
 
                         sbResult.AppendLine("                        <div class=\"col-sm-3\">");
                         sbResult.AppendLine("                               <div class=\"input-group\">");
-                        sbResult.AppendLine("                                   <input type=\"text\"  id=\"" + item.NameSql + "Cond\" name=\"" + item.NameSql + "Cond\" onchange=\"if ($('#" + item.NameSql + "Cond').val().trim() == '')$('#Id" + item.NameSql + "Cond').val('0');\" ");
+                        sbResult.AppendLine("                                   <input type=\"text\"  id=\"" + item.DataNameSql + "Cond\" name=\"" + item.DataNameSql + "Cond\" onchange=\"if ($('#" + item.DataNameSql + "Cond').val().trim() == '')$('#Id" + item.DataNameSql + "Cond').val('0');\" ");
                         sbResult.AppendLine("                                       value=\"\" class=\"form-control input-sm filter-input\" placeholder=\"Содержит\" value=\"" + textCond + "\">");
                         sbResult.AppendLine("                                   <span class=\"input-group-btn\">");
-                        sbResult.AppendLine("                                       <button id=\"clearcond" + item.NameSql + "\" class=\"btn btn-default btn-sm\" type=\"button\" onclick=\"ClearCond('" + item.NameSql + "')\"><span class=\"glyphicon glyphicon-remove\"></span></button>");
+                        sbResult.AppendLine("                                       <button id=\"clearcond" + item.DataNameSql + "\" class=\"btn btn-default btn-sm\" type=\"button\" onclick=\"ClearCond('" + item.DataNameSql + "')\"><span class=\"glyphicon glyphicon-remove\"></span></button>");
                         sbResult.AppendLine("                                   </span>");
                         sbResult.AppendLine("                               </div>");
-                        sbResult.AppendLine("                           <input type=\"hidden\" id=\"Id" + item.NameSql + "Cond\" name=\"Id" + item.NameSql + "Cond\" value=\"" + idCond + "\">");
+                        sbResult.AppendLine("                           <input type=\"hidden\" id=\"Id" + item.DataNameSql + "Cond\" name=\"Id" + item.DataNameSql + "Cond\" value=\"" + idCond + "\">");
                         sbResult.AppendLine("                        </div>");
 
                         sbResult.AppendLine("                        <div class=\"col-sm-6\">");
                         sbResult.AppendLine("                           <div id=\"scrollable-dropdown-menu\">");
                         sbResult.AppendLine("                               <div class=\"input-group\">");
-                        sbResult.AppendLine("                                   <input type=\"text\"  id=\"" + item.NameSql + "\" name=\"" + item.NameSql + "\" onchange=\"if ($('#" + item.NameSql + "').val().trim() == '')$('#Id" + item.NameSql + "').val(0);\" ");
+                        sbResult.AppendLine("                                   <input type=\"text\"  id=\"" + item.DataNameSql + "\" name=\"" + item.DataNameSql + "\" onchange=\"if ($('#" + item.DataNameSql + "').val().trim() == '')$('#Id" + item.DataNameSql + "').val(0);\" ");
                         sbResult.AppendLine("                                       class=\"form-control input-sm filter-input\"  value=\"" + text + "\" placeholder=\"Текст для поиска\">");
                         sbResult.AppendLine("                                   <span class=\"input-group-btn\">");
                         sbResult.AppendLine("                                       <button class=\"btn btn-default btn-sm\" type=\"button\"><span class=\"glyphicon glyphicon-option-horizontal\"></span></button>");
-                        sbResult.AppendLine("                                       <button class=\"btn btn-default btn-sm\" id=\"clear" + item.NameSql + "\" type=\"button\" onclick=\"ClearAC('" + item.NameSql + "')\"><span class=\"glyphicon glyphicon-remove\"></span></button>");
+                        sbResult.AppendLine("                                       <button class=\"btn btn-default btn-sm\" id=\"clear" + item.DataNameSql + "\" type=\"button\" onclick=\"ClearAC('" + item.DataNameSql + "')\"><span class=\"glyphicon glyphicon-remove\"></span></button>");
                         sbResult.AppendLine("                                   </span>");
                         sbResult.AppendLine("                               </div>");
                         sbResult.AppendLine("                           </div>");
@@ -277,70 +346,70 @@ namespace WARP
 
                         if (filterList != null)
                         {
-                            key = "Id" + item.NameSql;
+                            key = "Id" + item.DataNameSql;
                             id = filterList.ContainsKey(key) ? filterList[key] : "0";
-                            key = item.NameSql;
+                            key = item.DataNameSql;
                             text = (id != "0" && filterList.ContainsKey(key)) ? filterList[key] : "";
 
-                            key = "Id" + item.NameSql + "Cond";
+                            key = "Id" + item.DataNameSql + "Cond";
                             idCond = filterList.ContainsKey(key) ? filterList[key] : "0";
-                            key = item.NameSql + "Cond";
+                            key = item.DataNameSql + "Cond";
                             textCond = (idCond != "0" && filterList.ContainsKey(key)) ? filterList[key] : "";
                         }
 
                         sbResult.AppendLine("                        <div class=\"col-sm-3\">");
                         sbResult.AppendLine("                               <div class=\"input-group\">");
-                        sbResult.AppendLine("                                   <input type=\"text\"  id=\"" + item.NameSql + "Cond\" name=\"" + item.NameSql + "Cond\" onchange=\"if ($('#" + item.NameSql + "Cond').val().trim() == '')$('#Id" + item.NameSql + "Cond').val('0');\" ");
+                        sbResult.AppendLine("                                   <input type=\"text\"  id=\"" + item.DataNameSql + "Cond\" name=\"" + item.DataNameSql + "Cond\" onchange=\"if ($('#" + item.DataNameSql + "Cond').val().trim() == '')$('#Id" + item.DataNameSql + "Cond').val('0');\" ");
                         sbResult.AppendLine("                                       value=\"\" class=\"form-control input-sm filter-input\" placeholder=\"Равно\" value=\"" + textCond + "\">");
                         sbResult.AppendLine("                                   <span class=\"input-group-btn\">");
-                        sbResult.AppendLine("                                       <button id=\"clearcond" + item.NameSql + "\" class=\"btn btn-default btn-sm\" type=\"button\" onclick=\"ClearCond('" + item.NameSql + "')\"><span class=\"glyphicon glyphicon-remove\"></span></button>");
+                        sbResult.AppendLine("                                       <button id=\"clearcond" + item.DataNameSql + "\" class=\"btn btn-default btn-sm\" type=\"button\" onclick=\"ClearCond('" + item.DataNameSql + "')\"><span class=\"glyphicon glyphicon-remove\"></span></button>");
                         sbResult.AppendLine("                                   </span>");
                         sbResult.AppendLine("                               </div>");
-                        sbResult.AppendLine("                           <input type=\"hidden\" id=\"Id" + item.NameSql + "Cond\" name=\"Id" + item.NameSql + "Cond\" value=\"" + idCond + "\">");
+                        sbResult.AppendLine("                           <input type=\"hidden\" id=\"Id" + item.DataNameSql + "Cond\" name=\"Id" + item.DataNameSql + "Cond\" value=\"" + idCond + "\">");
                         sbResult.AppendLine("                        </div>");
 
                         sbResult.AppendLine("                        <div class=\"col-sm-6\">");
                         sbResult.AppendLine("                           <div id=\"scrollable-dropdown-menu\">");
                         sbResult.AppendLine("                               <div class=\"input-group\">");
-                        sbResult.AppendLine("                                   <input type=\"text\"  id=\"" + item.NameSql + "\" name=\"" + item.NameSql + "\" onchange=\"if ($('#" + item.NameSql + "').val().trim() == '')$('#Id" + item.NameSql + "').val(0);\" ");
+                        sbResult.AppendLine("                                   <input type=\"text\"  id=\"" + item.DataNameSql + "\" name=\"" + item.DataNameSql + "\" onchange=\"if ($('#" + item.DataNameSql + "').val().trim() == '')$('#Id" + item.DataNameSql + "').val(0);\" ");
                         sbResult.AppendLine("                                       class=\"form-control input-sm filter-input\"  value=\"" + text + "\" placeholder=\"Начните вводить для поиска по справочнику..\">");
                         sbResult.AppendLine("                                   <span class=\"input-group-btn\">");
                         sbResult.AppendLine("                                       <button class=\"btn btn-default btn-sm\" type=\"button\"><span class=\"glyphicon glyphicon-option-horizontal\"></span></button>");
-                        sbResult.AppendLine("                                       <button class=\"btn btn-default btn-sm\" id=\"clear" + item.NameSql + "\" type=\"button\" onclick=\"ClearAC('" + item.NameSql + "')\"><span class=\"glyphicon glyphicon-remove\"></span></button>");
+                        sbResult.AppendLine("                                       <button class=\"btn btn-default btn-sm\" id=\"clear" + item.DataNameSql + "\" type=\"button\" onclick=\"ClearAC('" + item.DataNameSql + "')\"><span class=\"glyphicon glyphicon-remove\"></span></button>");
                         sbResult.AppendLine("                                   </span>");
                         sbResult.AppendLine("                               </div>");
                         sbResult.AppendLine("                           </div>");
-                        sbResult.AppendLine("                           <input type=\"hidden\" id=\"Id" + item.NameSql + "\" name=\"Id" + item.NameSql + "\" value=\"" + id + "\">");
+                        sbResult.AppendLine("                           <input type=\"hidden\" id=\"Id" + item.DataNameSql + "\" name=\"Id" + item.DataNameSql + "\" value=\"" + id + "\">");
                         sbResult.AppendLine("                        </div>");
 
                         sbResult.AppendLine("                    </div>");
 
                         sbJS.AppendLine();
-                        sbJS.AppendLine("            // Для столбца: " + item.Caption);
-                        sbJS.AppendLine("            var source" + item.NameSql + " = new Bloodhound({");
+                        sbJS.AppendLine("            // Для столбца: " + item.ViewCaption);
+                        sbJS.AppendLine("            var source" + item.DataNameSql + " = new Bloodhound({");
                         sbJS.AppendLine("                datumTokenizer: Bloodhound.tokenizers.whitespace,");
                         sbJS.AppendLine("                queryTokenizer: Bloodhound.tokenizers.whitespace,");
                         sbJS.AppendLine("                remote: {");
-                        sbJS.AppendLine("                    url: '/Handler/TypeaheadHandler.ashx?t=" + item.LookUpTable + "&q=%QUERY',");
+                        sbJS.AppendLine("                    url: '/Handler/TypeaheadHandler.ashx?t=" + item.DataLookUpTable + "&q=%QUERY',");
                         sbJS.AppendLine("                    wildcard: '%QUERY'");
                         sbJS.AppendLine("                },");
                         sbJS.AppendLine("                limit: 30,");
                         sbJS.AppendLine("            });");
                         sbJS.AppendLine();
 
-                        sbJS.AppendLine("            $('#scrollable-dropdown-menu #" + item.NameSql + "').typeahead({");
+                        sbJS.AppendLine("            $('#scrollable-dropdown-menu #" + item.DataNameSql + "').typeahead({");
                         sbJS.AppendLine("                highlight: true,");
                         sbJS.AppendLine("                minLength: " + (item.FilterType == TableColumnFilterType.DropDown ? "0" : "1") + ",");
                         sbJS.AppendLine("            },");
                         sbJS.AppendLine("            {");
-                        sbJS.AppendLine("                name: 'th" + item.NameSql + "',");
+                        sbJS.AppendLine("                name: 'th" + item.DataNameSql + "',");
                         sbJS.AppendLine("                display: 'Name',");
                         sbJS.AppendLine("                highlight: true,");
                         sbJS.AppendLine("                limit: 30,");
-                        sbJS.AppendLine("                source: source" + item.NameSql + ",");
+                        sbJS.AppendLine("                source: source" + item.DataNameSql + ",");
                         sbJS.AppendLine("            });");
                         sbJS.AppendLine();
-                        sbJS.AppendLine("            $(\"#" + item.NameSql + "\").on(\"typeahead:selected typeahead:autocompleted\", function (e, datum) { $(\"#Id" + item.NameSql + "\").val(datum.ID); });");
+                        sbJS.AppendLine("            $(\"#" + item.DataNameSql + "\").on(\"typeahead:selected typeahead:autocompleted\", function (e, datum) { $(\"#Id" + item.DataNameSql + "\").val(datum.ID); });");
                         sbJS.AppendLine();
 
                         break;
@@ -414,6 +483,36 @@ namespace WARP
             return sbResult.ToString();
         }
 
+        // Собирает все вместе
+        public string GenerateHtml()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            // Таблица HTML
+            sb.AppendLine(GenerateHtmlTable());
+
+            // Фильтр
+            sb.AppendLine(GenerateFilterFormDialog());
+
+            //d
+
+            sb.AppendLine("    <script>");
+            sb.AppendLine("        var editor;");
+            sb.AppendLine(GenerateJSWindowsResize());
+            sb.AppendLine("        $(document).ready(function () {");
+            sb.AppendLine();
+            sb.AppendLine("            $('#curPageTitle').text('" + PageTitle + "');");
+            sb.AppendLine("            document.title = '" + BrowserTabTitle + "';");
+            sb.AppendLine(GenerateJSEditorInit());
+            sb.AppendLine(GenerateJSDataTable());
+
+            sb.AppendLine("            $(window).resize();");
+            sb.AppendLine("        });");
+            sb.AppendLine("    </script>");
+
+            return sb.ToString();
+        }
+
         // HTML Таблица
         public string GenerateHtmlTable()
         {
@@ -424,12 +523,88 @@ namespace WARP
             sb.AppendLine("            <tr>");
             foreach (TableColumn item in ColumnList)
             {
-                sb.AppendLine("               <th>" + item.Caption + "</th>");
+                sb.AppendLine("               <th>" + item.ViewCaption + "</th>");
             }
             sb.AppendLine("            </tr>");
             sb.AppendLine("        </thead>");
             sb.AppendLine("    </table>");
 
+            return sb.ToString();
+        }
+
+        // Grid
+        public string GenerateJSDataTable()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("            var table = $('#table_id').DataTable({");
+            sb.AppendLine("                dom: '<\"row top-toolbar\"<\"col-sm-4\"B><\"col-sm-4\"p><\"col-sm-4\"i>>Zrt',");
+            sb.AppendLine("                processing: true,");
+            sb.AppendLine("                serverSide: true,");
+            sb.AppendLine("                ajax: \"/Handler/GetDataHandler.ashx?curBase=" + SqlBase + "&curTable=" + TableSql + "&curPage=" + PageName + "\",");
+            sb.AppendLine("                columns: [");
+            sb.AppendLine(GenerateJSTableColumns());
+            sb.AppendLine("                ],");
+            sb.AppendLine("                autoWidth: false,");
+            sb.AppendLine("                select: true,");
+            sb.AppendLine("                colReorder: {realtime: false},");
+            sb.AppendLine("                colResize: {\"tableWidthFixed\": true},");
+            sb.AppendLine("                stateSave: true,");
+            sb.AppendLine("                scrollY: ($(window).height() - 125) + \"px\",");
+            sb.AppendLine("                scrollX: true,");
+            sb.AppendLine("                scrollCollapse: false,");
+            sb.AppendLine("                lengthMenu: [" + GenerateJSTableLengthMenu() + "],");
+            sb.AppendLine("                pagingType6: \"simple\",");
+            sb.AppendLine("                buttons: [");
+            sb.AppendLine(GenerateJSTableButtons());
+            sb.AppendLine("                ],");
+            sb.AppendLine("                language: {");
+            sb.AppendLine("                    url: '/content/DataTables-1.10.12/js/Russian.json'");
+            sb.AppendLine("                }");
+            sb.AppendLine("            });");
+            return sb.ToString();
+        }
+
+        // Editor
+        public string GenerateJSEditorInit()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine();
+            sb.AppendLine("            editor = new $.fn.dataTable.Editor({");
+            sb.AppendLine("                ajax: \"/Handler/SaveDataHandler.ashx?curBase=" + SqlBase + "&curTable=" + TableSql + "&curPage=" + PageName + "\",");
+            sb.AppendLine("                table: \"#table_id\",");
+            sb.AppendLine("                idSrc: 'ID',");
+            sb.AppendLine("                fields: [");
+            sb.AppendLine(GenerateJSEditorTableColumns());
+            sb.AppendLine("                ],");
+            sb.AppendLine("                i18n: {");
+            sb.AppendLine("                    create: {");
+            sb.AppendLine("                        button: \"Новая запись\",");
+            sb.AppendLine("                        title: \"Создание новой записи\",");
+            sb.AppendLine("                        submit: \"Создать\"");
+            sb.AppendLine("                    },");
+            sb.AppendLine("                    edit: {");
+            sb.AppendLine("                        button: \"Редактировать\",");
+            sb.AppendLine("                        title: \"Редактирование записи\",");
+            sb.AppendLine("                        submit: \"Сохранить\"");
+            sb.AppendLine("                    },");
+            sb.AppendLine("                    remove: {");
+            sb.AppendLine("                        button: \"Удалить\",");
+            sb.AppendLine("                        title: \"Удаление\",");
+            sb.AppendLine("                        submit: \"Подтвердить удаление\",");
+            sb.AppendLine("                        confirm: {");
+            sb.AppendLine("                            _: \"Подтвердите удаление %d записей?\",");
+            sb.AppendLine("                            1: \"Подтвердите удаление записи?\"");
+            sb.AppendLine("                        }");
+            sb.AppendLine("                    },");
+            sb.AppendLine("                    error: {");
+            sb.AppendLine("                        system: \"Произошла ошибка\"");
+            sb.AppendLine("                    },");
+            sb.AppendLine("                    multi: {");
+            sb.AppendLine("                        title: \"Множественное редактирование\",");
+            sb.AppendLine("                        restore: \"Отменить\"");
+            sb.AppendLine("                    },");
+            sb.AppendLine("                }");
+            sb.AppendLine("            });");
             return sb.ToString();
         }
 
@@ -444,8 +619,8 @@ namespace WARP
                 if (column.EditType != TableColumnEditType.None)
                 {
                     sb.AppendLine("                         { ");
-                    sb.AppendLine("                             label: \"" + column.Caption + ":\",");
-                    sb.AppendLine("                             name: \"" + column.NameSql + "\",");
+                    sb.AppendLine("                             label: \"" + column.ViewCaption + ":\",");
+                    sb.AppendLine("                             name: \"" + column.DataNameSql + "\",");
 
                     // Подсказка для поля при редактировании, выглядит уебищно, стили подкрутитьь надо
                     if (!string.IsNullOrEmpty(column.EditFieldInfo))
@@ -467,29 +642,6 @@ namespace WARP
             //def: function() {
             //    return new Date()
             //}
-        }
-
-        // Список полей для грида
-        public string GenerateJSTableColumns()
-        {
-            string ret = Environment.NewLine;
-            foreach (TableColumn item in ColumnList)
-            {
-                ret += "                    { \"data\": \"" + item.NameSql + "\", className:\"dt-body-" + item.Align.ToString().ToLower() + "\", \"width\": \"" + item.Width + "px\" }," + Environment.NewLine;
-            }
-            return ret;
-        }
-
-        // Скрипт бинда изменения размеров рабочей области
-        public string GenerateJSWindowsResize()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine();
-            sb.AppendLine("        // Авторазмер");
-            sb.AppendLine("        $(window).bind('resize', function () {");
-            sb.AppendLine("            $('.dataTables_scrollBody').css('height', ($(window).height() - 125) + 'px');");
-            sb.AppendLine("        });");
-            return sb.ToString();
         }
 
         // Кнопоки грида
@@ -551,115 +703,32 @@ namespace WARP
             return sb.ToString();
         }
 
+        // Список полей для грида
+        public string GenerateJSTableColumns()
+        {
+            string ret = Environment.NewLine;
+            foreach (TableColumn item in ColumnList)
+            {
+                ret += "                    { \"data\": \"" + item.DataNameSql + "\", className:\"dt-body-" + item.ViewAlign.ToString().ToLower() + "\", \"width\": \"" + item.ViewWidth + "px\" }," + Environment.NewLine;
+            }
+            return ret;
+        }
+
         // Список количества записей на странице
         public string GenerateJSTableLengthMenu()
         {
             return "[30, 100, 200, 500], ['30 строк', '100 строк', '200 строк', '500 строк']";
         }
 
-        // Editor
-        public string GenerateJSEditorInit()
+        // Скрипт бинда изменения размеров рабочей области
+        public string GenerateJSWindowsResize()
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine();
-            sb.AppendLine("            editor = new $.fn.dataTable.Editor({");
-            sb.AppendLine("                ajax: \"/Handler/SaveDataHandler.ashx?curBase=" + BaseSql + "&curTable=" + TableSql + "&curPage=" + PageName + "\",");
-            sb.AppendLine("                table: \"#table_id\",");
-            sb.AppendLine("                idSrc: 'ID',");
-            sb.AppendLine("                fields: [");
-            sb.AppendLine(GenerateJSEditorTableColumns());
-            sb.AppendLine("                ],");
-            sb.AppendLine("                i18n: {");
-            sb.AppendLine("                    create: {");
-            sb.AppendLine("                        button: \"Новая запись\",");
-            sb.AppendLine("                        title: \"Создание новой записи\",");
-            sb.AppendLine("                        submit: \"Создать\"");
-            sb.AppendLine("                    },");
-            sb.AppendLine("                    edit: {");
-            sb.AppendLine("                        button: \"Редактировать\",");
-            sb.AppendLine("                        title: \"Редактирование записи\",");
-            sb.AppendLine("                        submit: \"Сохранить\"");
-            sb.AppendLine("                    },");
-            sb.AppendLine("                    remove: {");
-            sb.AppendLine("                        button: \"Удалить\",");
-            sb.AppendLine("                        title: \"Удаление\",");
-            sb.AppendLine("                        submit: \"Подтвердить удаление\",");
-            sb.AppendLine("                        confirm: {");
-            sb.AppendLine("                            _: \"Подтвердите удаление %d записей?\",");
-            sb.AppendLine("                            1: \"Подтвердите удаление записи?\"");
-            sb.AppendLine("                        }");
-            sb.AppendLine("                    },");
-            sb.AppendLine("                    error: {");
-            sb.AppendLine("                        system: \"Произошла ошибка\"");
-            sb.AppendLine("                    },");
-            sb.AppendLine("                    multi: {");
-            sb.AppendLine("                        title: \"Множественное редактирование\",");
-            sb.AppendLine("                        restore: \"Отменить\"");
-            sb.AppendLine("                    },");
-            sb.AppendLine("                }");
-            sb.AppendLine("            });");
-            return sb.ToString();
-        }
-
-        // Grid
-        public string GenerateJSDataTable()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine("            var table = $('#table_id').DataTable({");
-            sb.AppendLine("                dom: '<\"row top-toolbar\"<\"col-sm-4\"B><\"col-sm-4\"p><\"col-sm-4\"i>>Zrt',");
-            sb.AppendLine("                processing: true,");
-            sb.AppendLine("                serverSide: true,");
-            sb.AppendLine("                ajax: \"/Handler/GetDataHandler.ashx?curBase=" + BaseSql + "&curTable=" + TableSql + "&curPage=" + PageName + "\",");
-            sb.AppendLine("                columns: [");
-            sb.AppendLine(GenerateJSTableColumns());
-            sb.AppendLine("                ],");
-            sb.AppendLine("                autoWidth: false,");
-            sb.AppendLine("                select: true,");
-            sb.AppendLine("                colReorder: {realtime: false},");
-            sb.AppendLine("                colResize: {\"tableWidthFixed\": true},");
-            sb.AppendLine("                stateSave: true,");
-            sb.AppendLine("                scrollY: ($(window).height() - 125) + \"px\",");
-            sb.AppendLine("                scrollX: true,");
-            sb.AppendLine("                scrollCollapse: false,");
-            sb.AppendLine("                lengthMenu: [" + GenerateJSTableLengthMenu() + "],");
-            sb.AppendLine("                pagingType6: \"simple\",");
-            sb.AppendLine("                buttons: [");
-            sb.AppendLine(GenerateJSTableButtons());
-            sb.AppendLine("                ],");
-            sb.AppendLine("                language: {");
-            sb.AppendLine("                    url: '/content/DataTables-1.10.12/js/Russian.json'");
-            sb.AppendLine("                }");
-            sb.AppendLine("            });");
-            return sb.ToString();
-        }
-
-        // Собирает все вместе
-        public string GenerateHtml()
-        {
-            StringBuilder sb = new StringBuilder();
-
-            // Таблица HTML
-            sb.AppendLine(GenerateHtmlTable());
-
-            // Фильтр
-            sb.AppendLine(GenerateFilterFormDialog());
-
-            //d
-
-            sb.AppendLine("    <script>");
-            sb.AppendLine("        var editor;");
-            sb.AppendLine(GenerateJSWindowsResize());
-            sb.AppendLine("        $(document).ready(function () {");
-            sb.AppendLine();
-            sb.AppendLine("            $('#curPageTitle').text('" + PageTitle + "');");
-            sb.AppendLine("            document.title = '" + BrowserTabTitle + "';");
-            sb.AppendLine(GenerateJSEditorInit());
-            sb.AppendLine(GenerateJSDataTable());
-
-            sb.AppendLine("            $(window).resize();");
+            sb.AppendLine("        // Авторазмер");
+            sb.AppendLine("        $(window).bind('resize', function () {");
+            sb.AppendLine("            $('.dataTables_scrollBody').css('height', ($(window).height() - 125) + 'px');");
             sb.AppendLine("        });");
-            sb.AppendLine("    </script>");
-
             return sb.ToString();
         }
 
@@ -670,7 +739,7 @@ namespace WARP
         public string GenerateWhereClause()
         {
             StringBuilder sbWhere = new StringBuilder();
-            Dictionary<string, string> filterList = (Dictionary<string, string>)HttpContext.Current.Session[BaseSql + TableSql + PageName + "UserFilterList"];
+            Dictionary<string, string> filterList = (Dictionary<string, string>)HttpContext.Current.Session[SqlBase + TableSql + PageName + "UserFilterList"];
             if (filterList != null)
             {
                 string key = string.Empty;
@@ -680,12 +749,12 @@ namespace WARP
                     switch (item.FilterType)
                     {
                         case TableColumnFilterType.String:
-                            key = item.NameSql;
+                            key = item.DataNameSql;
                             if (filterList.ContainsKey(key))
                             {
                                 value = filterList[key];
-                                string buf = "    AND a.[" + item.NameSql + "]";
-                                key = "Id" + item.NameSql + "Cond";
+                                string buf = "    AND a.[" + item.DataNameSql + "]";
+                                key = "Id" + item.DataNameSql + "Cond";
                                 if (filterList.ContainsKey(key))
                                 {
                                     switch (filterList[key])
@@ -717,7 +786,7 @@ namespace WARP
 
                         case TableColumnFilterType.DropDown:
                         case TableColumnFilterType.Autocomplete:
-                            key = "Id" + item.NameSql;
+                            key = "Id" + item.DataNameSql;
                             if (filterList.ContainsKey(key))
                             {
                                 sbWhere.AppendLine("    AND a.[" + key + "] = " + filterList[key]);
@@ -738,33 +807,47 @@ namespace WARP
             return sbWhere.ToString();
         }
 
+        // Возвращает таблицу с данными для текущих настроек, 
+        // ids - список id для получения обновленных данных после массового редактирования
         public virtual DataTable GetData(string ids = null)
         {
+            // Итоговый запрос
             StringBuilder sbQuery = new StringBuilder();
-            string sWhere = GenerateWhereClause();
+            
+            // Условия отборки
+            StringBuilder sbWhere = new StringBuilder();
+
+            if (!ShowDelRows)
+                sbWhere.AppendLine("	a.Del=0 ");
+            else
+                sbWhere.AppendLine("	a.Del=1 ");
+
+            if (!ShowNoneActiveRows)
+                sbWhere.AppendLine("	AND a.Active=1 ");
+
+            sbWhere.AppendLine(GenerateWhereClause());
+
+            if (!string.IsNullOrEmpty(ids))
+                sbWhere.AppendLine("    AND a.id in (" + ids + ")");
+
+            //
 
             sbQuery.AppendLine("DECLARE @recordsFiltered int;");
             sbQuery.AppendLine("SELECT @recordsFiltered=count(*)");
-            sbQuery.AppendLine("FROM [dbo].[" + BaseSql + TableSql + "] a");
+            sbQuery.AppendLine("FROM [dbo].[" + SqlBase + TableSql + "] a");
             sbQuery.AppendLine("WHERE");
-            sbQuery.AppendLine("	a.Del=0");
-            sbQuery.AppendLine(sWhere);
-            if (!string.IsNullOrEmpty(ids))
-                sbQuery.AppendLine(" AND a.id in (" + ids + ")");
+            sbQuery.AppendLine(sbWhere.ToString());
             sbQuery.AppendLine(";");
 
             sbQuery.AppendLine("SELECT * FROM  (");
             sbQuery.AppendLine("   SELECT @recordsFiltered AS recordsFiltered");
             sbQuery.AppendLine("   ,T.*");
             sbQuery.AppendLine("   ,U.Name as [User]");
-            sbQuery.AppendLine("   FROM [dbo].[" + BaseSql + TableSql + "] T");
+            sbQuery.AppendLine("   FROM [dbo].[" + SqlBase + TableSql + "] T");
             sbQuery.AppendLine("   LEFT JOIN [dbo].[User] U on T.IdUser = U.ID");
             sbQuery.AppendLine(") a");
             sbQuery.AppendLine("WHERE");
-            sbQuery.AppendLine("	a.Del=0");
-            sbQuery.AppendLine(sWhere);
-            if (!string.IsNullOrEmpty(ids))
-                sbQuery.AppendLine(" AND a.id in (" + ids + ")");
+            sbQuery.AppendLine(sbWhere.ToString());
 
             sbQuery.AppendLine("ORDER BY a.[" + SortCol + "] " + SortDir);
             sbQuery.AppendLine("OFFSET @displayStart ROWS FETCH FIRST @displayLength ROWS ONLY");
@@ -780,6 +863,26 @@ namespace WARP
             return null;
         }
 
+        public string GetJsonData()
+        {
+            string ret = string.Empty;
+            DataTable dt = GetData();
+            if (dt != null)
+            {
+                var result = new
+                {
+                    draw = DrawCount,
+                    recordsTotal = (int)ComFunc.ExecuteScalar("SELECT COUNT(*) FROM [dbo].[" + SqlBase + TableSql + "] WHERE Del=0 AND Active=1"),
+                    recordsFiltered = Convert.ToInt32(dt.Rows.Count > 0 ? dt.Rows[0]["recordsFiltered"] : 0),
+                    data = GetFormatData(dt)
+                };
+
+                JavaScriptSerializer js = new JavaScriptSerializer();
+                ret = js.Serialize(result);
+            }
+            return ret;
+        }
+
         private List<Dictionary<string, object>> GetFormatData(DataTable dt)
         {
             List<Dictionary<string, object>> data = new List<Dictionary<string, object>>();
@@ -791,33 +894,33 @@ namespace WARP
 
                 foreach (TableColumn column in ColumnList)
                 {
-                    switch (column.Type)
+                    switch (column.DataType)
                     {
                         case TableColumnType.Integer:
-                            row.Add(column.NameSql, Convert.ToInt32(dr[column.NameSql]));
+                            row.Add(column.DataNameSql, Convert.ToInt32(dr[column.DataNameSql]));
                             break;
 
                         case TableColumnType.Money:
-                            row.Add(column.NameSql, String.Format(ruRu, "{0:0,0.00}", Convert.ToDecimal(dr[column.NameSql])));
+                            row.Add(column.DataNameSql, String.Format(ruRu, "{0:0,0.00}", Convert.ToDecimal(dr[column.DataNameSql])));
                             break;
 
                         case TableColumnType.DateTime:
-                            if (dr[column.NameSql] is DBNull)
-                                row.Add(column.NameSql, string.Empty);
+                            if (dr[column.DataNameSql] is DBNull)
+                                row.Add(column.DataNameSql, string.Empty);
                             else
-                                row.Add(column.NameSql, ((DateTime)dr[column.NameSql]).ToString("dd.MM.yyyy HH:mm:ss"));
+                                row.Add(column.DataNameSql, ((DateTime)dr[column.DataNameSql]).ToString("dd.MM.yyyy HH:mm:ss"));
                             break;
 
                         case TableColumnType.Date:
-                            if (dr[column.NameSql] is DBNull)
-                                row.Add(column.NameSql, string.Empty);
+                            if (dr[column.DataNameSql] is DBNull)
+                                row.Add(column.DataNameSql, string.Empty);
                             else
-                                row.Add(column.NameSql, ((DateTime)dr[column.NameSql]).ToString("dd.MM.yyyy"));
+                                row.Add(column.DataNameSql, ((DateTime)dr[column.DataNameSql]).ToString("dd.MM.yyyy"));
                             break;
 
                         case TableColumnType.String:
                         default:
-                            row.Add(column.NameSql, dr[column.NameSql].ToString());
+                            row.Add(column.DataNameSql, dr[column.DataNameSql].ToString());
                             break;
                     }
                 }
@@ -826,119 +929,19 @@ namespace WARP
             return data;
         }
 
-        public string GetJsonData()
-        {
-            string ret = string.Empty;
-            DataTable dt = GetData();
-            if (dt != null)
-            {
-                var result = new
-                {
-                    draw = DrawCount,
-                    recordsTotal = (int)ComFunc.ExecuteScalar("SELECT COUNT(*) FROM [dbo].[" + BaseSql + TableSql + "]"),
-                    recordsFiltered = Convert.ToInt32(dt.Rows.Count > 0 ? dt.Rows[0]["recordsFiltered"] : 0),
-                    data = GetFormatData(dt)
-                };
-
-                JavaScriptSerializer js = new JavaScriptSerializer();
-                ret = js.Serialize(result);
-            }
-            return ret;
-        }
-
         #endregion Получение данных
 
         #region Редактирование
 
-        internal string Validate(Dictionary<string, List<RequestData>> rows)
-        {
-            List<FieldErrors> fieldErrors = new List<FieldErrors>();
-
-            // Проверяем каждую пару, для первой или единственной строки
-            foreach (RequestData rd in rows.First().Value)
-            {
-                // Флаг для прерывания/продолжения проверки
-                bool resume = true;
-
-                // Ищем настройки для этого поля, по переданному имени поля
-                TableColumn tableColumn = ColumnList.Find(x => x.NameSql == rd.FieldName);
-
-                // Обязательность заполнения поля
-                if (resume && tableColumn.EditRequired && string.IsNullOrEmpty(rd.FieldValue))
-                {
-                    fieldErrors.Add(new FieldErrors { name = tableColumn.NameSql, status = "Поле обязательно для заполнения" });
-                    resume = false;
-                }
-
-                // TODO :
-                // Проверяем тип введенных данных
-                //if (resume)
-                //{
-                //    switch (tableColumn.EditType)
-                //    {
-                //        case TableColumnEditType.Integer:
-                //            break;
-
-                //        case TableColumnEditType.Money:
-                //            break;
-
-                //        default:
-                //            break;
-                //    }
-
-                //    fieldErrors.Add(new FieldErrors { name = tableColumn.NameSql, status = "Неверный формат данных" });
-                //    resume = false;
-                //}
-
-                // Ограничения
-                if (resume)
-                {
-                    switch (tableColumn.EditType)
-                    {
-                        case TableColumnEditType.CurrentDateTime:
-                            break;
-
-                        case TableColumnEditType.String:
-                            if (tableColumn.EditMax > -1 && rd.FieldValue.Length > tableColumn.EditMax)
-                            {
-                                fieldErrors.Add(new FieldErrors { name = tableColumn.NameSql, status = "Максимально допустимая длина поля: " + tableColumn.EditMax + " симв." });
-                                resume = false;
-                            }
-
-                            if (tableColumn.EditMin > -1 && rd.FieldValue.Length < tableColumn.EditMin)
-                            {
-                                fieldErrors.Add(new FieldErrors { name = tableColumn.NameSql, status = "Минимально допустимая длина поля: " + tableColumn.EditMin + " симв." });
-                                resume = false;
-                            }
-                            break;
-
-                        case TableColumnEditType.Integer:
-                        case TableColumnEditType.Money:
-                            // TODO :
-                            break;
-                    }
-                }
-            }
-
-            // JSON
-            if (fieldErrors.Count > 0)
-            {
-                JavaScriptSerializer javaScriptSerializer = new JavaScriptSerializer();
-                return javaScriptSerializer.Serialize(new { fieldErrors = fieldErrors });
-            }
-            else
-            {
-                return string.Empty;
-            }
-        }
-
-        public virtual string Check(TableAction tableAction, Dictionary<string, List<RequestData>> rows)
+        // Проверяем более специфические условия конкретной таблицы, можно перегружать
+        public virtual string Check()
         {
             // TODO : проверка при удлении на использование
             return string.Empty;
         }
 
-        public string Process(TableAction tableAction, Dictionary<string, List<RequestData>> requestRows)
+        // Обрабатывает запросы от грида/карточки на изменение данных
+        public string Process()
         {
             // Ответ
             string result = string.Empty;
@@ -946,24 +949,24 @@ namespace WARP
             // AJAX|JSON
             JavaScriptSerializer javaScriptSerializer = new JavaScriptSerializer();
 
-            // Чекаем на простые условия (обязательность, длинна и тд)
-            if (tableAction != TableAction.Remove)
-                result = Validate(requestRows);
+            // Чекаем на простые условия (обязательность, длинна и вообще изменилось ли что нибудь)
+            if (Action != TableAction.Remove)
+                result = Validate();
 
             // Чекаем на условия конкретной таблицы
             if (string.IsNullOrEmpty(result))
-                result = Check(tableAction, requestRows);
+                result = Check();
 
             // Сохраняем
             if (string.IsNullOrEmpty(result))
-                result = Save(tableAction, requestRows);
+                result = Save();
 
             // Если все прошло гладко, отправляем гриду обновленные данные
             if (string.IsNullOrEmpty(result))
             {
                 // Список редактируемых ID
                 string ids = string.Empty;
-                foreach (string key in requestRows.Keys) ids += key + ",";
+                foreach (string key in RequestRows.Keys) ids += key + ",";
 
                 // Получаем обновленные данные по этим id из базы
                 DataTable dt = GetData(ids.Substring(0, ids.Length - 1));
@@ -977,7 +980,8 @@ namespace WARP
             return result;
         }
 
-        public string Save(TableAction tableAction, Dictionary<string, List<RequestData>> rows)
+        // Сохраняет изменения в базе
+        public string Save()
         {
             string result = string.Empty;
 
@@ -996,17 +1000,17 @@ namespace WARP
             try
             {
                 // Выбираем переданное действие
-                switch (tableAction)
+                switch (Action)
                 {
                     case TableAction.Create:
                         // Для каждой переданной строки с данными, создаем строку запроса и параметры к ней, выполняем запрос
-                        foreach (KeyValuePair<string, List<RequestData>> pair in rows)
+                        foreach (KeyValuePair<string, List<RequestData>> pair in RequestRows)
                         {
                             query = new StringBuilder();
                             param = new List<SqlParameter>();
 
                             // Обновляем запись в главной таблице
-                            query.AppendLine("INSERT INTO [dbo].[" + BaseSql + TableSql + "]");
+                            query.AppendLine("INSERT INTO [dbo].[" + SqlBase + TableSql + "]");
                             query.AppendLine("    ([IdUser]"); // Пользователь внесший изменения
                             query.AppendLine("    ,[DateUpd]"); // Дата внесения
 
@@ -1034,16 +1038,16 @@ namespace WARP
 
                     case TableAction.Edit:
                         // Для каждой переданной строки с данными, создаем строку запроса и параметры к ней, выполняем запрос
-                        foreach (KeyValuePair<string, List<RequestData>> pair in rows)
+                        foreach (KeyValuePair<string, List<RequestData>> pair in RequestRows)
                         {
                             query = new StringBuilder();
                             param = new List<SqlParameter>();
 
                             // Копируем текущую строку в таблицу истрории
-                            query.AppendLine("INSERT INTO [dbo].[" + BaseSql + TableSql + "History] Select * from[dbo].[" + BaseSql + TableSql + "] where ID = @ID;");
+                            query.AppendLine("INSERT INTO [dbo].[" + SqlBase + TableSql + "History] Select * from[dbo].[" + SqlBase + TableSql + "] where ID = @ID;");
 
                             // Обновляем запись в главной таблице
-                            query.AppendLine("UPDATE[dbo].[" + BaseSql + TableSql + "] SET");
+                            query.AppendLine("UPDATE[dbo].[" + SqlBase + TableSql + "] SET");
                             query.AppendLine("     [IdUser] = @IdUser"); // Пользователь внесший изменения
                             query.AppendLine("    ,[DateUpd] = GetDate()"); // Дата внесения
                             foreach (RequestData rd in pair.Value)
@@ -1063,16 +1067,16 @@ namespace WARP
                         break;
 
                     case TableAction.Remove:// TODO : удалять из основной и версий совсем устаревшие данные (полгода), routine
-                        foreach (KeyValuePair<string, List<RequestData>> pair in rows)
+                        foreach (KeyValuePair<string, List<RequestData>> pair in RequestRows)
                         {
                             query = new StringBuilder();
                             param = new List<SqlParameter>();
 
                             // Копируем текущую строку в таблицу истрории
-                            query.AppendLine("INSERT INTO [dbo].[" + BaseSql + TableSql + "History] Select * from[dbo].[" + BaseSql + TableSql + "] where ID = @ID;");
+                            query.AppendLine("INSERT INTO [dbo].[" + SqlBase + TableSql + "History] Select * from[dbo].[" + SqlBase + TableSql + "] where ID = @ID;");
 
                             // Обновляем запись в главной таблице
-                            query.AppendLine("UPDATE[dbo].[" + BaseSql + TableSql + "] SET");
+                            query.AppendLine("UPDATE[dbo].[" + SqlBase + TableSql + "] SET");
                             query.AppendLine("     [IdUser] = @IdUser"); // Пользователь внесший изменения
                             query.AppendLine("    ,[DateUpd] = GetDate()"); // Дата внесения
                             query.AppendLine("    ,[Del] = 1"); // Дата внесения
@@ -1106,6 +1110,93 @@ namespace WARP
             }
 
             return result;
+        }
+
+        // Проверяет простые условия (обязательность, длинна и тд)
+        public string Validate()
+        {
+            // Флаг для прерывания/продолжения проверки
+            bool resume = true;
+
+            List<FieldErrors> fieldErrors = new List<FieldErrors>();
+            // TODO : Проверять изменилась ли запись, если нет.. ничего не менять
+
+            // Проверяем каждую пару, для первой или единственной строки
+            if (resume)
+                foreach (RequestData rd in RequestRows.First().Value)
+                {
+                    resume = true;
+
+                    // Ищем настройки для этого поля, по переданному имени поля
+                    TableColumn tableColumn = ColumnList.Find(x => x.DataNameSql == rd.FieldName);
+
+                    // Обязательность заполнения поля
+                    if (resume && tableColumn.EditRequired && string.IsNullOrEmpty(rd.FieldValue))
+                    {
+                        fieldErrors.Add(new FieldErrors { name = tableColumn.DataNameSql, status = "Поле обязательно для заполнения" });
+                        resume = false;
+                    }
+
+                    // TODO :
+                    // Проверяем тип введенных данных
+                    //if (resume)
+                    //{
+                    //    switch (tableColumn.EditType)
+                    //    {
+                    //        case TableColumnEditType.Integer:
+                    //            break;
+
+                    //        case TableColumnEditType.Money:
+                    //            break;
+
+                    //        default:
+                    //            break;
+                    //    }
+
+                    //    fieldErrors.Add(new FieldErrors { name = tableColumn.NameSql, status = "Неверный формат данных" });
+                    //    resume = false;
+                    //}
+
+                    // Ограничения
+                    if (resume)
+                    {
+                        switch (tableColumn.EditType)
+                        {
+                            case TableColumnEditType.CurrentDateTime:
+                                break;
+
+                            case TableColumnEditType.String:
+                                if (tableColumn.EditMax > -1 && rd.FieldValue.Length > tableColumn.EditMax)
+                                {
+                                    fieldErrors.Add(new FieldErrors { name = tableColumn.DataNameSql, status = "Максимально допустимая длина поля: " + tableColumn.EditMax + " симв." });
+                                    resume = false;
+                                }
+
+                                if (tableColumn.EditMin > -1 && rd.FieldValue.Length < tableColumn.EditMin)
+                                {
+                                    fieldErrors.Add(new FieldErrors { name = tableColumn.DataNameSql, status = "Минимально допустимая длина поля: " + tableColumn.EditMin + " симв." });
+                                    resume = false;
+                                }
+                                break;
+
+                            case TableColumnEditType.Integer:
+                            case TableColumnEditType.Money:
+                                // TODO :
+                                break;
+                        }
+                    }
+                }
+
+            // JSON
+            if (fieldErrors.Count > 0)
+            {
+                JavaScriptSerializer javaScriptSerializer = new JavaScriptSerializer();
+                return javaScriptSerializer.Serialize(new { fieldErrors = fieldErrors });
+            }
+            else
+            {
+                return string.Empty;
+            }
         }
 
         #endregion Редактирование
