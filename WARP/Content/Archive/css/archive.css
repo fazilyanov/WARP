@@ -210,3 +210,12 @@ input[type=text]::-ms-clear {
 .filter-input {
     font-weight: bold !important;
 }
+
+
+td.details-control {
+    background: url('../img/rowplus.png') no-repeat center center;
+    cursor: pointer;
+}
+tr.shown td.details-control {
+    background: url('../img/rowminus.png') no-repeat center center;
+}

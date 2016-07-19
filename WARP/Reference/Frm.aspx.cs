@@ -11,7 +11,7 @@ namespace WARP
             {
                 new TableColumn {
                     ViewCaption = "ID",
-                    DataNameSql = "ID",
+                    DataNameSql = "Id",
                     DataType = TableColumnType.Integer,
                     ViewWidth = 30,
                 },

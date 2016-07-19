@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -154,12 +152,6 @@ namespace WARP
         }
 
         #endregion GetInfo
-
-        #region DataTables
-
-        
-
-        #endregion DataTables
 
         #region SqlData
 
@@ -459,6 +451,9 @@ namespace WARP
                 };
                 sqlCommand.Parameters.AddRange(sqlParameterArray);
                 ret = sqlCommand.ExecuteNonQuery();
+
+                // Последнюю ошибку сохраняем в сессии для вывода
+                HttpContext.Current.Session["LastError"] = errorText;
             }
             catch (Exception ex)
             {

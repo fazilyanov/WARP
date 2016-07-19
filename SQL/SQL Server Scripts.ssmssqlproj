@@ -32,9 +32,9 @@
     <LogicalFolder Name="Queries" Type="0" Sorted="true">
       <Items>
         <FileNode Name="Truncate.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:192.168.100.209:False:fazl</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>192.168.100.209</AssociatedConnSrvName>
-          <AssociatedConnUserName>fazl</AssociatedConnUserName>
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SKY-SP-SQL1\SHAREPOINT:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SKY-SP-SQL1\SHAREPOINT</AssociatedConnSrvName>
+          <AssociatedConnUserName />
           <FullPath>Truncate.sql</FullPath>
         </FileNode>
         <FileNode Name="TruncateNtzArchive.sql">
@@ -114,6 +114,12 @@
           <AssociatedConnSrvName>192.168.100.209</AssociatedConnSrvName>
           <AssociatedConnUserName>fazl</AssociatedConnUserName>
           <FullPath>Добавить все базы.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Добавление в монитор по коду ЭА.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SKY-SP-SQL1\SHAREPOINT:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SKY-SP-SQL1\SHAREPOINT</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>Добавление в монитор по коду ЭА.sql</FullPath>
         </FileNode>
         <FileNode Name="Дубли основных версий.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:192.168.100.209:False:fazl</AssociatedConnectionMoniker>
@@ -198,6 +204,12 @@
           <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Проверка на зацикливание в дереве.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Проставить статус основной версии.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SKY-SP-SQL1\SHAREPOINT:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SKY-SP-SQL1\SHAREPOINT</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>Проставить статус основной версии.sql</FullPath>
         </FileNode>
         <FileNode Name="РавильВыгрузка.sql">
           <AssociatedConnectionMoniker />

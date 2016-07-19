@@ -68,10 +68,12 @@
   <ItemGroup>
     <Content Include="Admin\Session.aspx" />
     <Content Include="Archive\Archive.aspx" />
-    <Content Include="Content\Archive\archive.css" />
-    <Content Include="Content\Archive\archive.js" />
-    <Content Include="Content\Archive\typeahead.bundle.js" />
-    <Content Include="Content\Archive\typeahead.bundle.min.js" />
+    <Content Include="Content\Archive\css\archive.css" />
+    <Content Include="Content\Archive\img\rowminus.png" />
+    <Content Include="Content\Archive\img\rowplus.png" />
+    <Content Include="Content\Archive\js\archive.js" />
+    <Content Include="Content\Archive\js\typeahead.bundle.js" />
+    <Content Include="Content\Archive\js\typeahead.bundle.min.js" />
     <Content Include="Content\AutoFill-2.1.2\css\autoFill.bootstrap.css" />
     <Content Include="Content\AutoFill-2.1.2\css\autoFill.bootstrap.min.css" />
     <Content Include="Content\AutoFill-2.1.2\css\autoFill.dataTables.css" />

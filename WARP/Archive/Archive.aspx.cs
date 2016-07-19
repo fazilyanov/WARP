@@ -10,11 +10,12 @@ namespace WARP
     {
         public TableDataArchive()
         {
+
             ColumnList = new List<TableColumn>()
             {
                 new TableColumn {
                     ViewCaption = "Код ЭА",
-                    DataNameSql = "IDH",
+                    DataNameSql = "Id",
                     DataType = TableColumnType.Integer,
                     ViewWidth = 30,
                     EditType = TableColumnEditType.None,
@@ -131,7 +132,7 @@ namespace WARP
             sbWhere.AppendLine(GenerateWhereClause());
 
             if (!string.IsNullOrEmpty(ids))
-                sbWhere.AppendLine("    AND a.id in (" + ids + ")");
+                sbWhere.AppendLine("    AND a.Id in (" + ids + ")");
 
             sbQuery.AppendLine("DECLARE @recordsFiltered int;");
             sbQuery.AppendLine("SELECT @recordsFiltered=count(*)");
@@ -142,7 +143,7 @@ namespace WARP
 
             sbQuery.AppendLine("SELECT * FROM  (");
             sbQuery.AppendLine("   SELECT @recordsFiltered AS recordsFiltered");
-            sbQuery.AppendLine("   ,T.IDH");
+            sbQuery.AppendLine("   ,T.Id");
             sbQuery.AppendLine("   ,T.Active");
             sbQuery.AppendLine("   ,T.Del");
             sbQuery.AppendLine("   ,T.DateUpd");

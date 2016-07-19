@@ -25,10 +25,13 @@ namespace WARP
         {
             // База
             string curBase = context.Request["curBase"];
+
             // Таблица
             string curTable = context.Request["curTable"];
+
             // Страница
             string curPage = context.Request["curPage"];
+
             // Действие
             TableAction tableAction = TableAction.None;
             switch (context.Request["action"])
@@ -37,8 +40,16 @@ namespace WARP
                     tableAction = TableAction.Create;
                     break;
 
+                case "createcard":
+                    tableAction = TableAction.CreateCard;
+                    break;
+
                 case "edit":
                     tableAction = TableAction.Edit;
+                    break;
+
+                case "editcard":
+                    tableAction = TableAction.EditCard;
                     break;
 
                 case "remove":
@@ -66,6 +77,8 @@ namespace WARP
                     }
                 }
             }
+
+            // Инитим соотвествующий класс
             TableData tableData = null;
             switch (curTable)
             {
@@ -83,6 +96,8 @@ namespace WARP
             tableData.Init(curBase, curTable, curPage);
             tableData.Action = tableAction;
             tableData.RequestRows = requestRows;
+
+            // Обрабатываем запрос
             context.Response.Write(tableData.Process());
         }
 

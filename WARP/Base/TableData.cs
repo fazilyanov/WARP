@@ -10,12 +10,26 @@ using System.Web.Script.Serialization;
 
 namespace WARP
 {
+    // Перечисление действий | операций над данными
     public enum TableAction
     {
+        // Отсутствие
         None,
+
+        // Создание записи средствами грида
         Create,
+
+        // Создание записи в карточке
+        CreateCard,
+
+        // Редактирование записи средствами грида
         Edit,
-        Remove
+
+        // Редактирование записи в карточке
+        EditCard,
+
+        // Удаление записи|записей
+        Remove,
     }
 
     public enum TableColumnAlign
@@ -127,7 +141,7 @@ namespace WARP
         #region Свойства
 
         // Список строк переданных для редактирования
-        public Dictionary<string, List<RequestData>> RequestRows = null;
+        public Dictionary<string, List<RequestData>> RequestRows { get; set; } = null;
 
         // Тип операции переданный гридом при редактировании
         public TableAction Action { get; set; } = TableAction.None;
@@ -521,6 +535,7 @@ namespace WARP
             sb.AppendLine("<table id=\"table_id\" class=\"table table-striped table-bordered table-condensed\" style=\"table-layout: fixed; width: 100%\">");
             sb.AppendLine("        <thead>");
             sb.AppendLine("            <tr>");
+            sb.AppendLine("               <th></th>");
             foreach (TableColumn item in ColumnList)
             {
                 sb.AppendLine("               <th>" + item.ViewCaption + "</th>");
@@ -572,7 +587,7 @@ namespace WARP
             sb.AppendLine("            editor = new $.fn.dataTable.Editor({");
             sb.AppendLine("                ajax: \"/Handler/SaveDataHandler.ashx?curBase=" + SqlBase + "&curTable=" + TableSql + "&curPage=" + PageName + "\",");
             sb.AppendLine("                table: \"#table_id\",");
-            sb.AppendLine("                idSrc: 'ID',");
+            sb.AppendLine("                idSrc: 'Id',");
             sb.AppendLine("                fields: [");
             sb.AppendLine(GenerateJSEditorTableColumns());
             sb.AppendLine("                ],");
@@ -706,7 +721,7 @@ namespace WARP
         // Список полей для грида
         public string GenerateJSTableColumns()
         {
-            string ret = Environment.NewLine;
+            string ret = "{\"className\": 'details-control',\"orderable\": false,\"data\":null,\"defaultContent\": '', \"width\":\"20px\"},";
             foreach (TableColumn item in ColumnList)
             {
                 ret += "                    { \"data\": \"" + item.DataNameSql + "\", className:\"dt-body-" + item.ViewAlign.ToString().ToLower() + "\", \"width\": \"" + item.ViewWidth + "px\" }," + Environment.NewLine;
@@ -807,38 +822,41 @@ namespace WARP
             return sbWhere.ToString();
         }
 
-        // Возвращает таблицу с данными для текущих настроек, 
+        // Возвращает таблицу с данными для текущих настроек,
         // ids - список id для получения обновленных данных после массового редактирования
         public virtual DataTable GetData(string ids = null)
         {
             // Итоговый запрос
             StringBuilder sbQuery = new StringBuilder();
-            
+
             // Условия отборки
             StringBuilder sbWhere = new StringBuilder();
 
+            // Если нужно показать только удаленные
             if (!ShowDelRows)
                 sbWhere.AppendLine("	a.Del=0 ");
             else
                 sbWhere.AppendLine("	a.Del=1 ");
 
+            // По умолчанию показываем только активные версии
             if (!ShowNoneActiveRows)
                 sbWhere.AppendLine("	AND a.Active=1 ");
 
+            // Пользовательский фильтр
             sbWhere.AppendLine(GenerateWhereClause());
 
+            // Если передан список id
             if (!string.IsNullOrEmpty(ids))
-                sbWhere.AppendLine("    AND a.id in (" + ids + ")");
+                sbWhere.AppendLine("    AND a.Id in (" + ids + ")");
 
-            //
-
+            // Считаем число записей, при таких условиях
             sbQuery.AppendLine("DECLARE @recordsFiltered int;");
             sbQuery.AppendLine("SELECT @recordsFiltered=count(*)");
             sbQuery.AppendLine("FROM [dbo].[" + SqlBase + TableSql + "] a");
             sbQuery.AppendLine("WHERE");
-            sbQuery.AppendLine(sbWhere.ToString());
-            sbQuery.AppendLine(";");
+            sbQuery.AppendLine(sbWhere.ToString() + ";");
 
+            // Получаем данные
             sbQuery.AppendLine("SELECT * FROM  (");
             sbQuery.AppendLine("   SELECT @recordsFiltered AS recordsFiltered");
             sbQuery.AppendLine("   ,T.*");
@@ -849,24 +867,24 @@ namespace WARP
             sbQuery.AppendLine("WHERE");
             sbQuery.AppendLine(sbWhere.ToString());
 
+            // Сортировка и пагинация
             sbQuery.AppendLine("ORDER BY a.[" + SortCol + "] " + SortDir);
             sbQuery.AppendLine("OFFSET @displayStart ROWS FETCH FIRST @displayLength ROWS ONLY");
-
             SqlParameter[] sqlParameterArray = {
                 new SqlParameter { ParameterName = "@displayStart", SqlDbType = SqlDbType.Int, Value = DisplayStart },
                 new SqlParameter { ParameterName = "@displayLength", SqlDbType = SqlDbType.Int, Value = DisplayLength }
             };
 
+            // Выполняем запрос
             DataTable dt = ComFunc.GetData(sbQuery.ToString(), sqlParameterArray);
             return dt;
-
-            return null;
         }
 
         public string GetJsonData()
         {
             string ret = string.Empty;
             DataTable dt = GetData();
+            JavaScriptSerializer javaScriptSerializer = new JavaScriptSerializer();
             if (dt != null)
             {
                 var result = new
@@ -876,9 +894,11 @@ namespace WARP
                     recordsFiltered = Convert.ToInt32(dt.Rows.Count > 0 ? dt.Rows[0]["recordsFiltered"] : 0),
                     data = GetFormatData(dt)
                 };
-
-                JavaScriptSerializer js = new JavaScriptSerializer();
-                ret = js.Serialize(result);
+                ret = javaScriptSerializer.Serialize(result);
+            }
+            else if (HttpContext.Current.Session["LastError"] != null)
+            {
+                ret = javaScriptSerializer.Serialize(new { error = HttpContext.Current.Session["LastError"].ToString() });
             }
             return ret;
         }
@@ -1200,5 +1220,11 @@ namespace WARP
         }
 
         #endregion Редактирование
+    }
+
+    public class TablesPage
+    {
+        public TableData Master { get; set; } = null;
+        public List<TableData> Detail { get; set; } = null;
     }
 }

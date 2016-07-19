@@ -1,0 +1,207 @@
+/*размер шрифта в таблице */
+th {
+    font-size: 12px;
+}
+
+td {
+    font-size: 11px;
+}
+
+/*  Выравнивание текста в ячейке*/
+
+.dt-head-left, .dt-body-left {
+    text-align: left;
+}
+
+.dt-head-center, .dt-body-center {
+    text-align: center;
+}
+
+.dt-head-right, .dt-body-right {
+    text-align: right;
+}
+
+/* NAVBAR*/
+
+.navbar-nav > li > a {
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+}
+
+.navbar {
+    min-height: 30px !important;
+    margin-bottom: 0px !important;
+}
+
+.navbar-brand {
+    height: 20px !important;
+    padding: 4px 4px !important;
+    /*line-height: 20px;*/
+}
+
+.navbar-blue {
+    background-color: #3097d1;
+    border-color: #1c73a5;
+}
+
+    .navbar-blue .navbar-brand {
+        color: #fff;
+    }
+
+        .navbar-blue .navbar-brand:hover,
+        .navbar-blue .navbar-brand:focus {
+            color: #ddd;
+            background-color: transparent;
+        }
+
+    .navbar-blue .navbar-text {
+        color: #fff;
+    }
+
+    .navbar-blue .navbar-nav > li > a {
+        color: #fff;
+        font-size: 16px;
+    }
+
+        .navbar-blue .navbar-nav > li > a:hover,
+        .navbar-blue .navbar-nav > li > a:focus {
+            color: #ddd;
+            background-color: transparent;
+        }
+
+    .navbar-blue .navbar-nav > .active > a,
+    .navbar-blue .navbar-nav > .active > a:hover,
+    .navbar-blue .navbar-nav > .active > a:focus {
+        color: #ddd;
+        background-color: #1c73a5;
+    }
+
+    .navbar-blue .navbar-nav > .disabled > a,
+    .navbar-blue .navbar-nav > .disabled > a:hover,
+    .navbar-blue .navbar-nav > .disabled > a:focus {
+        color: #ccc;
+        background-color: transparent;
+    }
+
+    .navbar-blue .navbar-toggle {
+        border-color: #1c73a5;
+    }
+
+        .navbar-blue .navbar-toggle:hover,
+        .navbar-blue .navbar-toggle:focus {
+            background-color: #ddd;
+        }
+
+        .navbar-blue .navbar-toggle .icon-bar {
+            background-color: #888;
+        }
+
+    .navbar-blue .navbar-collapse,
+    .navbar-blue .navbar-form {
+        border-color: #1c73a5;
+    }
+
+    .navbar-blue .navbar-nav > .open > a,
+    .navbar-blue .navbar-nav > .open > a:hover,
+    .navbar-blue .navbar-nav > .open > a:focus {
+        color: #fff;
+        background-color: #1c73a5;
+    }
+
+/* Пагинация */
+.paging_simple_numbers {
+    font-size: 12px !important;
+    text-align: center !important;
+}
+
+.pagination {
+    margin: 0px !important;
+    vertical-align: middle !important;
+}
+
+    .pagination > li > a {
+        padding: 5px 11px !important;
+    }
+
+/* Инфо */
+.dataTables_info {
+    font-size: 12px !important;
+    text-align: right !important;
+}
+
+/* Верхний тулбар */
+.top-toolbar {
+    padding-top: 5px;
+}
+
+/* Выполнение */
+.dataTables_processing {
+    z-index: 1000;
+}
+
+/* TypeHead*/
+
+.twitter-typeahead {
+    display: block !important;
+}
+
+.tt-query {
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+}
+
+.tt-hint {
+    color: #999;
+}
+
+.tt-menu { /* used to be tt-dropdown-menu in older versions */
+    width: 422px;
+    margin-top: 35px;
+    padding: 4px 0;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    -webkit-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+    -moz-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+    box-shadow: 0 5px 10px rgba(0,0,0,.2);
+}
+
+.tt-suggestion {
+    padding: 3px 20px;
+    line-height: 24px;
+}
+
+    .tt-suggestion.tt-cursor, .tt-suggestion:hover {
+        color: #fff;
+        background-color: #0097cf;
+    }
+
+    .tt-suggestion p {
+        margin: 0;
+    }
+
+#scrollable-dropdown-menu .tt-menu {
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+/* IE */
+
+input[type=text]::-ms-clear {
+    display: none;
+}
+
+/*Фильтр*/
+.filter-field {
+    font-size: 14px;
+    font-weight: bold;
+    padding-top: 2px;
+    padding-bottom: 12px;
+}
+.filter-input {
+    font-weight: bold !important;
+}
