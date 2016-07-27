@@ -27,6 +27,7 @@
     <link rel="stylesheet" type="text/css" href="/Content/Responsive-2.1.0/css/responsive.bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="/Content/RowReorder-1.1.2/css/rowReorder.bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="/Content/Select-1.2.0/css/select.bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/Content/ContextMenu-2.2.4/jquery.contextMenu.css" />
     <link rel="stylesheet" type="text/css" href="/Content/Archive/css/archive.css?v=1" />
 
     <script type="text/javascript" src="/Content/jQuery-2.2.3/jquery-2.2.3.js"></script>
@@ -62,6 +63,7 @@
     <script type="text/javascript" src="/Content/Responsive-2.1.0/js/dataTables.responsive.js"></script>
     <script type="text/javascript" src="/Content/RowReorder-1.1.2/js/dataTables.rowReorder.js"></script>
     <script type="text/javascript" src="/Content/Select-1.2.0/js/dataTables.select.js"></script>
+    <script type="text/javascript" src="/Content/ContextMenu-2.2.4/jquery.contextMenu.js"></script>
     <!-- -->
     <script type="text/javascript" src="/Content/dataTables.colResize.js"></script>
     <script type="text/javascript" src="/Content/Archive/js/typeahead.bundle.js"></script>

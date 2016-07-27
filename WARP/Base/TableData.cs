@@ -10,132 +10,6 @@ using System.Web.Script.Serialization;
 
 namespace WARP
 {
-    // Перечисление действий | операций над данными
-    public enum TableAction
-    {
-        // Отсутствие
-        None,
-
-        // Создание записи средствами грида
-        Create,
-
-        // Создание записи в карточке
-        CreateCard,
-
-        // Редактирование записи средствами грида
-        Edit,
-
-        // Редактирование записи в карточке
-        EditCard,
-
-        // Удаление записи|записей
-        Remove,
-    }
-
-    public enum TableColumnAlign
-    {
-        Left,
-        Center,
-        Right,
-    }
-
-    public enum TableColumnEditType
-    {
-        None,
-        CurrentUser,
-        CurrentDateTime,
-        String,
-        Autocomplete,
-        Integer,
-        Money,
-        DropDown,
-    }
-
-    public enum TableColumnFilterType
-    {
-        None,
-        String,
-        Autocomplete,
-        Integer,
-        Money,
-        DropDown,
-    }
-
-    public enum TableColumnType
-    {
-        String,
-        Integer,
-        Money,
-        DateTime,
-        Date,
-    }
-
-    public enum TableSortDir
-    {
-        Asc,
-        Desc
-    }
-
-    // Описывает столбец таблицы
-    public class TableColumn
-    {
-        // TODO : использутся?
-        public string DataLookUpField { get; set; } = string.Empty;
-
-        // TODO :  использутся?
-        public string DataLookUpTable { get; set; } = string.Empty;
-
-        // Имя поля в SQL таблице
-        public string DataNameSql { get; set; } = string.Empty;
-
-        public TableColumnType DataType { get; set; } = TableColumnType.String;
-
-        // Разрешено ли менять поле при массовом редактировании
-        public bool EditBulk { get; set; } = false;
-
-        // Текст по умолчанию для значений из спарвочника
-        public string EditDefaultText { get; set; } = string.Empty;
-
-        // Значение по умолчанию или ID для значений из спарвочника
-        public string EditDefaultValue { get; set; } = string.Empty;
-
-        // Подсказка снизу для поля при редактировании
-        public string EditFieldInfo { get; set; } = string.Empty;
-
-        // Максимальная длинна для текста или значение для целочисленных данных
-        public int EditMax { get; set; } = -1;
-
-        // Минимальная длинна для текста или значение для целочисленных данных
-        public int EditMin { get; set; } = -1;
-
-        // Обязательность заполнения
-        public bool EditRequired { get; set; } = false;
-
-        // Типы редактирования (влияет на контролы, правила сохранения и тд)
-        public TableColumnEditType EditType { get; set; } = TableColumnEditType.None;
-
-        // Заголовок для формы фильтров, если не указан, используется обычный заголовок
-        public string FilterCaption { get; set; } = string.Empty;
-
-        // Предустановленный фильтр для поля
-        public string FilterDefaultValue { get; set; } = string.Empty;
-
-        // Тип фильтра
-        public TableColumnFilterType FilterType { get; set; } = TableColumnFilterType.None;
-
-        // Выравнивание в ячейке текста
-        public TableColumnAlign ViewAlign { get; set; } = TableColumnAlign.Left;
-
-        // Заголовок столбца (Грид, карточка, форма редактирования и тд)
-        public string ViewCaption { get; set; } = string.Empty;
-
-        // Короткий заголовок, пока не использую
-        public string ViewCaptionShort { get; set; } = string.Empty;
-
-        // Ширина поля в гриде
-        public int ViewWidth { get; set; } = 100;
-    }
-
     public class TableData
     {
         #region Свойства
@@ -148,9 +22,6 @@ namespace WARP
 
         // База | Организация
         public string SqlBase { get; set; } = string.Empty;
-
-        // Текст на вкладке браузера
-        public string BrowserTabTitle { get; set; } = string.Empty;
 
         // Список полей
         public List<TableColumn> ColumnList { get; set; } = null;
@@ -254,7 +125,7 @@ namespace WARP
             sbFunc.AppendLine("                 data: msg,");
             sbFunc.AppendLine("                 success: function(data) {");
             sbFunc.AppendLine("                     $('#modalFilterForm').modal('toggle');");
-            sbFunc.AppendLine("                     $('#table_id').DataTable().draw();");
+            sbFunc.AppendLine("                     $('#table" + TableSql + "').DataTable().draw();");
             sbFunc.AppendLine("                 },");
             sbFunc.AppendLine("             });");
             sbFunc.AppendLine("         }");
@@ -497,42 +368,36 @@ namespace WARP
             return sbResult.ToString();
         }
 
-        // Собирает все вместе
-        public string GenerateHtml()
-        {
-            StringBuilder sb = new StringBuilder();
+        //// Собирает все вместе
+        //public string GenerateHtml()
+        //{
+        //    StringBuilder sb = new StringBuilder();
 
-            // Таблица HTML
-            sb.AppendLine(GenerateHtmlTable());
+        //    // Таблица HTML
+        //    sb.AppendLine(GenerateHtmlTable());
 
-            // Фильтр
-            sb.AppendLine(GenerateFilterFormDialog());
+        //    // Фильтр
+        //    sb.AppendLine(GenerateFilterFormDialog());
 
-            //d
+        //    //sb.AppendLine("    <script>");
+        //    sb.AppendLine("        var editor;");
+        //    sb.AppendLine(GenerateJSWindowsResize());
+        //    sb.AppendLine("        $(document).ready(function () {");
+        //    sb.AppendLine("            $('#curPageTitle').text('" + PageTitle + "');");
+        //    sb.AppendLine(GenerateJSEditorInit());
+        //    sb.AppendLine(GenerateJSDataTable());
+        //    sb.AppendLine("        });");
+        //    //sb.AppendLine("    </script>");
 
-            sb.AppendLine("    <script>");
-            sb.AppendLine("        var editor;");
-            sb.AppendLine(GenerateJSWindowsResize());
-            sb.AppendLine("        $(document).ready(function () {");
-            sb.AppendLine();
-            sb.AppendLine("            $('#curPageTitle').text('" + PageTitle + "');");
-            sb.AppendLine("            document.title = '" + BrowserTabTitle + "';");
-            sb.AppendLine(GenerateJSEditorInit());
-            sb.AppendLine(GenerateJSDataTable());
-
-            sb.AppendLine("            $(window).resize();");
-            sb.AppendLine("        });");
-            sb.AppendLine("    </script>");
-
-            return sb.ToString();
-        }
+        //    return sb.ToString();
+        //}
 
         // HTML Таблица
         public string GenerateHtmlTable()
         {
             StringBuilder sb = new StringBuilder();
 
-            sb.AppendLine("<table id=\"table_id\" class=\"table table-striped table-bordered table-condensed\" style=\"table-layout: fixed; width: 100%\">");
+            sb.AppendLine("<table id=\"table" + TableSql + "\" class=\"table table-striped table-bordered table-condensed\" style=\"table-layout: fixed; width: 100%\">");
             sb.AppendLine("        <thead>");
             sb.AppendLine("            <tr>");
             sb.AppendLine("               <th></th>");
@@ -551,8 +416,9 @@ namespace WARP
         public string GenerateJSDataTable()
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("            var table = $('#table_id').DataTable({");
+            sb.AppendLine("            var table = $('#table" + TableSql + "').DataTable({");
             sb.AppendLine("                dom: '<\"row top-toolbar\"<\"col-sm-4\"B><\"col-sm-4\"p><\"col-sm-4\"i>>Zrt',");
+            sb.AppendLine("                rowId: 'Id',");
             sb.AppendLine("                processing: true,");
             sb.AppendLine("                serverSide: true,");
             sb.AppendLine("                ajax: \"/Handler/GetDataHandler.ashx?curBase=" + SqlBase + "&curTable=" + TableSql + "&curPage=" + PageName + "\",");
@@ -586,7 +452,7 @@ namespace WARP
             sb.AppendLine();
             sb.AppendLine("            editor = new $.fn.dataTable.Editor({");
             sb.AppendLine("                ajax: \"/Handler/SaveDataHandler.ashx?curBase=" + SqlBase + "&curTable=" + TableSql + "&curPage=" + PageName + "\",");
-            sb.AppendLine("                table: \"#table_id\",");
+            sb.AppendLine("                table: \"#table" + TableSql + "\",");
             sb.AppendLine("                idSrc: 'Id',");
             sb.AppendLine("                fields: [");
             sb.AppendLine(GenerateJSEditorTableColumns());
@@ -721,30 +587,17 @@ namespace WARP
         // Список полей для грида
         public string GenerateJSTableColumns()
         {
-            string ret = "{\"className\": 'details-control',\"orderable\": false,\"data\":null,\"defaultContent\": '', \"width\":\"20px\"},";
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("                    {\"className\": 'details-control',\"orderable\": false,\"data\":null,\"defaultContent\": '', \"width\":\"20px\"},");
             foreach (TableColumn item in ColumnList)
-            {
-                ret += "                    { \"data\": \"" + item.DataNameSql + "\", className:\"dt-body-" + item.ViewAlign.ToString().ToLower() + "\", \"width\": \"" + item.ViewWidth + "px\" }," + Environment.NewLine;
-            }
-            return ret;
+                sb.AppendLine("                    { \"data\": \"" + item.DataNameSql + "\", className:\"dt-body-" + item.ViewAlign.ToString().ToLower() + "\", \"width\": \"" + item.ViewWidth + "px\" },");
+            return sb.ToString();
         }
 
         // Список количества записей на странице
         public string GenerateJSTableLengthMenu()
         {
             return "[30, 100, 200, 500], ['30 строк', '100 строк', '200 строк', '500 строк']";
-        }
-
-        // Скрипт бинда изменения размеров рабочей области
-        public string GenerateJSWindowsResize()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine();
-            sb.AppendLine("        // Авторазмер");
-            sb.AppendLine("        $(window).bind('resize', function () {");
-            sb.AppendLine("            $('.dataTables_scrollBody').css('height', ($(window).height() - 125) + 'px');");
-            sb.AppendLine("        });");
-            return sb.ToString();
         }
 
         #endregion Генерация HTML|JS
@@ -1220,11 +1073,5 @@ namespace WARP
         }
 
         #endregion Редактирование
-    }
-
-    public class TablesPage
-    {
-        public TableData Master { get; set; } = null;
-        public List<TableData> Detail { get; set; } = null;
     }
 }

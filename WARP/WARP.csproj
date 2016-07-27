@@ -33,6 +33,9 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>
+    </DocumentationFile>
+    <RegisterForComInterop>false</RegisterForComInterop>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -133,6 +136,12 @@
     <Content Include="Content\ColReorder-1.3.2\css\colReorder.jqueryui.min.css" />
     <Content Include="Content\ColReorder-1.3.2\js\dataTables.colReorder.js" />
     <Content Include="Content\ColReorder-1.3.2\js\dataTables.colReorder.min.js" />
+    <Content Include="Content\ContextMenu-2.2.4\jquery.contextMenu.css" />
+    <Content Include="Content\ContextMenu-2.2.4\jquery.contextMenu.js" />
+    <Content Include="Content\ContextMenu-2.2.4\jquery.contextMenu.min.css" />
+    <Content Include="Content\ContextMenu-2.2.4\jquery.contextMenu.min.js" />
+    <Content Include="Content\ContextMenu-2.2.4\jquery.ui.position.js" />
+    <Content Include="Content\ContextMenu-2.2.4\jquery.ui.position.min.js" />
     <Content Include="Content\DataTables-1.10.12\css\dataTables.bootstrap.css" />
     <Content Include="Content\DataTables-1.10.12\css\dataTables.bootstrap.min.css" />
     <Content Include="Content\DataTables-1.10.12\css\dataTables.foundation.css" />
@@ -302,6 +311,13 @@
     <Content Include="Handler\SessionHandler.ashx" />
     <Content Include="Handler\sourceStringCond.json" />
     <Content Include="Handler\SaveDataHandler.ashx" />
+    <Content Include="Content\ContextMenu-2.2.4\font\context-menu-icons.eot" />
+    <Content Include="Content\ContextMenu-2.2.4\font\context-menu-icons.ttf" />
+    <Content Include="Content\ContextMenu-2.2.4\font\context-menu-icons.woff" />
+    <Content Include="Content\ContextMenu-2.2.4\font\context-menu-icons.woff2" />
+    <Content Include="Content\ContextMenu-2.2.4\jquery.contextMenu.min.css.map" />
+    <Content Include="Content\ContextMenu-2.2.4\jquery.contextMenu.min.js.map" />
+    <Content Include="Handler\EditDialogHandler.ashx" />
     <None Include="Properties\PublishProfiles\Test.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -334,13 +350,14 @@
     </Compile>
     <Compile Include="Archive\Archive.aspx.cs">
       <DependentUpon>Archive.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Archive\Archive.aspx.designer.cs">
       <DependentUpon>Archive.aspx</DependentUpon>
     </Compile>
-    <Compile Include="Base\ArchivePage.cs" />
+    <Compile Include="Base\AppPage.cs" />
     <Compile Include="Base\ComFunc.cs" />
+    <Compile Include="Base\Enum.cs" />
+    <Compile Include="Base\TableColumn.cs" />
     <Compile Include="Base\TableData.cs" />
     <Compile Include="Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>
@@ -351,6 +368,9 @@
     </Compile>
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Handler\EditDialogHandler.ashx.cs">
+      <DependentUpon>EditDialogHandler.ashx</DependentUpon>
     </Compile>
     <Compile Include="Handler\SaveDataHandler.ashx.cs">
       <DependentUpon>SaveDataHandler.ashx</DependentUpon>

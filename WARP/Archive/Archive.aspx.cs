@@ -6,32 +6,32 @@ using System.Text;
 
 namespace WARP
 {
+    // Шапка
     public class TableDataArchive : TableData
     {
         public TableDataArchive()
         {
-
             ColumnList = new List<TableColumn>()
             {
                 new TableColumn {
                     ViewCaption = "Код ЭА",
                     DataNameSql = "Id",
                     DataType = TableColumnType.Integer,
-                    ViewWidth = 30,
+                    ViewWidth = 70,
                     EditType = TableColumnEditType.None,
                 },
                 new TableColumn {
                     ViewCaption = "Дата редак.",
                     DataNameSql = "DateUpd",
                     DataType = TableColumnType.DateTime,
-                    ViewWidth = 30,
+                    ViewWidth = 115,
                     ViewAlign = TableColumnAlign.Center
                 },
                 new TableColumn {
                     ViewCaption = "Оператор",
                     DataNameSql = "User",
                     //FilterType = TableColumnFilterType.Autocomplete,
-                    ViewWidth = 40,
+                    ViewWidth = 125,
                     DataLookUpTable = "User"
                 },
                 new TableColumn {
@@ -183,19 +183,29 @@ namespace WARP
         }
     }
 
+    // Страница
+    public class AppPageArchive : AppPage
+    {
+        public AppPageArchive()
+        {
+            Master = new TableDataArchive();
+        }
+    }
+
+    // ASPX
     public partial class Archive : System.Web.UI.Page
     {
-        public TableDataArchive tableData;
+        public AppPageArchive appPage;
 
         protected void Page_PreRender(object sender, EventArgs e)
         {
             string curPage = (Page.RouteData.Values["pPage"] ?? "").ToString().Trim();
             if (curPage.Length > 0)
             {
-                tableData = new TableDataArchive();
-                tableData.Init(Master.curBaseName, "Archive", curPage);
-                tableData.BrowserTabTitle = ComFunc.GetArchivePageNameRus(curPage);
-                tableData.PageTitle = "Электронный архив | База: " + Master.curBaseNameRus + " | Документы | " + tableData.BrowserTabTitle;
+                appPage = new AppPageArchive();
+                appPage.Master.Init(Master.curBaseName, "Archive", curPage);
+                appPage.BrowserTabTitle= ComFunc.GetArchivePageNameRus(curPage);
+                appPage.Master.PageTitle="Электронный архив | База: " + Master.curBaseNameRus + " | Документы | " + appPage.BrowserTabTitle;
             }
             else
             {

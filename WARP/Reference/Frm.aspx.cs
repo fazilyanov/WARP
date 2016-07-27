@@ -126,8 +126,8 @@ namespace WARP
         {
             tableData = new TableDataFrm();
             tableData.Init(Master.curBaseName, "Frm");
-            tableData.BrowserTabTitle = "Контрагенты";
-            tableData.PageTitle = "Электронный архив | Справочники | " + tableData.BrowserTabTitle;
+            //tableData.BrowserTabTitle = "Контрагенты";
+            //tableData.PageTitle = "Электронный архив | Справочники | " + tableData.BrowserTabTitle;
         }
     }
 }

@@ -3,5 +3,5 @@
 <%@ MasterType VirtualPath="~/Site.master" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="cph" runat="server">
-    <%=tableData.GenerateHtml()%>
+    <%=appPage.GenerateContent()%>
 </asp:Content>

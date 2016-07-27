@@ -10,9 +10,8 @@ using System.Web.UI;
 
 namespace WARP
 {
-    /// <summary>
-    /// Общие функции проекта
-    /// </summary>
+    
+    // Общие функции проекта
     public class ComFunc
     {
         #region GetInfo

@@ -14,7 +14,7 @@ namespace WARP
             string curBase = context.Request["curBase"];
             string curTable = context.Request["curTable"];
             string curPage = context.Request["curPage"];
-            int draw = int.Parse(context.Request["draw"]);
+            int drawCount = int.Parse(context.Request["draw"]);
             int displayLength = int.Parse(context.Request["length"]);
             int displayStart = int.Parse(context.Request["start"]);
             int sortCol = int.Parse(context.Request["order[0][column]"]);
@@ -22,15 +22,15 @@ namespace WARP
             string search = context.Request["search[value]"];
 
             // В зависимости от таблицы, используем соответствующий класс
-            TableData tableData = null;
+            AppPage appPage = null;
             switch (curTable)
             {
                 case "Archive":
-                    tableData = new TableDataArchive();
+                    appPage = new AppPageArchive();
                     break;
 
                 case "Frm":
-                    tableData = new TableDataFrm();
+                  //  appPage = new AppPageFrm();
                     break;
 
                 case "User":
@@ -40,8 +40,8 @@ namespace WARP
                 default:
                     break;
             }
-            tableData.Init(curBase, curTable, curPage, draw, displayStart, displayLength, sortCol, sortDir);
-            context.Response.Write(tableData.GetJsonData());
+            appPage.Master.Init(curBase, curTable, curPage, drawCount, displayStart, displayLength, sortCol, sortDir);
+            context.Response.Write(appPage.Master.GetJsonData());
         }
 
         public bool IsReusable
