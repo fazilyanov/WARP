@@ -22,44 +22,31 @@ namespace WARP
             string curPage = context.Request["curPage"];
 
             // ID
-            string curId = context.Request["curId"];
+            int curId = int.Parse(context.Request["curId"].ToString());
 
-            //// В зависимости от таблицы, используем соответствующий класс
-            //AppPage appPage = null;
-            //switch (curTable)
-            //{
-            //    case "Archive":
-            //        appPage = new AppPageArchive();
-            //        break;
+            // В зависимости от таблицы, используем соответствующий класс
+            AppPage appPage = null;
+            switch (curTable)
+            {
+                case "Archive":
+                    appPage = new AppPageArchive();
+                    break;
 
-            //    case "Frm":
-            //      //  appPage = new AppPageFrm();
-            //        break;
+                case "Frm":
+                    //  appPage = new AppPageFrm();
+                    break;
 
-            //    case "User":
+                case "User":
 
-            //        break;
+                    break;
 
-            //    default:
-            //        break;
-            //}
-            //appPage.Master.Init(curBase, curTable, curPage, drawCount, displayStart, displayLength, sortCol, sortDir);
-            //context.Response.Write(appPage.Master.GetJsonData());
+                default:
+                    break;
+            }
+
             StringBuilder sb = new StringBuilder();
-
-            sb.AppendLine("<div class=\"modal-header\">");
-            sb.AppendLine("        <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button>");
-            sb.AppendLine("        <h4 class=\"modal-title\">Modal title</h4>");
-            sb.AppendLine("      </div>");
-            sb.AppendLine("      <div id=\"EditDialogBody\" class=\"modal-body\">");
-            sb.AppendLine("        <p>"+DateTime.Now.ToString()+"</p>");
-            sb.AppendLine("        <p>" + curId + "</p>");
-            sb.AppendLine("      </div>");
-            sb.AppendLine("      <div class=\"modal-footer\">");
-            sb.AppendLine("        <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>");
-            sb.AppendLine("        <button type=\"button\" class=\"btn btn-primary\">Save changes</button>");
-            sb.AppendLine("      </div>");
-            context.Response.Write(sb.ToString());
+            appPage.Master.Init(curBase, curTable, curPage);
+            context.Response.Write(appPage.GenerateEditDialog(curId));
         }
 
         public bool IsReusable

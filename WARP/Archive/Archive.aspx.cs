@@ -11,6 +11,7 @@ namespace WARP
     {
         public TableDataArchive()
         {
+            ShowRowInfoButtom = true;
             ColumnList = new List<TableColumn>()
             {
                 new TableColumn {
@@ -206,6 +207,7 @@ namespace WARP
                 appPage.Master.Init(Master.curBaseName, "Archive", curPage);
                 appPage.BrowserTabTitle= ComFunc.GetArchivePageNameRus(curPage);
                 appPage.Master.PageTitle="Электронный архив | База: " + Master.curBaseNameRus + " | Документы | " + appPage.BrowserTabTitle;
+                appPage.EditDialogWidth = 1000;
             }
             else
             {

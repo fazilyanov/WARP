@@ -56,6 +56,10 @@ namespace WARP
         // Показывать предыдущие версии
         public bool ShowNoneActiveRows { get; set; } = false;
 
+        // Показывать инфо "плюсик" для записи
+        public bool ShowRowInfoButtom { get; set; } = false;
+        
+
         #endregion Свойства
 
         #region Инициализация
@@ -89,6 +93,8 @@ namespace WARP
             DrawCount = drawCount;
             DisplayStart = displayStart;
             DisplayLength = displayLength;
+            // Если есть "плюсик" нумерация столбцов сбивается
+            if (ShowRowInfoButtom && sortCol > 0) sortCol--;
             SortCol = ColumnList.Count >= sortCol ? ColumnList[sortCol].DataNameSql : string.Empty;
             SortDir = sortDir == "asc" ? TableSortDir.Asc : TableSortDir.Desc;
         }
@@ -154,7 +160,7 @@ namespace WARP
             sbFunc.AppendLine();
 
             // Форма
-            sbResult.AppendLine("    <div class=\"modal fade\" id=\"modalFilterForm\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"modalFilterForm\" aria-hidden=\"true\">");
+            sbResult.AppendLine("    <div class=\"modal\" id=\"modalFilterForm\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"modalFilterForm\" aria-hidden=\"true\">");
             sbResult.AppendLine("        <div class=\"modal-dialog modal-lg\">");
             sbResult.AppendLine("            <div class=\"modal-content\">");
             sbResult.AppendLine("                <div class=\"modal-header\">");
@@ -400,7 +406,8 @@ namespace WARP
             sb.AppendLine("<table id=\"table" + TableSql + "\" class=\"table table-striped table-bordered table-condensed\" style=\"table-layout: fixed; width: 100%\">");
             sb.AppendLine("        <thead>");
             sb.AppendLine("            <tr>");
-            sb.AppendLine("               <th></th>");
+            if (ShowRowInfoButtom)
+                sb.AppendLine("               <th></th>");
             foreach (TableColumn item in ColumnList)
             {
                 sb.AppendLine("               <th>" + item.ViewCaption + "</th>");
@@ -588,7 +595,8 @@ namespace WARP
         public string GenerateJSTableColumns()
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("                    {\"className\": 'details-control',\"orderable\": false,\"data\":null,\"defaultContent\": '', \"width\":\"20px\"},");
+            if (ShowRowInfoButtom)
+                sb.AppendLine("                    {\"className\": 'details-control',\"orderable\": false,\"data\":null,\"defaultContent\": '', \"width\":\"20px\"},");
             foreach (TableColumn item in ColumnList)
                 sb.AppendLine("                    { \"data\": \"" + item.DataNameSql + "\", className:\"dt-body-" + item.ViewAlign.ToString().ToLower() + "\", \"width\": \"" + item.ViewWidth + "px\" },");
             return sb.ToString();

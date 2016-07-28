@@ -8,6 +8,9 @@ namespace WARP
         // Текст на вкладке браузера
         public string BrowserTabTitle { get; set; } = string.Empty;
 
+        // Ширина карточки
+        public int EditDialogWidth { get; set; } = 0;
+
         // Грид шапки
         public TableData Master { get; set; } = null;
 
@@ -32,9 +35,9 @@ namespace WARP
             sb.AppendLine("            $('#table" + Master.TableSql + "').on('dblclick', 'tr', function() {");
             sb.AppendLine("                var table = $('#table" + Master.TableSql + "').DataTable();");
             sb.AppendLine("                var id = table.row(this).id();");
-            sb.AppendLine("                $('#EditModalDialog').modal();");
-            sb.AppendLine("                $('#EditDialogBody').html('Загрузка..');");
-            sb.AppendLine("                $('#EditDialogContent').load('/Handler/EditDialogHandler.ashx?curBase=" + Master.SqlBase + "&curTable=" + Master.TableSql + "&curPage=" + Master.PageName + "&curId=' + id);");
+            sb.AppendLine("                $('#EditDialog').modal();");
+            sb.AppendLine("                $('#EditDialogContent').html('Загрузка..');");
+            sb.AppendLine("                $('#EditDialogContent').load('/Handler/EditDialogHandler.ashx?curBase=" + Master.SqlBase + "&curTable=" + Master.TableSql + "&curPage=" + Master.PageName + "&curId=' + id);");      
             sb.AppendLine("            });");
             return sb.ToString();
         }
@@ -64,17 +67,47 @@ namespace WARP
             return sb.ToString();
         }
 
-        public virtual string GenerateEditDialog()
+        public virtual string GenerateEditDialog(int curId)
         {
             StringBuilder sb = new StringBuilder();
-
-            sb.AppendLine("    <div id=\"EditModalDialog\" class=\"modal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"myLargeModalLabel\">");
-            sb.AppendLine("         <div class=\"modal-dialog modal-lg\" role=\"document\">");
-            sb.AppendLine("                 <div id=\"EditDialogContent\" class=\"modal-content\">");
-            sb.AppendLine("                 </div>");
+            
+            sb.AppendLine("<div class=\"modal-header\">");
+            sb.AppendLine("     <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button>");
+            sb.AppendLine("     <h4 class=\"modal-title\">Редактирование (Код ЭА " + curId.ToString()+")</h4>");
+            sb.AppendLine("</div>");
+            sb.AppendLine("<div id=\"EditDialogBody\" class=\"modal-body\">");
+            sb.AppendLine("     <div class=\"row\">");
+            sb.AppendLine("         <div class=\"col-sm-3\"> ");
+            sb.AppendLine("             <div class=\"card-input-group\">");
+            sb.AppendLine("                 <label class=\"card-label\" >Номер документа</label>");
+            sb.AppendLine("                 <input id=\"zao_stg_archive_num_doc\" name=\"zao_stg_archive_num_doc\" class=\"card-form-control\"  value=\"\" title=\"\">  ");
+            sb.AppendLine("             </div>");
             sb.AppendLine("         </div>");
-            sb.AppendLine("    </div>");
+            sb.AppendLine("         <div class=\"col-sm-3\"> ");
+            sb.AppendLine("             <div class=\"card-input-group\">");
+            sb.AppendLine("                 <label class=\"card-label\" >Дата</label>");
+            sb.AppendLine("                 <input id=\"doc\" name=\"doc\" class=\"card-form-control\"  value=\"\" title=\"\">  ");
+            sb.AppendLine("             </div>");
+            sb.AppendLine("         </div>");
+            sb.AppendLine("         <div class=\"col-sm-3\"> ");
+            sb.AppendLine("             <div class=\"card-input-group\">");
+            sb.AppendLine("                 <label class=\"card-label\" >Дата</label>");
+            sb.AppendLine("                 <input id=\"doc\" name=\"doc\" class=\"card-form-control\"  value=\"\" title=\"\">  ");
+            sb.AppendLine("             </div>");
+            sb.AppendLine("         </div>");
+            sb.AppendLine("         <div class=\"col-sm-3\"> ");
+            sb.AppendLine("             <div class=\"card-input-group\">");
+            sb.AppendLine("                 <label class=\"card-label\" >Дата</label>");
+            sb.AppendLine("                 <input id=\"doc\" name=\"doc\" class=\"card-form-control\"  value=\"\" title=\"\">  ");
+            sb.AppendLine("             </div>");
+            sb.AppendLine("         </div>");
+            sb.AppendLine("     </div>");
 
+            sb.AppendLine("<div class=\"modal-footer\">");
+            sb.AppendLine("     <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>");
+            sb.AppendLine("     <button type=\"button\" class=\"btn btn-primary\">Save changes</button>");
+            sb.AppendLine("</div>");
+            
             return sb.ToString();
         }
 
@@ -85,8 +118,14 @@ namespace WARP
 
             // Таблица HTML для шапки
             sb.AppendLine(Master.GenerateHtmlTable());
-            //
-            sb.AppendLine(GenerateEditDialog());
+
+            // Карточка
+            sb.AppendLine("    <div id=\"EditDialog\" class=\"modal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"myLargeModalLabel\">");
+            sb.AppendLine("         <div class=\"modal-dialog modal-lg\" " + (EditDialogWidth > 0 ? "style=\"width: " + EditDialogWidth + "px;\"" : "") + " role=\"document\">");
+            sb.AppendLine("                 <div id=\"EditDialogContent\" class=\"modal-content\">");
+            sb.AppendLine("                 </div>");
+            sb.AppendLine("         </div>");
+            sb.AppendLine("    </div>");
 
             // Фильтр HTML для шапки
             sb.AppendLine(Master.GenerateFilterFormDialog());
