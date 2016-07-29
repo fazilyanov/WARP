@@ -133,6 +133,10 @@ td {
 .top-toolbar {
     padding-top: 5px;
 }
+/*Пустое пространство между кнопками в тулбаре*/
+.btn-space {
+    margin-right: 10px;
+}
 
 /* Выполнение */
 .dataTables_processing {
@@ -202,6 +206,55 @@ input[type=text]::-ms-clear {
     padding-top: 2px;
     padding-bottom: 12px;
 }
+
 .filter-input {
     font-weight: bold !important;
+}
+
+td.details-control {
+    background: url('../img/rowplus.png') no-repeat center center;
+    cursor: pointer;
+}
+
+tr.shown td.details-control {
+    background: url('../img/rowminus.png') no-repeat center center;
+}
+
+/*Инпуты в карточке*/
+.card-modal-header {
+    padding: 12px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.card-input-group {
+    position: relative;
+    /*display: table;*/
+    width: 250px;
+    float: left;
+    padding-right: 10px;
+    padding-left: 10px;
+    margin-bottom: 7px;
+}
+
+.card-form-control {
+    display: block;
+    width: 100%;
+    height: 30px;
+    padding: 6px 12px;
+    font-size: 12px;
+    line-height: 1.42857143;
+    color: #555;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+
+.card-label {
+    margin-bottom: 0px;
 }

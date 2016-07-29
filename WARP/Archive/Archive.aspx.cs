@@ -207,7 +207,7 @@ namespace WARP
                 appPage.Master.Init(Master.curBaseName, "Archive", curPage);
                 appPage.BrowserTabTitle= ComFunc.GetArchivePageNameRus(curPage);
                 appPage.Master.PageTitle="Электронный архив | База: " + Master.curBaseNameRus + " | Документы | " + appPage.BrowserTabTitle;
-                appPage.EditDialogWidth = 1000;
+                appPage.EditDialogWidth = 1007;
             }
             else
             {

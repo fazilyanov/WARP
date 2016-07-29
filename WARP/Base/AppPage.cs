@@ -37,7 +37,7 @@ namespace WARP
             sb.AppendLine("                var id = table.row(this).id();");
             sb.AppendLine("                $('#EditDialog').modal();");
             sb.AppendLine("                $('#EditDialogContent').html('Загрузка..');");
-            sb.AppendLine("                $('#EditDialogContent').load('/Handler/EditDialogHandler.ashx?curBase=" + Master.SqlBase + "&curTable=" + Master.TableSql + "&curPage=" + Master.PageName + "&curId=' + id);");      
+            sb.AppendLine("                $('#EditDialogContent').load('/Handler/EditDialogHandler.ashx?curBase=" + Master.SqlBase + "&curTable=" + Master.TableSql + "&curPage=" + Master.PageName + "&curId=' + id);");
             sb.AppendLine("            });");
             return sb.ToString();
         }
@@ -70,44 +70,63 @@ namespace WARP
         public virtual string GenerateEditDialog(int curId)
         {
             StringBuilder sb = new StringBuilder();
-            
-            sb.AppendLine("<div class=\"modal-header\">");
+
+            sb.AppendLine("<div class=\"card-modal-header\">");
             sb.AppendLine("     <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button>");
-            sb.AppendLine("     <h4 class=\"modal-title\">Редактирование (Код ЭА " + curId.ToString()+")</h4>");
+            sb.AppendLine("     <h4 class=\"modal-title\">Запись № " + curId.ToString() + "</h4>");
+            sb.AppendLine("     <h6 class=\"modal-title\">Дата редактирования: 01.01.2001 01:01:01 Фазылянов АН</h6>");
             sb.AppendLine("</div>");
             sb.AppendLine("<div id=\"EditDialogBody\" class=\"modal-body\">");
             sb.AppendLine("     <div class=\"row\">");
-            sb.AppendLine("         <div class=\"col-sm-3\"> ");
-            sb.AppendLine("             <div class=\"card-input-group\">");
-            sb.AppendLine("                 <label class=\"card-label\" >Номер документа</label>");
-            sb.AppendLine("                 <input id=\"zao_stg_archive_num_doc\" name=\"zao_stg_archive_num_doc\" class=\"card-form-control\"  value=\"\" title=\"\">  ");
-            sb.AppendLine("             </div>");
-            sb.AppendLine("         </div>");
-            sb.AppendLine("         <div class=\"col-sm-3\"> ");
-            sb.AppendLine("             <div class=\"card-input-group\">");
-            sb.AppendLine("                 <label class=\"card-label\" >Дата</label>");
-            sb.AppendLine("                 <input id=\"doc\" name=\"doc\" class=\"card-form-control\"  value=\"\" title=\"\">  ");
-            sb.AppendLine("             </div>");
-            sb.AppendLine("         </div>");
-            sb.AppendLine("         <div class=\"col-sm-3\"> ");
-            sb.AppendLine("             <div class=\"card-input-group\">");
-            sb.AppendLine("                 <label class=\"card-label\" >Дата</label>");
-            sb.AppendLine("                 <input id=\"doc\" name=\"doc\" class=\"card-form-control\"  value=\"\" title=\"\">  ");
-            sb.AppendLine("             </div>");
-            sb.AppendLine("         </div>");
-            sb.AppendLine("         <div class=\"col-sm-3\"> ");
-            sb.AppendLine("             <div class=\"card-input-group\">");
-            sb.AppendLine("                 <label class=\"card-label\" >Дата</label>");
-            sb.AppendLine("                 <input id=\"doc\" name=\"doc\" class=\"card-form-control\"  value=\"\" title=\"\">  ");
-            sb.AppendLine("             </div>");
-            sb.AppendLine("         </div>");
+            foreach (TableColumn tableColumn in Master.ColumnList)
+            {
+                switch (tableColumn.EditType)
+                {
+                    case TableColumnEditType.None:
+                        break;
+
+                    case TableColumnEditType.CurrentUser:
+                        break;
+
+                    case TableColumnEditType.CurrentDateTime:
+                        break;
+
+                    case TableColumnEditType.String:
+                        sb.AppendLine("             <div class=\"card-input-group\">");
+                        sb.AppendLine("                 <label class=\"card-label\" >" + tableColumn.ViewCaption + "</label>");
+                        sb.AppendLine("                 <input id=\"" + tableColumn.DataNameSql + "\" name=\"" + tableColumn.DataNameSql + "\" class=\"card-form-control\"  value=\"\">");
+                        sb.AppendLine("             </div>");
+                        break;
+
+                    case TableColumnEditType.Autocomplete:
+                        break;
+
+                    case TableColumnEditType.Integer:
+                        break;
+
+                    case TableColumnEditType.Money:
+                        break;
+
+                    case TableColumnEditType.DropDown:
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+
+            sb.AppendLine("     </div>");
+            sb.AppendLine("     <div class=\"row\">");
+            sb.AppendLine("     таб часть будет тут");
+            sb.AppendLine("     </div>");
+            sb.AppendLine("     <div class=\"row\">");
             sb.AppendLine("     </div>");
 
             sb.AppendLine("<div class=\"modal-footer\">");
             sb.AppendLine("     <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>");
             sb.AppendLine("     <button type=\"button\" class=\"btn btn-primary\">Save changes</button>");
             sb.AppendLine("</div>");
-            
+
             return sb.ToString();
         }
 
