@@ -28,6 +28,7 @@
     <link rel="stylesheet" type="text/css" href="/Content/RowReorder-1.1.2/css/rowReorder.bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="/Content/Select-1.2.0/css/select.bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="/Content/ContextMenu-2.2.4/jquery.contextMenu.css" />
+    <link rel="stylesheet" type="text/css" href="/Content/BootstrapDateTimePicker/css/bootstrap-datetimepicker.css"  />
     <link rel="stylesheet" type="text/css" href="/Content/Archive/css/archive.css?v=1" />
 
     <script type="text/javascript" src="/Content/jQuery-2.2.3/jquery-2.2.3.js"></script>
@@ -64,10 +65,13 @@
     <script type="text/javascript" src="/Content/RowReorder-1.1.2/js/dataTables.rowReorder.js"></script>
     <script type="text/javascript" src="/Content/Select-1.2.0/js/dataTables.select.js"></script>
     <script type="text/javascript" src="/Content/ContextMenu-2.2.4/jquery.contextMenu.js"></script>
+    <script type="text/javascript" src="/Content/Moments-2.14.1/moment-with-locales.js"></script>
+    <script type="text/javascript" src="/Content/BootstrapDateTimePicker/js/bootstrap-datetimepicker.min.js"></script>
     <!-- -->
     <script type="text/javascript" src="/Content/dataTables.colResize.js"></script>
     <script type="text/javascript" src="/Content/Archive/js/typeahead.bundle.js"></script>
     <script type="text/javascript" src="/Content/Archive/js/archive.js"></script>
+    <script type="text/javascript" src="/Content/Archive/js/jquery.maskedinput.min.js"></script>
 </head>
 
 <body>

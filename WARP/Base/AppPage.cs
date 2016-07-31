@@ -124,6 +124,7 @@ namespace WARP
             // Inputs
             string valueId = string.Empty;
             string valueText = string.Empty;
+            StringBuilder inputInitJs = new StringBuilder();
             foreach (TableColumn tableColumn in Master.ColumnList)
             {
                 // Текущие или стандарные значения для инпута
@@ -152,10 +153,20 @@ namespace WARP
                     case TableColumnEditType.CurrentDateTime:
                         break;
 
+                    case TableColumnEditType.Date:
+                        sb.AppendLine("             <div class=\"card-input-group\">");
+                        sb.AppendLine("                 <label class=\"card-label\" >" + tableColumn.ViewCaption + "</label>");              
+                        sb.AppendLine("                     <input id=\"" + tableColumn.DataNameSql + "\" name=\"" + tableColumn.DataNameSql + "\" class=\"card-form-control\" onchange=\"AllowSave();\" onkeyup=\"AllowSave();\" value=\"" + valueText + "\" >");
+                        sb.AppendLine("                 <div id=\"" + tableColumn.DataNameSql + "Error\" class=\"card-input-error\">&nbsp;</div>");
+                        sb.AppendLine("             </div>");
+                        inputInitJs.AppendLine("$('#" + tableColumn.DataNameSql + "').mask('99.99.9999',{ placeholder: 'дд.мм.гггг'}); ");
+                        inputInitJs.AppendLine("$('#" + tableColumn.DataNameSql + "').datetimepicker({locale: 'ru', useCurrent:false, format: 'DD.MM.YYYY',}); ");
+                        break;
+
                     case TableColumnEditType.String:
                         sb.AppendLine("             <div class=\"card-input-group\">");
                         sb.AppendLine("                 <label class=\"card-label\" >" + tableColumn.ViewCaption + "</label>");
-                        sb.AppendLine("                 <input id=\"" + tableColumn.DataNameSql + "\" name=\"" + tableColumn.DataNameSql + "\" class=\"card-form-control\" onkeyup=\"AllowSave();\" value=\"" + valueText + "\" >");
+                        sb.AppendLine("                 <input id=\"" + tableColumn.DataNameSql + "\" name=\"" + tableColumn.DataNameSql + "\" class=\"card-form-control\" onchange=\"AllowSave();\" onkeyup=\"AllowSave();\" value=\"" + valueText + "\" >");
                         sb.AppendLine("                 <div id=\"" + tableColumn.DataNameSql + "Error\" class=\"card-input-error\">&nbsp;</div>");
                         sb.AppendLine("             </div>");
                         break;
@@ -196,6 +207,10 @@ namespace WARP
             sb.AppendLine("</div>");
             sb.AppendLine("<script>");
             sb.AppendLine();
+            // sb.AppendLine("     function InitInputControls() {"); // Снимает блок с кнопки «Сохранить»
+            sb.AppendLine(inputInitJs.ToString());
+            //sb.AppendLine("     }");
+            sb.AppendLine();
             sb.AppendLine("     function AllowSave() {"); // Снимает блок с кнопки «Сохранить»
             sb.AppendLine("         $('#SaveButton').prop('disabled', false);");
             sb.AppendLine("     }");
@@ -207,6 +222,8 @@ namespace WARP
             sb.AppendLine("             url: '/Handler/CardSaveDataHandler.ashx?curBase=" + Master.SqlBase + "&curTable=" + Master.TableSql + "&curPage=" + Master.PageName + "&curId=" + curId + "&action=" + Master.Action + "', ");
             sb.AppendLine("             data: msg,");
             sb.AppendLine("             success: function(data) {");
+            sb.AppendLine("                $('.card-input-error').html('&nbsp;');");// убираем предыдущие сообщения об ошибках
+            sb.AppendLine("                $('.card-input-group').removeClass('has-error');"); // убираем красный цвет
             sb.AppendLine("                if (data.indexOf('fieldErrors')!=-1){");
             sb.AppendLine("                     var jdata = JSON.parse(data);");
             sb.AppendLine("                     jdata.fieldErrors.forEach(function(item, i, arr) {");
@@ -215,7 +232,6 @@ namespace WARP
             sb.AppendLine("                     });");
             sb.AppendLine("                }");
             sb.AppendLine("                else{");
-            //  sb.AppendLine("                     $('#EditDialogContent').html('Загрузка..');");
             sb.AppendLine("                     $('#EditDialogContent').load(");
             sb.AppendLine("                         '/Handler/EditDialogHandler.ashx?curBase=" + Master.SqlBase + "&curTable=" + Master.TableSql + "&curPage=" + Master.PageName + "&action=edit&curId=" + (curId != "0" ? curId + "'" : "' + data") + ",null,");
             sb.AppendLine("                         function(){");
@@ -232,7 +248,7 @@ namespace WARP
             sb.AppendLine("         }); ");
             sb.AppendLine("     } ");
             sb.AppendLine("</script>");
-            return sb.ToString();//y.fieldErrors.forEach(function(item, i, arr) {alert(item.name)})
+            return sb.ToString();
         }
 
         // HTML| JS общие для всей страницы

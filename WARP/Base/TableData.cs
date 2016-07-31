@@ -409,7 +409,7 @@ namespace WARP
                 sb.AppendLine("               <th></th>");
             foreach (TableColumn item in ColumnList)
             {
-                sb.AppendLine("               <th>" + item.ViewCaption + "</th>");
+                sb.AppendLine("               <th>" + (string.IsNullOrEmpty(item.ViewCaptionShort) ? item.ViewCaption : item.ViewCaptionShort) + "</th>");
             }
             sb.AppendLine("            </tr>");
             sb.AppendLine("        </thead>");
@@ -928,7 +928,7 @@ namespace WARP
 
                             sqlCommand = new SqlCommand(query.ToString(), sqlConnection, sqlTransaction);
                             sqlCommand.Parameters.AddRange(param.ToArray());
-                            result = sqlCommand.ExecuteScalar().ToString(); // Получаем Id новой записи 
+                            result = sqlCommand.ExecuteScalar().ToString(); // Получаем Id новой записи
                         }
                         break;
 
@@ -1055,34 +1055,42 @@ namespace WARP
                         resume = false;
                     }
 
-                    // TODO :
                     // Проверяем тип введенных данных
-                    //if (resume)
-                    //{
-                    //    switch (tableColumn.EditType)
-                    //    {
-                    //        case TableColumnEditType.Integer:
-                    //            break;
+                    if (resume)
+                    {
+                        switch (tableColumn.EditType)
+                        {
+                            case TableColumnEditType.Date:
+                                DateTime date;
+                                if (!DateTime.TryParse(rd.FieldValue, out date))
+                                {
+                                    fieldErrors.Add(new FieldErrors { name = tableColumn.DataNameSql, status = "Неверный формат даты" });
+                                    resume = false;
+                                }
+                                else if (date > new DateTime(2020, 1, 1) || date < new DateTime(2000, 1, 1))
+                                {
+                                    fieldErrors.Add(new FieldErrors { name = tableColumn.DataNameSql, status = "Выбрана недопустимая дата" });
+                                    resume = false;
+                                }
+                                else rd.FieldValue = date.ToString("yyyy-MM-dd");
+                                break;
 
-                    //        case TableColumnEditType.Money:
-                    //            break;
+                            case TableColumnEditType.Integer:
+                                break;
 
-                    //        default:
-                    //            break;
-                    //    }
+                            case TableColumnEditType.Money:
+                                break;
 
-                    //    fieldErrors.Add(new FieldErrors { name = tableColumn.NameSql, status = "Неверный формат данных" });
-                    //    resume = false;
-                    //}
+                            default:
+                                break;
+                        }
+                    }
 
                     // Ограничения
                     if (resume)
                     {
                         switch (tableColumn.EditType)
                         {
-                            case TableColumnEditType.CurrentDateTime:
-                                break;
-
                             case TableColumnEditType.String:
                                 if (tableColumn.EditMax > -1 && rd.FieldValue.Length > tableColumn.EditMax)
                                 {

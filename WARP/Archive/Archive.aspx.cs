@@ -62,12 +62,14 @@ namespace WARP
                     EditRequired = true,
                 },
                 new TableColumn {
-                    ViewCaption = "Дата докум.",
+                    ViewCaption = "Дата документа",
+                    ViewCaptionShort="Дата докум.",
                     DataNameSql = "DocDate",
                     DataType = TableColumnType.Date,
                     ViewWidth = 85,
                     ViewAlign = TableColumnAlign.Center,
                     EditRequired = true,
+                    EditType=TableColumnEditType.Date,
                 },
                 new TableColumn {
                     ViewCaption = "Содержание",

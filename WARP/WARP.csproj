@@ -75,6 +75,7 @@
     <Content Include="Content\Archive\img\rowminus.png" />
     <Content Include="Content\Archive\img\rowplus.png" />
     <Content Include="Content\Archive\js\archive.js" />
+    <Content Include="Content\Archive\js\jquery.maskedinput.min.js" />
     <Content Include="Content\Archive\js\typeahead.bundle.js" />
     <Content Include="Content\Archive\js\typeahead.bundle.min.js" />
     <Content Include="Content\AutoFill-2.1.2\css\autoFill.bootstrap.css" />
@@ -101,6 +102,10 @@
     <Content Include="Content\bootstrap-3.3.6\js\bootstrap.js" />
     <Content Include="Content\bootstrap-3.3.6\js\bootstrap.min.js" />
     <Content Include="Content\bootstrap-3.3.6\js\npm.js" />
+    <Content Include="Content\BootstrapDateTimePicker\css\bootstrap-datetimepicker-standalone.css" />
+    <Content Include="Content\BootstrapDateTimePicker\css\bootstrap-datetimepicker.css" />
+    <Content Include="Content\BootstrapDateTimePicker\css\bootstrap-datetimepicker.min.css" />
+    <Content Include="Content\BootstrapDateTimePicker\js\bootstrap-datetimepicker.min.js" />
     <Content Include="Content\Buttons-1.2.1\css\buttons.bootstrap.css" />
     <Content Include="Content\Buttons-1.2.1\css\buttons.bootstrap.min.css" />
     <Content Include="Content\Buttons-1.2.1\css\buttons.dataTables.css" />
@@ -217,6 +222,7 @@
     <Content Include="Content\KeyTable-2.1.2\css\keyTable.jqueryui.min.css" />
     <Content Include="Content\KeyTable-2.1.2\js\dataTables.keyTable.js" />
     <Content Include="Content\KeyTable-2.1.2\js\dataTables.keyTable.min.js" />
+    <Content Include="Content\Moments-2.14.1\moment-with-locales.js" />
     <Content Include="Content\pdfmake-0.1.18\build\pdfmake.js" />
     <Content Include="Content\pdfmake-0.1.18\build\pdfmake.min.js" />
     <Content Include="Content\pdfmake-0.1.18\build\vfs_fonts.js" />

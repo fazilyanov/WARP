@@ -27,12 +27,16 @@
     {
         None,
         CurrentUser,
+        CurrentDate,
         CurrentDateTime,
+        Date,
+        DateTime,
         String,
         Autocomplete,
         Integer,
         Money,
         DropDown,
+        
     }
 
     public enum TableColumnFilterType
