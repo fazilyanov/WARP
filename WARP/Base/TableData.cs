@@ -58,7 +58,6 @@ namespace WARP
 
         // Показывать инфо "плюсик" для записи
         public bool ShowRowInfoButtom { get; set; } = false;
-        
 
         #endregion Свойства
 
@@ -101,7 +100,7 @@ namespace WARP
 
         #endregion Инициализация
 
-        #region Генерация HTML|JS
+        #region Генерация HTML | JS
 
         // Форма для фильтра
         public string GenerateFilterFormDialog()
@@ -458,7 +457,7 @@ namespace WARP
             StringBuilder sb = new StringBuilder();
             sb.AppendLine();
             sb.AppendLine("            editor = new $.fn.dataTable.Editor({");
-            sb.AppendLine("                ajax: \"/Handler/SaveDataHandler.ashx?curBase=" + SqlBase + "&curTable=" + TableSql + "&curPage=" + PageName + "\",");
+            sb.AppendLine("                ajax: \"/Handler/GridSaveDataHandler.ashx?curBase=" + SqlBase + "&curTable=" + TableSql + "&curPage=" + PageName + "\",");
             sb.AppendLine("                table: \"#table" + TableSql + "\",");
             sb.AppendLine("                idSrc: 'Id',");
             sb.AppendLine("                fields: [");
@@ -536,7 +535,18 @@ namespace WARP
         public string GenerateJSTableButtons()
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("                    { extend: 'create', editor: editor, className: 'btn-sm', key: \"l\", text: '<span class=\"glyphicon glyphicon-plus\" title=\"Создать новую запись\"></span>' },");
+            sb.AppendLine("                    {");
+            sb.AppendLine("                        text: '<span class=\"glyphicon glyphicon-plus\" title=\"Создать новую запись\"></span>',");
+            sb.AppendLine("                        className: 'btn-sm',");
+            sb.AppendLine("                        action: function (e, dt, node, config) {");
+            sb.AppendLine("                            $('#EditDialog').modal();");
+            sb.AppendLine("                            $('#EditDialogContent').html('Загрузка..');");
+            sb.AppendLine("                            $('#EditDialogContent').load('/Handler/EditDialogHandler.ashx?curBase=" + SqlBase + "&curTable=" + TableSql + "&curPage=" + PageName + "&action=create&curId=0');");
+            sb.AppendLine("                        },");
+            sb.AppendLine("                        key: \"n\",");
+            sb.AppendLine("                        className: \"btn-sm\",");
+            sb.AppendLine("                    },");
+            // sb.AppendLine("                    { extend: 'create', editor: editor, className: 'btn-sm', key: \"l\", text: '<span class=\"glyphicon glyphicon-plus\" title=\"Создать новую запись\"></span>' },");
             sb.AppendLine("                    { extend: 'edit', editor: editor, className: 'btn-sm', key: \"h\", text: '<span class=\"glyphicon glyphicon-pencil\" title=\"Редактировать запись\"></span>' },");
             sb.AppendLine("                    {");
             sb.AppendLine("                        extend: \"selectedSingle\",");
@@ -608,7 +618,7 @@ namespace WARP
             return "[30, 100, 200, 500], ['30 строк', '100 строк', '200 строк', '500 строк']";
         }
 
-        #endregion Генерация HTML|JS
+        #endregion Генерация HTML | JS
 
         #region Получение данных
 
@@ -892,17 +902,63 @@ namespace WARP
 
                             // Обновляем запись в главной таблице
                             query.AppendLine("INSERT INTO [dbo].[" + SqlBase + TableSql + "]");
-                            query.AppendLine("    ([IdUser]"); // Пользователь внесший изменения
-                            query.AppendLine("    ,[DateUpd]"); // Дата внесения
+                            query.AppendLine("    ([DateUpd]"); // Дата внесения
+                            query.AppendLine("    ,[IdUser]"); // Пользователь внесший изменения
 
                             foreach (RequestData rd in pair.Value)
                                 query.AppendLine("    ,[" + rd.FieldName + "]");
                             query.AppendLine("    )");
 
                             query.AppendLine("VALUES ");
-                            query.AppendLine("    (@IdUser");
+                            query.AppendLine("    (GetDate()");
+                            query.AppendLine("    ,@IdUser");
+
+                            param.Add(new SqlParameter { ParameterName = "@IdUser", SqlDbType = SqlDbType.Int, Value = HttpContext.Current.Session["UserId"].ToString() });
+                            foreach (RequestData rd in pair.Value)
+                            {
+                                query.AppendLine("    ,@" + rd.FieldName);
+                                param.Add(new SqlParameter { ParameterName = "@" + rd.FieldName, SqlDbType = SqlDbType.NVarChar, Value = rd.FieldValue });
+                            }
+                            query.AppendLine("    );");
+                            query.AppendLine();
+                            query.AppendLine("DECLARE @si AS int;");
+                            query.AppendLine("SET @si = SCOPE_IDENTITY();");
+                            query.AppendLine("UPDATE[dbo].[" + SqlBase + TableSql + "] SET[Id] = [IdVer] WHERE IdVer = @si;");
+                            query.AppendLine("SELECT @si;");
+
+                            sqlCommand = new SqlCommand(query.ToString(), sqlConnection, sqlTransaction);
+                            sqlCommand.Parameters.AddRange(param.ToArray());
+                            result = sqlCommand.ExecuteScalar().ToString(); // Получаем Id новой записи 
+                        }
+                        break;
+
+                    case TableAction.Edit:
+                        // Для каждой переданной строки с данными, создаем строку запроса и параметры к ней, выполняем запрос
+                        foreach (KeyValuePair<string, List<RequestData>> pair in RequestRows)
+                        {
+                            query = new StringBuilder();
+                            param = new List<SqlParameter>();
+
+                            // Снимаем активность предыдущих записей
+                            query.AppendLine("UPDATE[dbo].[" + SqlBase + TableSql + "] SET [Active] = 0 WHERE Id = @Id AND [Active]=1;");
+                            query.AppendLine();
+
+                            // Добавляем новую версию
+                            query.AppendLine("INSERT INTO [dbo].[" + SqlBase + TableSql + "]");
+                            query.AppendLine("    ([Id]");
+                            query.AppendLine("    ,[DateUpd]"); // Дата внесения
+                            query.AppendLine("    ,[IdUser]"); // Пользователь внесший изменения
+
+                            foreach (RequestData rd in pair.Value)
+                                query.AppendLine("    ,[" + rd.FieldName + "]");
+                            query.AppendLine("    )");
+
+                            query.AppendLine("VALUES ");
+                            query.AppendLine("    (@Id");
                             query.AppendLine("    ,GetDate()");
-                            param.Add(new SqlParameter { ParameterName = "@ID", SqlDbType = SqlDbType.Int, Value = pair.Key });
+                            query.AppendLine("    ,@IdUser");
+
+                            param.Add(new SqlParameter { ParameterName = "@Id", SqlDbType = SqlDbType.Int, Value = pair.Key });
                             param.Add(new SqlParameter { ParameterName = "@IdUser", SqlDbType = SqlDbType.Int, Value = HttpContext.Current.Session["UserId"].ToString() });
                             foreach (RequestData rd in pair.Value)
                             {
@@ -917,58 +973,39 @@ namespace WARP
                         }
                         break;
 
-                    case TableAction.Edit:
-                        // Для каждой переданной строки с данными, создаем строку запроса и параметры к ней, выполняем запрос
-                        foreach (KeyValuePair<string, List<RequestData>> pair in RequestRows)
-                        {
-                            query = new StringBuilder();
-                            param = new List<SqlParameter>();
-
-                            // Копируем текущую строку в таблицу истрории
-                            query.AppendLine("INSERT INTO [dbo].[" + SqlBase + TableSql + "History] Select * from[dbo].[" + SqlBase + TableSql + "] where ID = @ID;");
-
-                            // Обновляем запись в главной таблице
-                            query.AppendLine("UPDATE[dbo].[" + SqlBase + TableSql + "] SET");
-                            query.AppendLine("     [IdUser] = @IdUser"); // Пользователь внесший изменения
-                            query.AppendLine("    ,[DateUpd] = GetDate()"); // Дата внесения
-                            foreach (RequestData rd in pair.Value)
-                            {
-                                query.AppendLine("    ,[" + rd.FieldName + "] = @" + rd.FieldName);
-                                param.Add(new SqlParameter { ParameterName = "@" + rd.FieldName, SqlDbType = SqlDbType.NVarChar, Value = rd.FieldValue });
-                            }
-                            query.AppendLine("WHERE ID = @ID");
-
-                            param.Add(new SqlParameter { ParameterName = "@ID", SqlDbType = SqlDbType.Int, Value = pair.Key });
-                            param.Add(new SqlParameter { ParameterName = "@IdUser", SqlDbType = SqlDbType.Int, Value = HttpContext.Current.Session["UserId"].ToString() });
-
-                            sqlCommand = new SqlCommand(query.ToString(), sqlConnection, sqlTransaction);
-                            sqlCommand.Parameters.AddRange(param.ToArray());
-                            sqlCommand.ExecuteNonQuery();
-                        }
-                        break;
-
                     case TableAction.Remove:// TODO : удалять из основной и версий совсем устаревшие данные (полгода), routine
                         foreach (KeyValuePair<string, List<RequestData>> pair in RequestRows)
                         {
                             query = new StringBuilder();
                             param = new List<SqlParameter>();
 
-                            // Копируем текущую строку в таблицу истрории
-                            query.AppendLine("INSERT INTO [dbo].[" + SqlBase + TableSql + "History] Select * from[dbo].[" + SqlBase + TableSql + "] where ID = @ID;");
+                            // Снимаем активность предыдущих записей
+                            query.AppendLine("UPDATE[dbo].[" + SqlBase + TableSql + "] SET [Active] = 0, [Del] = 1 WHERE Id = @Id;");
+                            query.AppendLine();
 
-                            // Обновляем запись в главной таблице
-                            query.AppendLine("UPDATE[dbo].[" + SqlBase + TableSql + "] SET");
-                            query.AppendLine("     [IdUser] = @IdUser"); // Пользователь внесший изменения
-                            query.AppendLine("    ,[DateUpd] = GetDate()"); // Дата внесения
-                            query.AppendLine("    ,[Del] = 1"); // Дата внесения
-                            query.AppendLine("WHERE ID = @ID");
+                            // Добавляем новую версию
+                            query.AppendLine("INSERT INTO [dbo].[" + SqlBase + TableSql + "]");
+                            query.AppendLine("    ([Id]");
+                            query.AppendLine("    ,[DateUpd]"); // Дата внесения
+                            query.AppendLine("    ,[IdUser]"); // Пользователь внесший изменения
+                            query.AppendLine("    ,[Del]"); // Пользователь внесший изменения
+                            query.AppendLine("    )");
 
-                            param.Add(new SqlParameter { ParameterName = "@ID", SqlDbType = SqlDbType.Int, Value = pair.Key });
+                            query.AppendLine("VALUES ");
+                            query.AppendLine("    (@Id");
+                            query.AppendLine("    ,GetDate()");
+                            query.AppendLine("    ,@IdUser");
+                            query.AppendLine("    ,@Del");
+
+                            param.Add(new SqlParameter { ParameterName = "@Id", SqlDbType = SqlDbType.Int, Value = pair.Key });
                             param.Add(new SqlParameter { ParameterName = "@IdUser", SqlDbType = SqlDbType.Int, Value = HttpContext.Current.Session["UserId"].ToString() });
+                            param.Add(new SqlParameter { ParameterName = "@Del", SqlDbType = SqlDbType.Bit, Value = true });
+                            query.AppendLine("    );");
 
                             sqlCommand = new SqlCommand(query.ToString(), sqlConnection, sqlTransaction);
                             sqlCommand.Parameters.AddRange(param.ToArray());
                             sqlCommand.ExecuteNonQuery();
+
                             result = "{}"; // После удаления, грид должен получить пустой объект
                         }
                         break;

@@ -310,7 +310,7 @@
     <Content Include="Handler\GetDataHandler.ashx" />
     <Content Include="Handler\SessionHandler.ashx" />
     <Content Include="Handler\sourceStringCond.json" />
-    <Content Include="Handler\SaveDataHandler.ashx" />
+    <Content Include="Handler\GridSaveDataHandler.ashx" />
     <Content Include="Content\ContextMenu-2.2.4\font\context-menu-icons.eot" />
     <Content Include="Content\ContextMenu-2.2.4\font\context-menu-icons.ttf" />
     <Content Include="Content\ContextMenu-2.2.4\font\context-menu-icons.woff" />
@@ -318,6 +318,7 @@
     <Content Include="Content\ContextMenu-2.2.4\jquery.contextMenu.min.css.map" />
     <Content Include="Content\ContextMenu-2.2.4\jquery.contextMenu.min.js.map" />
     <Content Include="Handler\EditDialogHandler.ashx" />
+    <Content Include="Handler\CardSaveDataHandler.ashx" />
     <None Include="Properties\PublishProfiles\Test.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -357,6 +358,8 @@
     <Compile Include="Base\AppPage.cs" />
     <Compile Include="Base\ComFunc.cs" />
     <Compile Include="Base\Enum.cs" />
+    <Compile Include="Base\RequestData.cs" />
+    <Compile Include="Base\FieldErrors.cs" />
     <Compile Include="Base\TableColumn.cs" />
     <Compile Include="Base\TableData.cs" />
     <Compile Include="Default.aspx.cs">
@@ -372,8 +375,11 @@
     <Compile Include="Handler\EditDialogHandler.ashx.cs">
       <DependentUpon>EditDialogHandler.ashx</DependentUpon>
     </Compile>
-    <Compile Include="Handler\SaveDataHandler.ashx.cs">
-      <DependentUpon>SaveDataHandler.ashx</DependentUpon>
+    <Compile Include="Handler\CardSaveDataHandler.ashx.cs">
+      <DependentUpon>CardSaveDataHandler.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handler\GridSaveDataHandler.ashx.cs">
+      <DependentUpon>GridSaveDataHandler.ashx</DependentUpon>
     </Compile>
     <Compile Include="Handler\GetDataHandler.ashx.cs">
       <DependentUpon>GetDataHandler.ashx</DependentUpon>

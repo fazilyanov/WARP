@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using System.Web;
 using System.Web.SessionState;
 
@@ -20,9 +19,15 @@ namespace WARP
 
             // Страница
             string curPage = context.Request["curPage"];
-
+            
+            // Действие
+            TableAction tableAction = ComFunc.ParseEnum<TableAction>(context.Request["action"]);
+            
             // ID
-            int curId = int.Parse(context.Request["curId"].ToString());
+            string curId = context.Request["curId"];
+
+            // Загрузка после сохранения?
+            string isSaved = context.Request["saved"];
 
             // В зависимости от таблицы, используем соответствующий класс
             AppPage appPage = null;
@@ -46,6 +51,7 @@ namespace WARP
 
             StringBuilder sb = new StringBuilder();
             appPage.Master.Init(curBase, curTable, curPage);
+            appPage.Master.Action = tableAction;
             context.Response.Write(appPage.GenerateEditDialog(curId));
         }
 

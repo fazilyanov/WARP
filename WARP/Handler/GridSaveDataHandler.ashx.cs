@@ -4,22 +4,12 @@ using System.Web.SessionState;
 
 namespace WARP
 {
-    public class RequestData
-    {
-        public string FieldName { get; set; }
-        public string FieldValue { get; set; }
-    }
-
-    public class FieldErrors
-    {
-        public string name { get; set; }
-        public string status { get; set; }
-    }
+    
 
     /// <summary>
     /// Обрабатывает запросы от DataTables
     /// </summary>
-    public class SaveDataHandler : IHttpHandler, IRequiresSessionState
+    public class GridSaveDataHandler : IHttpHandler, IRequiresSessionState
     {
         public void ProcessRequest(HttpContext context)
         {
@@ -40,16 +30,8 @@ namespace WARP
                     tableAction = TableAction.Create;
                     break;
 
-                case "createcard":
-                    tableAction = TableAction.CreateCard;
-                    break;
-
                 case "edit":
                     tableAction = TableAction.Edit;
-                    break;
-
-                case "editcard":
-                    tableAction = TableAction.EditCard;
                     break;
 
                 case "remove":
