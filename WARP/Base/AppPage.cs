@@ -101,6 +101,7 @@ namespace WARP
             sb.AppendLine("<div class=\"card-modal-header\">");
             sb.AppendLine("     <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button>");
             sb.AppendLine("     <div id=\"HeaderMsg\" class=\"label label-success card-modal-header-msg\"></div>");
+            sb.AppendLine("     <div id=\"HeaderError\" class=\"label label-danger card-modal-header-msg\"></div>");
             switch (Master.Action)
             {
                 case TableAction.Create:
@@ -122,67 +123,112 @@ namespace WARP
             sb.AppendLine("     <form method=\"POST\" id=\"EditForm\" action=\"javascript: void(null);\" onsubmit=\"submit()\">");
 
             // Inputs
-            string valueId = string.Empty;
+            string value = string.Empty;
             string valueText = string.Empty;
-            StringBuilder inputInitJs = new StringBuilder();
+            StringBuilder js = new StringBuilder();
             foreach (TableColumn tableColumn in Master.ColumnList)
             {
                 // Текущие или стандарные значения для инпута
-                switch (Master.Action)
-                {
-                    case TableAction.Create:
-                        valueId = tableColumn.EditDefaultValue;
-                        valueText = tableColumn.EditDefaultText;///!!!
-                        break;
+                if (tableColumn.EditType != TableColumnEditType.None)
+                    switch (Master.Action)
+                    {
+                        case TableAction.Create:
+                            value = tableColumn.EditDefaultValue;
+                            valueText = tableColumn.EditDefaultText;///!!!
+                            break;
 
-                    case TableAction.Edit:
-                        valueId = (data[tableColumn.DataNameSql] ?? string.Empty).ToString();
-                        valueText = (data[tableColumn.DataNameSql] ?? string.Empty).ToString();
-                        break;
-                }
+                        case TableAction.Edit:
+                            value = data[tableColumn.DataNameSql].ToString();
+                            if (tableColumn.EditType == TableColumnEditType.Autocomplete || tableColumn.EditType == TableColumnEditType.DropDown)
+                                valueText = (data[tableColumn.DataLookUpResult] ?? string.Empty).ToString();
+                            else
+                                valueText = string.Empty;
+                            break;
+                    }
 
                 // Выбираем тип, генерим инпут
                 switch (tableColumn.EditType)
                 {
-                    case TableColumnEditType.None:
-                        break;
-
-                    case TableColumnEditType.CurrentUser:
-                        break;
-
-                    case TableColumnEditType.CurrentDateTime:
-                        break;
-
                     case TableColumnEditType.Date:
                         sb.AppendLine("             <div class=\"card-input-group\">");
-                        sb.AppendLine("                 <label class=\"card-label\" >" + tableColumn.ViewCaption + "</label>");              
-                        sb.AppendLine("                     <input id=\"" + tableColumn.DataNameSql + "\" name=\"" + tableColumn.DataNameSql + "\" class=\"card-form-control\" onchange=\"AllowSave();\" onkeyup=\"AllowSave();\" value=\"" + valueText + "\" >");
+                        sb.AppendLine("                 <label class=\"card-label\" >" + tableColumn.ViewCaption + "</label>");
+                        sb.AppendLine("                     <input id=\"" + tableColumn.DataNameSql + "\" name=\"" + tableColumn.DataNameSql + "\" class=\"card-form-control\" value=\"" + value + "\" >");
                         sb.AppendLine("                 <div id=\"" + tableColumn.DataNameSql + "Error\" class=\"card-input-error\">&nbsp;</div>");
                         sb.AppendLine("             </div>");
-                        inputInitJs.AppendLine("$('#" + tableColumn.DataNameSql + "').mask('99.99.9999',{ placeholder: 'дд.мм.гггг'}); ");
-                        inputInitJs.AppendLine("$('#" + tableColumn.DataNameSql + "').datetimepicker({locale: 'ru', useCurrent:false, format: 'DD.MM.YYYY',}); ");
+                        js.AppendLine("$('#" + tableColumn.DataNameSql + "').mask('99.99.9999',{ placeholder: 'дд.мм.гггг'}); ");
+                        js.AppendLine("$('#" + tableColumn.DataNameSql + "').datetimepicker({locale: 'ru', useCurrent:false, format: 'DD.MM.YYYY',}); ");
                         break;
 
                     case TableColumnEditType.String:
                         sb.AppendLine("             <div class=\"card-input-group\">");
                         sb.AppendLine("                 <label class=\"card-label\" >" + tableColumn.ViewCaption + "</label>");
-                        sb.AppendLine("                 <input id=\"" + tableColumn.DataNameSql + "\" name=\"" + tableColumn.DataNameSql + "\" class=\"card-form-control\" onchange=\"AllowSave();\" onkeyup=\"AllowSave();\" value=\"" + valueText + "\" >");
+                        sb.AppendLine("                 <input id=\"" + tableColumn.DataNameSql + "\" name=\"" + tableColumn.DataNameSql + "\" class=\"card-form-control\" value=\"" + value + "\" >");
                         sb.AppendLine("                 <div id=\"" + tableColumn.DataNameSql + "Error\" class=\"card-input-error\">&nbsp;</div>");
                         sb.AppendLine("             </div>");
                         break;
 
+                    case TableColumnEditType.DropDown:
                     case TableColumnEditType.Autocomplete:
+                        sb.AppendLine("             <div id=\"scrollable-dropdown-menu\">");
+                        sb.AppendLine("                 <div class=\"card-input-group\">");
+                        sb.AppendLine("                     <label class=\"card-label\" >" + tableColumn.ViewCaption + "</label>");
+                        sb.AppendLine("                     <input type=\"text\"  id=\"" + tableColumn.DataLookUpResult + "\" onchange=\"if ($('#" + tableColumn.DataLookUpResult + "').val().trim() == '')$('#" + tableColumn.DataNameSql + "').val(0);\" ");
+                        sb.AppendLine("                         class=\"card-form-control\"  value=\"" + valueText + "\" placeholder=\"Начните вводить для поиска по справочнику..\">");
+                        sb.AppendLine("                     <input type=\"hidden\" id=\"" + tableColumn.DataNameSql + "\" name=\"" + tableColumn.DataNameSql + "\" value=\"" + value + "\">");
+                        sb.AppendLine("                     <div id=\"" + tableColumn.DataNameSql + "Error\" class=\"card-input-error\">&nbsp;</div>");
+                        sb.AppendLine("                 </div>");
+                        sb.AppendLine("             </div>");
+
+                        js.AppendLine();
+                        js.AppendLine("            // Для столбца: " + tableColumn.ViewCaption);
+                        js.AppendLine("            var source" + tableColumn.DataLookUpResult + " = new Bloodhound({");
+                        js.AppendLine("                datumTokenizer: Bloodhound.tokenizers.whitespace,");
+                        js.AppendLine("                queryTokenizer: Bloodhound.tokenizers.whitespace,");
+                        js.AppendLine("                remote: {");
+                        js.AppendLine("                    url: '/Handler/TypeaheadHandler.ashx?t=" + tableColumn.DataLookUpTable + "&q=%QUERY',");
+                        js.AppendLine("                    wildcard: '%QUERY'");
+                        js.AppendLine("                },");
+                        js.AppendLine("                limit: 30,");
+                        js.AppendLine("            });");
+                        js.AppendLine();
+                        js.AppendLine("            $('#scrollable-dropdown-menu #" + tableColumn.DataLookUpResult + "').typeahead({");
+                        js.AppendLine("                highlight: true,");
+                        js.AppendLine("                minLength: " + (tableColumn.FilterType == TableColumnFilterType.DropDown ? "0" : "1") + ",");
+                        js.AppendLine("            },");
+                        js.AppendLine("            {");
+                        js.AppendLine("                name: 'th" + tableColumn.DataLookUpResult + "',");
+                        js.AppendLine("                display: 'Name',");
+                        js.AppendLine("                highlight: true,");
+                        js.AppendLine("                limit: 30,");
+                        js.AppendLine("                source: source" + tableColumn.DataLookUpResult + ",");
+                        js.AppendLine("            });");
+                        js.AppendLine();
+                        js.AppendLine("            $(\"#" + tableColumn.DataLookUpResult + "\").on(\"typeahead:selected typeahead:autocompleted\", function (e, datum) { $(\"#" + tableColumn.DataNameSql + "\").val(datum.ID); });");
                         break;
 
                     case TableColumnEditType.Integer:
+                        sb.AppendLine("             <div class=\"card-input-group\">");
+                        sb.AppendLine("                 <label class=\"card-label\" >" + tableColumn.ViewCaption + "</label>");
+                        sb.AppendLine("                     <input id=\"" + tableColumn.DataNameSql + "\" name=\"" + tableColumn.DataNameSql + "\" class=\"card-form-control\" value=\"" + value + "\" >");
+                        sb.AppendLine("                 <div id=\"" + tableColumn.DataNameSql + "Error\" class=\"card-input-error\">&nbsp;</div>");
+                        sb.AppendLine("             </div>");
                         break;
 
                     case TableColumnEditType.Money:
+                        sb.AppendLine("             <div class=\"card-input-group\">");
+                        sb.AppendLine("                 <label class=\"card-label\" >" + tableColumn.ViewCaption + "</label>");
+                        sb.AppendLine("                 <input id=\"" + tableColumn.DataNameSql + "\" name=\"" + tableColumn.DataNameSql + "\" class=\"card-form-control\" value=\"" + value + "\" >");
+                        sb.AppendLine("                 <div id=\"" + tableColumn.DataNameSql + "Error\" class=\"card-input-error\">&nbsp;</div>");
+                        sb.AppendLine("             </div>");
+                        js.AppendLine();
+                        js.AppendLine("             $('#" + tableColumn.DataNameSql + "').val(accounting.formatNumber($('#" + tableColumn.DataNameSql + "').val().trim().replace(',', '.'), 2, ' '));");
+                        js.AppendLine("             $('#" + tableColumn.DataNameSql + "').bind('blur', function(event) {");
+                        js.AppendLine("                 this.value = accounting.formatNumber(this.value.trim().replace(',', '.'), 2, ' ');");
+                        js.AppendLine("             });");
+                        js.AppendLine("             $('#" + tableColumn.DataNameSql + "').bind('focus', function(event) {");
+                        js.AppendLine("                 this.value = accounting.unformat(this.value.trim());");
+                        js.AppendLine("             });");
                         break;
-
-                    case TableColumnEditType.DropDown:
-                        break;
-
                     default:
                         break;
                 }
@@ -205,11 +251,11 @@ namespace WARP
             sb.AppendLine("         <button type=\"button\" id =\"SaveButton\" class=\"btn btn-primary btn-sm\" onclick=\"submit()\" disabled>Save changes</button>");
             sb.AppendLine("     </div>");
             sb.AppendLine("</div>");
+            sb.AppendLine();
             sb.AppendLine("<script>");
             sb.AppendLine();
-            // sb.AppendLine("     function InitInputControls() {"); // Снимает блок с кнопки «Сохранить»
-            sb.AppendLine(inputInitJs.ToString());
-            //sb.AppendLine("     }");
+            sb.AppendLine("     $('#EditDialog input').bind('change keyup', function(event) {AllowSave();});"); // Активирует кнопку Сохранить при изменениях в инпутах
+            sb.AppendLine(js.ToString());
             sb.AppendLine();
             sb.AppendLine("     function AllowSave() {"); // Снимает блок с кнопки «Сохранить»
             sb.AppendLine("         $('#SaveButton').prop('disabled', false);");
@@ -230,6 +276,12 @@ namespace WARP
             sb.AppendLine("                         $('#'+item.name+'Error').html(item.status);");
             sb.AppendLine("                         $('#'+item.name).parent().addClass('has-error');");
             sb.AppendLine("                     });");
+            sb.AppendLine("                }");
+            sb.AppendLine("                else if (data.indexOf('error')!=-1){");
+            sb.AppendLine("                     var jdata = JSON.parse(data);");
+            sb.AppendLine("                     $('#HeaderError').hide();");
+            sb.AppendLine("                     $('#HeaderError').html(jdata.error);");
+            sb.AppendLine("                     $('#HeaderError').fadeIn();");
             sb.AppendLine("                }");
             sb.AppendLine("                else{");
             sb.AppendLine("                     $('#EditDialogContent').load(");

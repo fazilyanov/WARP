@@ -249,34 +249,34 @@ namespace WARP
 
                         sbResult.AppendLine("                        <div class=\"col-sm-3\">");
                         sbResult.AppendLine("                               <div class=\"input-group\">");
-                        sbResult.AppendLine("                                   <input type=\"text\"  id=\"" + item.DataNameSql + "Cond\" name=\"" + item.DataNameSql + "Cond\" onchange=\"if ($('#" + item.DataNameSql + "Cond').val().trim() == '')$('#Id" + item.DataNameSql + "Cond').val('0');\" ");
+                        sbResult.AppendLine("                                   <input type=\"text\"  id=\"" + item.DataLookUpResult + "Cond\" name=\"" + item.DataLookUpResult + "Cond\" onchange=\"if ($('#" + item.DataLookUpResult + "Cond').val().trim() == '')$('#" + item.DataNameSql + "Cond').val('0');\" ");
                         sbResult.AppendLine("                                       value=\"\" class=\"form-control input-sm filter-input\" placeholder=\"Равно\" value=\"" + textCond + "\">");
                         sbResult.AppendLine("                                   <span class=\"input-group-btn\">");
-                        sbResult.AppendLine("                                       <button id=\"clearcond" + item.DataNameSql + "\" class=\"btn btn-default btn-sm\" type=\"button\" onclick=\"ClearCond('" + item.DataNameSql + "')\"><span class=\"glyphicon glyphicon-remove\"></span></button>");
+                        sbResult.AppendLine("                                       <button id=\"clearcond" + item.DataLookUpResult + "\" class=\"btn btn-default btn-sm\" type=\"button\" onclick=\"$('#" + item.DataNameSql + "Cond').val('0');$('#" + item.DataLookUpResult + "Cond').val('');\"><span class=\"glyphicon glyphicon-remove\"></span></button>");
                         sbResult.AppendLine("                                   </span>");
                         sbResult.AppendLine("                               </div>");
-                        sbResult.AppendLine("                           <input type=\"hidden\" id=\"Id" + item.DataNameSql + "Cond\" name=\"Id" + item.DataNameSql + "Cond\" value=\"" + idCond + "\">");
+                        sbResult.AppendLine("                           <input type=\"hidden\" id=\"" + item.DataNameSql + "Cond\" name=\"" + item.DataNameSql + "Cond\" value=\"" + idCond + "\">");
                         sbResult.AppendLine("                        </div>");
 
                         sbResult.AppendLine("                        <div class=\"col-sm-6\">");
                         sbResult.AppendLine("                           <div id=\"scrollable-dropdown-menu\">");
                         sbResult.AppendLine("                               <div class=\"input-group\">");
-                        sbResult.AppendLine("                                   <input type=\"text\"  id=\"" + item.DataNameSql + "\" name=\"" + item.DataNameSql + "\" onchange=\"if ($('#" + item.DataNameSql + "').val().trim() == '')$('#Id" + item.DataNameSql + "').val(0);\" ");
+                        sbResult.AppendLine("                                   <input type=\"text\"  id=\"" + item.DataLookUpResult + "\" name=\"" + item.DataLookUpResult + "\" onchange=\"if ($('#" + item.DataLookUpResult + "').val().trim() == '')$('#" + item.DataNameSql + "').val(0);\" ");
                         sbResult.AppendLine("                                       class=\"form-control input-sm filter-input\"  value=\"" + text + "\" placeholder=\"Начните вводить для поиска по справочнику..\">");
                         sbResult.AppendLine("                                   <span class=\"input-group-btn\">");
                         sbResult.AppendLine("                                       <button class=\"btn btn-default btn-sm\" type=\"button\"><span class=\"glyphicon glyphicon-option-horizontal\"></span></button>");
-                        sbResult.AppendLine("                                       <button class=\"btn btn-default btn-sm\" id=\"clear" + item.DataNameSql + "\" type=\"button\" onclick=\"ClearAC('" + item.DataNameSql + "')\"><span class=\"glyphicon glyphicon-remove\"></span></button>");
+                        sbResult.AppendLine("                                       <button class=\"btn btn-default btn-sm\" id=\"clear" + item.DataLookUpResult + "\" type=\"button\" onclick=\"$('#" + item.DataNameSql + "').val('0');$('#" + item.DataLookUpResult + "').val('');\"><span class=\"glyphicon glyphicon-remove\"></span></button>");
                         sbResult.AppendLine("                                   </span>");
                         sbResult.AppendLine("                               </div>");
                         sbResult.AppendLine("                           </div>");
-                        sbResult.AppendLine("                           <input type=\"hidden\" id=\"Id" + item.DataNameSql + "\" name=\"Id" + item.DataNameSql + "\" value=\"" + id + "\">");
+                        sbResult.AppendLine("                           <input type=\"hidden\" id=\"" + item.DataNameSql + "\" name=\"" + item.DataNameSql + "\" value=\"" + id + "\">");
                         sbResult.AppendLine("                        </div>");
 
                         sbResult.AppendLine("                    </div>");
 
                         sbJS.AppendLine();
                         sbJS.AppendLine("            // Для столбца: " + item.ViewCaption);
-                        sbJS.AppendLine("            var source" + item.DataNameSql + " = new Bloodhound({");
+                        sbJS.AppendLine("            var source" + item.DataLookUpResult + " = new Bloodhound({");
                         sbJS.AppendLine("                datumTokenizer: Bloodhound.tokenizers.whitespace,");
                         sbJS.AppendLine("                queryTokenizer: Bloodhound.tokenizers.whitespace,");
                         sbJS.AppendLine("                remote: {");
@@ -287,19 +287,19 @@ namespace WARP
                         sbJS.AppendLine("            });");
                         sbJS.AppendLine();
 
-                        sbJS.AppendLine("            $('#scrollable-dropdown-menu #" + item.DataNameSql + "').typeahead({");
+                        sbJS.AppendLine("            $('#scrollable-dropdown-menu #" + item.DataLookUpResult + "').typeahead({");
                         sbJS.AppendLine("                highlight: true,");
                         sbJS.AppendLine("                minLength: " + (item.FilterType == TableColumnFilterType.DropDown ? "0" : "1") + ",");
                         sbJS.AppendLine("            },");
                         sbJS.AppendLine("            {");
-                        sbJS.AppendLine("                name: 'th" + item.DataNameSql + "',");
+                        sbJS.AppendLine("                name: 'th" + item.DataLookUpResult + "',");
                         sbJS.AppendLine("                display: 'Name',");
                         sbJS.AppendLine("                highlight: true,");
                         sbJS.AppendLine("                limit: 30,");
-                        sbJS.AppendLine("                source: source" + item.DataNameSql + ",");
+                        sbJS.AppendLine("                source: source" + item.DataLookUpResult + ",");
                         sbJS.AppendLine("            });");
                         sbJS.AppendLine();
-                        sbJS.AppendLine("            $(\"#" + item.DataNameSql + "\").on(\"typeahead:selected typeahead:autocompleted\", function (e, datum) { $(\"#Id" + item.DataNameSql + "\").val(datum.ID); });");
+                        sbJS.AppendLine("            $(\"#" + item.DataLookUpResult + "\").on(\"typeahead:selected typeahead:autocompleted\", function (e, datum) { $(\"#" + item.DataNameSql + "\").val(datum.ID); });");
                         sbJS.AppendLine();
 
                         break;
@@ -372,30 +372,6 @@ namespace WARP
 
             return sbResult.ToString();
         }
-
-        //// Собирает все вместе
-        //public string GenerateHtml()
-        //{
-        //    StringBuilder sb = new StringBuilder();
-
-        //    // Таблица HTML
-        //    sb.AppendLine(GenerateHtmlTable());
-
-        //    // Фильтр
-        //    sb.AppendLine(GenerateFilterFormDialog());
-
-        //    //sb.AppendLine("    <script>");
-        //    sb.AppendLine("        var editor;");
-        //    sb.AppendLine(GenerateJSWindowsResize());
-        //    sb.AppendLine("        $(document).ready(function () {");
-        //    sb.AppendLine("            $('#curPageTitle').text('" + PageTitle + "');");
-        //    sb.AppendLine(GenerateJSEditorInit());
-        //    sb.AppendLine(GenerateJSDataTable());
-        //    sb.AppendLine("        });");
-        //    //sb.AppendLine("    </script>");
-
-        //    return sb.ToString();
-        //}
 
         // HTML Таблица
         public string GenerateHtmlTable()
@@ -507,7 +483,17 @@ namespace WARP
                 {
                     sb.AppendLine("                         { ");
                     sb.AppendLine("                             label: \"" + column.ViewCaption + ":\",");
-                    sb.AppendLine("                             name: \"" + column.DataNameSql + "\",");
+                    switch (column.EditType)
+                    {
+                        case TableColumnEditType.Autocomplete:
+                        case TableColumnEditType.DropDown:
+                            sb.AppendLine("                             name: \"" + column.DataLookUpResult + "\",");// Для join-ов показываем результат join-а
+                            break;
+
+                        default:
+                            sb.AppendLine("                             name: \"" + column.DataNameSql + "\",");
+                            break;
+                    }
 
                     // Подсказка для поля при редактировании, выглядит уебищно, стили подкрутитьь надо
                     if (!string.IsNullOrEmpty(column.EditFieldInfo))
@@ -525,10 +511,6 @@ namespace WARP
             }
 
             return sb.ToString();
-            // fieldInfo: "Enter the appointment date using the options above",
-            //def: function() {
-            //    return new Date()
-            //}
         }
 
         // Кнопоки грида
@@ -608,7 +590,16 @@ namespace WARP
             if (ShowRowInfoButtom)
                 sb.AppendLine("                    {\"className\": 'details-control',\"orderable\": false,\"data\":null,\"defaultContent\": '', \"width\":\"20px\"},");
             foreach (TableColumn item in ColumnList)
-                sb.AppendLine("                    { \"data\": \"" + item.DataNameSql + "\", className:\"dt-body-" + item.ViewAlign.ToString().ToLower() + "\", \"width\": \"" + item.ViewWidth + "px\" },");
+                switch (item.DataType)
+                {
+                    case TableColumnType.LookUp:
+                        sb.AppendLine("                    { \"data\": \"" + item.DataLookUpResult + "\", className:\"dt-body-" + item.ViewAlign.ToString().ToLower() + "\", \"width\": \"" + item.ViewWidth + "px\" },");// Для join-ов показываем результат join-а
+                        break;
+
+                    default:
+                        sb.AppendLine("                    { \"data\": \"" + item.DataNameSql + "\", className:\"dt-body-" + item.ViewAlign.ToString().ToLower() + "\", \"width\": \"" + item.ViewWidth + "px\" },");
+                        break;
+                }
             return sb.ToString();
         }
 
@@ -672,7 +663,7 @@ namespace WARP
 
                         case TableColumnFilterType.DropDown:
                         case TableColumnFilterType.Autocomplete:
-                            key = "Id" + item.DataNameSql;
+                            key = item.DataNameSql;
                             if (filterList.ContainsKey(key))
                             {
                                 sbWhere.AppendLine("    AND a.[" + key + "] = " + filterList[key]);
@@ -809,6 +800,10 @@ namespace WARP
                                 row.Add(column.DataNameSql, ((DateTime)dr[column.DataNameSql]).ToString("dd.MM.yyyy"));
                             break;
 
+                        case TableColumnType.LookUp:
+                            row.Add(column.DataLookUpResult, dr[column.DataLookUpResult].ToString());
+                            break;
+
                         case TableColumnType.String:
                         default:
                             row.Add(column.DataNameSql, dr[column.DataNameSql].ToString());
@@ -917,7 +912,40 @@ namespace WARP
                             foreach (RequestData rd in pair.Value)
                             {
                                 query.AppendLine("    ,@" + rd.FieldName);
-                                param.Add(new SqlParameter { ParameterName = "@" + rd.FieldName, SqlDbType = SqlDbType.NVarChar, Value = rd.FieldValue });
+                                SqlDbType sqlDbType = SqlDbType.NVarChar;
+                                object value = rd.FieldValue;
+                                TableColumn tableColumn = ColumnList.Find(x => x.DataNameSql == rd.FieldName);
+                                if (tableColumn != null)
+                                {
+                                    switch (tableColumn.DataType)
+                                    {
+                                        case TableColumnType.Integer:
+                                            sqlDbType = SqlDbType.Int;
+                                            break;
+
+                                        case TableColumnType.Money:
+                                            sqlDbType = SqlDbType.Decimal;
+                                            break;
+
+                                        case TableColumnType.DateTime:
+                                            sqlDbType = SqlDbType.DateTime;
+                                            if (string.IsNullOrEmpty(rd.FieldValue))
+                                                value = DBNull.Value;
+                                            break;
+
+                                        case TableColumnType.Date:
+                                            sqlDbType = SqlDbType.Date;
+                                            if (string.IsNullOrEmpty(rd.FieldValue))
+                                                value = DBNull.Value;
+                                            break;
+
+                                        case TableColumnType.LookUp:
+                                            sqlDbType = SqlDbType.Int;
+                                            break;
+                                    }
+                                }
+
+                                param.Add(new SqlParameter { ParameterName = "@" + rd.FieldName, SqlDbType = sqlDbType, Value = value });
                             }
                             query.AppendLine("    );");
                             query.AppendLine();
@@ -1049,10 +1077,14 @@ namespace WARP
                     TableColumn tableColumn = ColumnList.Find(x => x.DataNameSql == rd.FieldName);
 
                     // Обязательность заполнения поля
-                    if (resume && tableColumn.EditRequired && string.IsNullOrEmpty(rd.FieldValue))
+                    if (resume && tableColumn.EditRequired)
                     {
-                        fieldErrors.Add(new FieldErrors { name = tableColumn.DataNameSql, status = "Поле обязательно для заполнения" });
-                        resume = false;
+                        // Для текстовых/числовых не пропускаем пустые строки, для справочников не пропускаем еще и нули
+                        if (string.IsNullOrEmpty(rd.FieldValue) || ((tableColumn.EditType == TableColumnEditType.Autocomplete || tableColumn.EditType == TableColumnEditType.DropDown) && rd.FieldValue == "0"))
+                        {
+                            fieldErrors.Add(new FieldErrors { name = tableColumn.DataNameSql, status = "Поле обязательно для заполнения" });
+                            resume = false;
+                        }
                     }
 
                     // Проверяем тип введенных данных
@@ -1061,24 +1093,38 @@ namespace WARP
                         switch (tableColumn.EditType)
                         {
                             case TableColumnEditType.Date:
-                                DateTime date;
-                                if (!DateTime.TryParse(rd.FieldValue, out date))
+                                if (!string.IsNullOrEmpty(rd.FieldValue))
                                 {
-                                    fieldErrors.Add(new FieldErrors { name = tableColumn.DataNameSql, status = "Неверный формат даты" });
-                                    resume = false;
+                                    DateTime date;
+                                    if (!DateTime.TryParse(rd.FieldValue, out date))
+                                    {
+                                        fieldErrors.Add(new FieldErrors { name = tableColumn.DataNameSql, status = "Неверный формат даты" });
+                                        resume = false;
+                                    }
+                                    else if (date > new DateTime(2020, 1, 1) || date < new DateTime(2000, 1, 1))
+                                    {
+                                        fieldErrors.Add(new FieldErrors { name = tableColumn.DataNameSql, status = "Выбрана недопустимая дата" });
+                                        resume = false;
+                                    }
+                                    else rd.FieldValue = date.ToString("yyyy-MM-dd");
                                 }
-                                else if (date > new DateTime(2020, 1, 1) || date < new DateTime(2000, 1, 1))
-                                {
-                                    fieldErrors.Add(new FieldErrors { name = tableColumn.DataNameSql, status = "Выбрана недопустимая дата" });
-                                    resume = false;
-                                }
-                                else rd.FieldValue = date.ToString("yyyy-MM-dd");
                                 break;
 
+                            case TableColumnEditType.Autocomplete:
+                            case TableColumnEditType.DropDown:
                             case TableColumnEditType.Integer:
+                                if (string.IsNullOrEmpty(rd.FieldValue))
+                                    rd.FieldValue = "0";
                                 break;
 
                             case TableColumnEditType.Money:
+                                decimal money;
+                                rd.FieldValue = rd.FieldValue.Replace('.', ',');
+                                if (!decimal.TryParse(rd.FieldValue, out money))
+                                {
+                                    fieldErrors.Add(new FieldErrors { name = tableColumn.DataNameSql, status = "Неверный формат суммы" });
+                                    resume = false;
+                                }
                                 break;
 
                             default:

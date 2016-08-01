@@ -3,10 +3,10 @@
     // Описывает столбец таблицы
     public class TableColumn
     {
-        // TODO : использутся?
-        public string DataLookUpField { get; set; } = string.Empty;
+        // Псевдоним поля после join'а в запросе 
+        public string DataLookUpResult { get; set; } = string.Empty;
 
-        // TODO :  использутся?
+        // Таблица для связи
         public string DataLookUpTable { get; set; } = string.Empty;
 
         // Имя поля в SQL таблице

@@ -15,105 +15,112 @@ namespace WARP
             ColumnList = new List<TableColumn>()
             {
                 new TableColumn {
-                    ViewCaption = "Код ЭА",
-                    DataNameSql = "Id",
-                    DataType = TableColumnType.Integer,
-                    ViewWidth = 70,
-                    EditType = TableColumnEditType.None,
+                    DataNameSql         = "Id",
+                    DataType            = TableColumnType.Integer,
+                    EditType            = TableColumnEditType.None,
+                    ViewCaption         = "Код ЭА",
+                    ViewWidth           = 70,
                 },
                 new TableColumn {
-                    ViewCaption = "Дата редак.",
-                    DataNameSql = "DateUpd",
-                    DataType = TableColumnType.DateTime,
-                    ViewWidth = 115,
-                    ViewAlign = TableColumnAlign.Center
+                    DataNameSql         = "DateUpd",
+                    DataType            = TableColumnType.DateTime,
+                    ViewCaption         = "Дата редак.",
+                    ViewWidth           = 115,
+                    ViewAlign           = TableColumnAlign.Center
                 },
                 new TableColumn {
-                    ViewCaption = "Оператор",
-                    DataNameSql = "User",
-                    //FilterType = TableColumnFilterType.Autocomplete,
-                    ViewWidth = 125,
-                    DataLookUpTable = "User"
+                    DataNameSql         = "IdUser",
+                    DataType            = TableColumnType.LookUp,
+                    DataLookUpResult    = "User",
+                    DataLookUpTable     = "User",
+                    ViewCaption         = "Оператор",
+                    ViewWidth           = 125,
                 },
                 new TableColumn {
-                    ViewCaption = "Номер документа",
-                    DataNameSql = "NumDoc",
-                    ViewWidth = 300,
-                    FilterType = TableColumnFilterType.String,
-                    EditType = TableColumnEditType.String,
-                    EditRequired = true,
-                    EditMax = 250,
+                    DataNameSql         = "NumDoc",
+                    EditType            = TableColumnEditType.String,
+                    EditRequired        = true,
+                    EditMax             = 250,
+                    FilterType          = TableColumnFilterType.String,
+                    ViewCaption         = "Номер документа",
+                    ViewWidth           = 300,
                 },
                 new TableColumn {
-                    ViewCaption = "Документ",
-                    DataNameSql = "DocTree",
-                    FilterType = TableColumnFilterType.Autocomplete,
-                    ViewWidth = 150,
-                    DataLookUpTable = "DocTree",
-                    EditRequired = true,
+                    DataNameSql         = "IdDocTree",
+                    DataType            = TableColumnType.LookUp,
+                    DataLookUpResult    = "DocTree",
+                    DataLookUpTable     = "DocTree",
+                    //EditRequired        = true,
+                    EditType            = TableColumnEditType.Autocomplete,
+                    FilterType          = TableColumnFilterType.Autocomplete,
+                    ViewCaption         = "Документ",
+                    ViewWidth           = 150,
                 },
                 new TableColumn {
-                    ViewCaption = "Вид документа",
-                    DataNameSql = "DocType",
-                    FilterType = TableColumnFilterType.DropDown,
-                    ViewWidth = 150,
-                    DataLookUpTable = "DocType",
-                    //EditType = TableColumnEditType.DropDown,
-                    EditRequired = true,
+                    DataNameSql         = "IdDocType",
+                    DataType            = TableColumnType.LookUp,
+                    DataLookUpResult    = "DocType",
+                    DataLookUpTable     = "DocType",
+                  //  EditRequired        = true,
+                    EditType            = TableColumnEditType.DropDown,
+                    FilterType          = TableColumnFilterType.DropDown,
+                    ViewCaption         = "Вид документа",
+                    ViewWidth           = 150,
                 },
                 new TableColumn {
-                    ViewCaption = "Дата документа",
-                    ViewCaptionShort="Дата докум.",
-                    DataNameSql = "DocDate",
-                    DataType = TableColumnType.Date,
-                    ViewWidth = 85,
-                    ViewAlign = TableColumnAlign.Center,
-                    EditRequired = true,
-                    EditType=TableColumnEditType.Date,
+                    DataNameSql         = "DocDate",
+                    DataType            = TableColumnType.Date,
+                   // EditRequired        = true,
+                    EditType            = TableColumnEditType.Date,
+                    ViewCaption         = "Дата документа",
+                    ViewCaptionShort    = "Дата докум.",
+                    ViewWidth           = 85,
+                    ViewAlign           = TableColumnAlign.Center,
                 },
                 new TableColumn {
-                    ViewCaption = "Содержание",
-                    DataNameSql = "DocContent",
-                    ViewWidth = 300,
-                    FilterType = TableColumnFilterType.String,
-                    EditType = TableColumnEditType.String,
-                    EditMax = 250,
+                    DataNameSql         = "DocContent",
+                    EditType            = TableColumnEditType.String,
+                    EditMax             = 250,
+                    FilterType          = TableColumnFilterType.String,
+                    ViewCaption         = "Содержание",
+                    ViewWidth           = 300,
                 },
                 new TableColumn
                 {
-                    ViewCaption = "Контрагент",
-                    DataNameSql = "FrmContr",
-                    ViewWidth = 250,
-                    FilterType = TableColumnFilterType.Autocomplete,
-                    DataLookUpTable = "Frm",
-                    //EditType = TableColumnEditType.Autocomplete,
-                    EditRequired = true,
+                    DataNameSql         = "IdFrmContr",
+                    DataType            = TableColumnType.LookUp,
+                    DataLookUpResult    = "FrmContr",
+                    DataLookUpTable     = "Frm",
+                    EditType            = TableColumnEditType.Autocomplete,
+                   // EditRequired        = true,
+                    FilterType          = TableColumnFilterType.Autocomplete,
+                    ViewWidth           = 250,
+                    ViewCaption         = "Контрагент",
                 },
                 new TableColumn {
-                    ViewCaption = "Сумма",
-                    DataNameSql = "Summ",
-                    DataType = TableColumnType.Money,
-                    ViewWidth = 100,
-                    ViewAlign = TableColumnAlign.Right,
-                    //EditType = TableColumnEditType.Money,
-                    EditDefaultText = "0.00",
+                    DataNameSql         = "Summ",
+                    DataType            = TableColumnType.Money,
+                    EditDefaultValue    = "0",
+                    EditType            = TableColumnEditType.Money,
+                    ViewCaption         = "Сумма",
+                    ViewWidth           = 100,
+                    ViewAlign           = TableColumnAlign.Right,
                 },
                 new TableColumn {
-                    ViewCaption = "Пакет",
-                    DataNameSql = "DocPack",
-                    DataType = TableColumnType.Integer,
-                    ViewWidth = 50,
-                    ViewAlign = TableColumnAlign.Center,
-                    //EditType = TableColumnEditType.Integer,
-                    EditDefaultText = "0",
+                    DataNameSql         = "DocPack",
+                    DataType            = TableColumnType.Integer,
+                    EditDefaultText     = "0",
+                    ViewCaption         = "Пакет",
+                    ViewWidth           = 50,
+                    ViewAlign           = TableColumnAlign.Center,
                 },
                 new TableColumn {
-                    ViewCaption = "Примечание",
-                    DataNameSql = "Prim",
-                    ViewWidth = 300,
-                    FilterType = TableColumnFilterType.String,
-                    EditType = TableColumnEditType.String,
-                    EditMax = 250,
+                    DataNameSql         = "Prim",
+                    EditType            = TableColumnEditType.String,
+                    EditMax             = 250,
+                    FilterType          = TableColumnFilterType.String,
+                    ViewCaption         = "Примечание",
+                    ViewWidth           = 300,
                 },
             };
         }
@@ -151,6 +158,7 @@ namespace WARP
             sbQuery.AppendLine("   ,T.Del");
             sbQuery.AppendLine("   ,T.DateUpd");
             sbQuery.AppendLine("   ,T.IdUser");
+            sbQuery.AppendLine("   ,U.Name as [User]");
             //
             sbQuery.AppendLine("   ,T.NumDoc");
             sbQuery.AppendLine("   ,T.DocDate");
@@ -158,7 +166,6 @@ namespace WARP
             sbQuery.AppendLine("   ,DT.Name as DocType");
             sbQuery.AppendLine("   ,T.IdDocTree");
             sbQuery.AppendLine("   ,DT2.Name as DocTree");
-            sbQuery.AppendLine("   ,U.Name as [User]");
             sbQuery.AppendLine("   ,T.Prim");
             sbQuery.AppendLine("   ,T.DocContent");
             sbQuery.AppendLine("   ,T.IdFrmContr");
@@ -207,8 +214,8 @@ namespace WARP
             {
                 appPage = new AppPageArchive();
                 appPage.Master.Init(Master.curBaseName, "Archive", curPage);
-                appPage.BrowserTabTitle= ComFunc.GetArchivePageNameRus(curPage);
-                appPage.Master.PageTitle="Электронный архив | База: " + Master.curBaseNameRus + " | Документы | " + appPage.BrowserTabTitle;
+                appPage.BrowserTabTitle = ComFunc.GetArchivePageNameRus(curPage);
+                appPage.Master.PageTitle = "Электронный архив | База: " + Master.curBaseNameRus + " | Документы | " + appPage.BrowserTabTitle;
                 appPage.EditDialogWidth = 1007;
             }
             else

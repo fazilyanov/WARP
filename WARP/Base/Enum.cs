@@ -56,6 +56,7 @@
         Money,
         DateTime,
         Date,
+        LookUp
     }
 
     public enum TableSortDir

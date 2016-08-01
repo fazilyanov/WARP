@@ -233,6 +233,14 @@ tr.shown td.details-control {
     font-size: 12px;
 }
 
+.card-input {
+    position: relative;
+    width: 250px;
+    float: left;
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
 .card-input-group {
     position: relative;
     /*display: table;*/
@@ -240,7 +248,6 @@ tr.shown td.details-control {
     float: left;
     padding-right: 10px;
     padding-left: 10px;
-    margin-bottom: 7px;
 }
 
 .card-form-control {
@@ -265,11 +272,12 @@ tr.shown td.details-control {
 .card-input-group .card-form-control {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
-        position: relative;
+    position: relative;
     z-index: 2;
     float: left;
     width: 100%;
     margin-bottom: 0;
+    display: table-cell;
 }
 
 .has-error .card-form-control {
@@ -278,6 +286,7 @@ tr.shown td.details-control {
 
 .card-label {
     margin-bottom: 0px;
+    display: table;
 }
 
 .has-error .card-label {
@@ -287,6 +296,7 @@ tr.shown td.details-control {
 .card-input-error {
     font-size: 12px;
     color: #a94442;
+    display: table;
 }
 
 .card-modal-footer {

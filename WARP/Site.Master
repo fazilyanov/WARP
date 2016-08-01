@@ -72,6 +72,7 @@
     <script type="text/javascript" src="/Content/Archive/js/typeahead.bundle.js"></script>
     <script type="text/javascript" src="/Content/Archive/js/archive.js"></script>
     <script type="text/javascript" src="/Content/Archive/js/jquery.maskedinput.min.js"></script>
+    <script type="text/javascript" src="/Content/Archive/js/accounting.min.js"></script>
 </head>
 
 <body>
