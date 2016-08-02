@@ -122,6 +122,18 @@ namespace WARP
                     ViewCaption         = "Примечание",
                     ViewWidth           = 300,
                 },
+                new TableColumn {
+                    DataNameSql         = "Files",
+                    DataType            = TableColumnType.Files,
+                    EditType            = TableColumnEditType.Files,
+                    ViewCaption         = "Файлы",
+                },
+                new TableColumn {
+                    DataNameSql         = "IdDocText",
+                    DataType            = TableColumnType.Text,
+                    EditType            = TableColumnEditType.Text,
+                    ViewCaption         = "Текст документа",
+                },
             };
         }
 
@@ -154,6 +166,7 @@ namespace WARP
             sbQuery.AppendLine("SELECT * FROM  (");
             sbQuery.AppendLine("   SELECT @recordsFiltered AS recordsFiltered");
             sbQuery.AppendLine("   ,T.Id");
+            sbQuery.AppendLine("   ,T.IdVer");
             sbQuery.AppendLine("   ,T.Active");
             sbQuery.AppendLine("   ,T.Del");
             sbQuery.AppendLine("   ,T.DateUpd");
@@ -171,6 +184,7 @@ namespace WARP
             sbQuery.AppendLine("   ,T.IdFrmContr");
             sbQuery.AppendLine("   ,F.Name as FrmContr");
             sbQuery.AppendLine("   ,T.Summ");
+            sbQuery.AppendLine("   ,T.IdDocText");
             sbQuery.AppendLine("   ,T.DocPack");
             sbQuery.AppendLine("   FROM [dbo].[" + SqlBase + TableSql + "] T");
             sbQuery.AppendLine("   LEFT JOIN [dbo].[Frm] F on T.IdFrmContr = F.ID");

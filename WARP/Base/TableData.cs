@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Web;
@@ -16,6 +17,9 @@ namespace WARP
 
         // Список строк переданных для редактирования
         public Dictionary<string, List<RequestData>> RequestRows { get; set; } = null;
+
+        // Список загруженных файлов
+        public HttpFileCollection RequestFiles { get; set; } = null;
 
         // Тип операции переданный гридом при редактировании
         public TableAction Action { get; set; } = TableAction.None;
@@ -137,6 +141,7 @@ namespace WARP
             sbFunc.AppendLine();
 
             // Очистка AC
+            // TODO: убрать
             sbFunc.AppendLine("         function ClearAC(name) {");
             sbFunc.AppendLine("             $('#Id'+name).val('0');");
             sbFunc.AppendLine("             $('#'+name).val('');");
@@ -385,7 +390,8 @@ namespace WARP
                 sb.AppendLine("               <th></th>");
             foreach (TableColumn item in ColumnList)
             {
-                sb.AppendLine("               <th>" + (string.IsNullOrEmpty(item.ViewCaptionShort) ? item.ViewCaption : item.ViewCaptionShort) + "</th>");
+                if (item.DataType != TableColumnType.Files && item.DataType != TableColumnType.Text)
+                    sb.AppendLine("               <th>" + (string.IsNullOrEmpty(item.ViewCaptionShort) ? item.ViewCaption : item.ViewCaptionShort) + "</th>");
             }
             sb.AppendLine("            </tr>");
             sb.AppendLine("        </thead>");
@@ -590,8 +596,13 @@ namespace WARP
             if (ShowRowInfoButtom)
                 sb.AppendLine("                    {\"className\": 'details-control',\"orderable\": false,\"data\":null,\"defaultContent\": '', \"width\":\"20px\"},");
             foreach (TableColumn item in ColumnList)
+
                 switch (item.DataType)
                 {
+                    case TableColumnType.Files:
+                    case TableColumnType.Text:
+                        break;
+
                     case TableColumnType.LookUp:
                         sb.AppendLine("                    { \"data\": \"" + item.DataLookUpResult + "\", className:\"dt-body-" + item.ViewAlign.ToString().ToLower() + "\", \"width\": \"" + item.ViewWidth + "px\" },");// Для join-ов показываем результат join-а
                         break;
@@ -682,6 +693,40 @@ namespace WARP
                 }
             }
             return sbWhere.ToString();
+        }
+
+        // Возвращает текст текущей версии
+        // id - id текста
+        public virtual string GetText(string id)
+        {
+            // Запрос
+            StringBuilder sbQuery = new StringBuilder();
+            sbQuery.AppendLine("SELECT [Text] ");
+            sbQuery.AppendLine("FROM [dbo].[" + SqlBase + TableSql + "Text]");
+            sbQuery.AppendLine("WHERE Id = " + id);
+
+            // Выполняем запрос
+            var res = ComFunc.ExecuteScalar(sbQuery.ToString());
+            if (res is DBNull || res == null)
+                return string.Empty;
+            else
+                return res.ToString();
+        }
+
+        // Возвращает список файлов для текущей версии
+        // idVer - id версии
+        public virtual DataTable GetFileList(string idVer)
+        {
+            // Запрос
+            StringBuilder sbQuery = new StringBuilder();
+            sbQuery.AppendLine("SELECT T.IdFile, F.fileName ");
+            sbQuery.AppendLine("FROM [dbo].[" + SqlBase + TableSql + "FileList] T");
+            sbQuery.AppendLine("JOIN [dbo].[" + SqlBase + TableSql + "Files] F ON F.Id = T.IdFile");
+            sbQuery.AppendLine("WHERE IdVer = " + idVer);
+
+            // Выполняем запрос
+            DataTable dt = ComFunc.GetData(sbQuery.ToString());
+            return dt;
         }
 
         // Возвращает таблицу с данными для текущих настроек,
@@ -805,7 +850,6 @@ namespace WARP
                             break;
 
                         case TableColumnType.String:
-                        default:
                             row.Add(column.DataNameSql, dr[column.DataNameSql].ToString());
                             break;
                     }
@@ -901,7 +945,13 @@ namespace WARP
                             query.AppendLine("    ,[IdUser]"); // Пользователь внесший изменения
 
                             foreach (RequestData rd in pair.Value)
-                                query.AppendLine("    ,[" + rd.FieldName + "]");
+                            {
+                                TableColumn tableColumn = ColumnList.Find(x => x.DataNameSql == rd.FieldName);
+                                if (tableColumn != null && tableColumn.EditType != TableColumnEditType.Text)
+                                {
+                                    query.AppendLine("    ,[" + rd.FieldName + "]");
+                                }
+                            }
                             query.AppendLine("    )");
 
                             query.AppendLine("VALUES ");
@@ -911,12 +961,14 @@ namespace WARP
                             param.Add(new SqlParameter { ParameterName = "@IdUser", SqlDbType = SqlDbType.Int, Value = HttpContext.Current.Session["UserId"].ToString() });
                             foreach (RequestData rd in pair.Value)
                             {
-                                query.AppendLine("    ,@" + rd.FieldName);
-                                SqlDbType sqlDbType = SqlDbType.NVarChar;
-                                object value = rd.FieldValue;
                                 TableColumn tableColumn = ColumnList.Find(x => x.DataNameSql == rd.FieldName);
-                                if (tableColumn != null)
+
+                                if (tableColumn != null && tableColumn.EditType != TableColumnEditType.Text)
                                 {
+                                    query.AppendLine("    ,@" + rd.FieldName);
+                                    SqlDbType sqlDbType = SqlDbType.NVarChar;
+                                    object value = rd.FieldValue;
+
                                     switch (tableColumn.DataType)
                                     {
                                         case TableColumnType.Integer:
@@ -943,15 +995,57 @@ namespace WARP
                                             sqlDbType = SqlDbType.Int;
                                             break;
                                     }
+                                    param.Add(new SqlParameter { ParameterName = "@" + rd.FieldName, SqlDbType = sqlDbType, Value = value });
                                 }
-
-                                param.Add(new SqlParameter { ParameterName = "@" + rd.FieldName, SqlDbType = sqlDbType, Value = value });
                             }
                             query.AppendLine("    );");
                             query.AppendLine();
                             query.AppendLine("DECLARE @si AS int;");
                             query.AppendLine("SET @si = SCOPE_IDENTITY();");
                             query.AppendLine("UPDATE[dbo].[" + SqlBase + TableSql + "] SET[Id] = [IdVer] WHERE IdVer = @si;");
+                            query.AppendLine();
+
+                            // Сохраняем файлы
+                            if (RequestFiles != null)
+                            {
+                                query.AppendLine("DECLARE @fileId AS int;");
+                                for (int i = 0; i < RequestFiles.Count; i++)
+                                {
+                                    HttpPostedFile file = RequestFiles[i];
+
+                                    if (file.ContentLength > 0)
+                                    {
+                                        byte[] fileData = null;
+                                        using (var binaryReader = new BinaryReader(file.InputStream))
+                                        {
+                                            fileData = binaryReader.ReadBytes(file.ContentLength);
+                                        }
+                                        query.AppendLine();
+                                        query.AppendLine("INSERT INTO [dbo].[" + SqlBase + TableSql + "Files]([fileDATA],[fileName])VALUES(@fileData" + i + ",@fileName" + i + ");");// Записали файл
+                                        query.AppendLine("SET @fileId = SCOPE_IDENTITY();");// Узнали его id
+                                        query.AppendLine("INSERT INTO [dbo].[" + SqlBase + TableSql + "FileList]([IdVer],[IdFile])VALUES(@si,@fileId);");
+
+                                        param.Add(new SqlParameter { ParameterName = "@fileName" + i, SqlDbType = SqlDbType.NVarChar, Value = Path.GetFileName(file.FileName) });
+                                        param.Add(new SqlParameter { ParameterName = "@fileData" + i, SqlDbType = SqlDbType.VarBinary, Value = fileData });
+                                    }
+                                }
+                            }
+
+                            // Сохраняем текст
+                            foreach (RequestData rd in pair.Value)
+                            {
+                                TableColumn tableColumn = ColumnList.Find(x => x.DataNameSql == rd.FieldName);
+                                if (tableColumn.EditType == TableColumnEditType.Text && rd.FieldValue.Length > 0)
+                                {
+                                    query.AppendLine();
+                                    query.AppendLine("DECLARE @textId AS int;");
+                                    query.AppendLine("INSERT INTO [dbo].[" + SqlBase + TableSql + "Text]([Text])VALUES(@Text);");// Записали файл
+                                    param.Add(new SqlParameter { ParameterName = "@Text", SqlDbType = SqlDbType.Text, Value = rd.FieldValue });
+                                    query.AppendLine("SET @textId = SCOPE_IDENTITY();");// Узнали его id
+                                    query.AppendLine("UPDATE [dbo].[" + SqlBase + TableSql + "]SET [" + tableColumn.DataNameSql + "] = @textId WHERE IdVer=@si; ");// Узнали его id
+                                }
+                            }
+
                             query.AppendLine("SELECT @si;");
 
                             sqlCommand = new SqlCommand(query.ToString(), sqlConnection, sqlTransaction);
@@ -967,6 +1061,12 @@ namespace WARP
                             query = new StringBuilder();
                             param = new List<SqlParameter>();
 
+                            query.AppendLine("DECLARE @nextVer AS int;");
+                            query.AppendLine("DECLARE @prevVer AS int;");
+
+                            // Номер текущей версии
+                            query.AppendLine("SELECT @prevVer = IdVer FROM [dbo].[" + SqlBase + TableSql + "] WHERE Id = @Id AND [Active]=1;");
+
                             // Снимаем активность предыдущих записей
                             query.AppendLine("UPDATE[dbo].[" + SqlBase + TableSql + "] SET [Active] = 0 WHERE Id = @Id AND [Active]=1;");
                             query.AppendLine();
@@ -978,7 +1078,13 @@ namespace WARP
                             query.AppendLine("    ,[IdUser]"); // Пользователь внесший изменения
 
                             foreach (RequestData rd in pair.Value)
-                                query.AppendLine("    ,[" + rd.FieldName + "]");
+                            {
+                                TableColumn tableColumn = ColumnList.Find(x => x.DataNameSql == rd.FieldName);
+                                if (tableColumn.EditType != TableColumnEditType.Text)
+                                {
+                                    query.AppendLine("    ,[" + rd.FieldName + "]");
+                                }
+                            }
                             query.AppendLine("    )");
 
                             query.AppendLine("VALUES ");
@@ -990,10 +1096,96 @@ namespace WARP
                             param.Add(new SqlParameter { ParameterName = "@IdUser", SqlDbType = SqlDbType.Int, Value = HttpContext.Current.Session["UserId"].ToString() });
                             foreach (RequestData rd in pair.Value)
                             {
-                                query.AppendLine("    ,@" + rd.FieldName);
-                                param.Add(new SqlParameter { ParameterName = "@" + rd.FieldName, SqlDbType = SqlDbType.NVarChar, Value = rd.FieldValue });
+                                TableColumn tableColumn = ColumnList.Find(x => x.DataNameSql == rd.FieldName);
+                                if (tableColumn.EditType != TableColumnEditType.Text)
+                                {
+                                    query.AppendLine("    ,@" + rd.FieldName);
+                                    SqlDbType sqlDbType = SqlDbType.NVarChar;
+                                    object value = rd.FieldValue;
+
+                                    if (tableColumn != null)
+                                    {
+                                        switch (tableColumn.DataType)
+                                        {
+                                            case TableColumnType.Integer:
+                                                sqlDbType = SqlDbType.Int;
+                                                break;
+
+                                            case TableColumnType.Money:
+                                                sqlDbType = SqlDbType.Decimal;
+                                                break;
+
+                                            case TableColumnType.DateTime:
+                                                sqlDbType = SqlDbType.DateTime;
+                                                if (string.IsNullOrEmpty(rd.FieldValue))
+                                                    value = DBNull.Value;
+                                                break;
+
+                                            case TableColumnType.Date:
+                                                sqlDbType = SqlDbType.Date;
+                                                if (string.IsNullOrEmpty(rd.FieldValue))
+                                                    value = DBNull.Value;
+                                                break;
+
+                                            case TableColumnType.LookUp:
+                                                sqlDbType = SqlDbType.Int;
+                                                break;
+                                        }
+                                    }
+                                    param.Add(new SqlParameter { ParameterName = "@" + rd.FieldName, SqlDbType = sqlDbType, Value = value });
+                                }
                             }
                             query.AppendLine("    );");
+                            query.AppendLine();
+                            query.AppendLine("SET @nextVer = SCOPE_IDENTITY();"); // Узнали номер следующей версии
+
+                            // Сохраняем файлы
+                            if (RequestFiles != null)
+                            {
+                                query.AppendLine("DECLARE @fileId AS int;");
+                                for (int i = 0; i < RequestFiles.Count; i++)
+                                {
+                                    HttpPostedFile file = RequestFiles[i];
+                                    if (file.ContentLength > 0)
+                                    {
+
+                                        byte[] fileData = null;
+                                        using (var binaryReader = new BinaryReader(file.InputStream))
+                                        {
+                                            fileData = binaryReader.ReadBytes(file.ContentLength);
+                                        }
+                                        query.AppendLine();
+                                        query.AppendLine("INSERT INTO [dbo].[" + SqlBase + TableSql + "Files]([fileDATA],[fileName])VALUES(@fileData" + i + ",@fileName" + i + ");");// Записали файл
+                                        query.AppendLine("SET @fileId = SCOPE_IDENTITY();");// Узнали его id
+                                        query.AppendLine("INSERT INTO [dbo].[" + SqlBase + TableSql + "FileList]([IdVer],[IdFile])VALUES(@nextVer,@fileId);");
+
+                                        param.Add(new SqlParameter { ParameterName = "@fileName" + i, SqlDbType = SqlDbType.NVarChar, Value = Path.GetFileName(file.FileName) });
+                                        param.Add(new SqlParameter { ParameterName = "@fileData" + i, SqlDbType = SqlDbType.VarBinary, Value = fileData });
+                                    }
+                                }
+                            }
+
+                            // TODO: Из инпута получить удаленные id и исключить из селекта
+                            // Копируем файлы из предыдущей версии
+                            query.AppendLine("INSERT INTO [dbo].[" + SqlBase + TableSql + "FileList]([IdVer],[IdFile]) SELECT @nextVer, IdFile FROM [dbo].[" + SqlBase + TableSql + "FileList] WHERE IdVer=@prevVer;");
+
+                            //// Сохраняем текст
+                            //foreach (RequestData rd in pair.Value)
+                            //{
+                            //    TableColumn tableColumn = ColumnList.Find(x => x.DataNameSql == rd.FieldName);
+                            //    if (tableColumn.EditType == TableColumnEditType.Text && rd.FieldValue.Length > 0)
+                            //    {
+                            //        query.AppendLine();
+                            //        query.AppendLine("DECLARE @textId AS int;");
+                            //        query.AppendLine("SELECT @textId=[" + tableColumn.DataNameSql + "] FROM [dbo].[" + SqlBase + TableSql + "] WHERE IdVer=@prevVer;");
+                            //        query.AppendLine("SELECT @textId=[" + tableColumn.DataNameSql + "] FROM [dbo].[" + SqlBase + TableSql + "Text] WHERE Id=@textId AND [Text]=@Text;");
+
+                            //        query.AppendLine("INSERT INTO [dbo].[" + SqlBase + TableSql + "Text]([Text])VALUES(@Text);");// Записали файл
+                            //        param.Add(new SqlParameter { ParameterName = "@Text", SqlDbType = SqlDbType.Text, Value = rd.FieldValue });
+                            //        query.AppendLine("SET @textId = SCOPE_IDENTITY();");// Узнали его id
+                            //        query.AppendLine("UPDATE [dbo].[" + SqlBase + TableSql + "]SET [" + tableColumn.DataNameSql + "] = @textId WHERE IdVer=@si; ");// Узнали его id
+                            //    }
+                            //}
 
                             sqlCommand = new SqlCommand(query.ToString(), sqlConnection, sqlTransaction);
                             sqlCommand.Parameters.AddRange(param.ToArray());

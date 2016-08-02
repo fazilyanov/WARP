@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Web;
 using System.Web.SessionState;
 
@@ -55,6 +56,8 @@ namespace WARP
             appPage.Master.Init(curBase, curTable, curPage);
             appPage.Master.Action = tableAction;
             appPage.Master.RequestRows = requestRows;
+            if (context.Request.Files.Count > 0)
+                appPage.Master.RequestFiles = context.Request.Files;
 
             // Обрабатываем запрос
             context.Response.Write(appPage.Process());

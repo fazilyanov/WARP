@@ -13,6 +13,9 @@ namespace WARP
         // Ширина карточки
         public int EditDialogWidth { get; set; } = 0;
 
+        // Ширина карточки
+        public int EditDialogTabHeight { get; set; } = 300;
+
         // Грид шапки
         public TableData Master { get; set; } = null;
 
@@ -118,9 +121,9 @@ namespace WARP
                     break;
             }
             sb.AppendLine("</div>");
+            sb.AppendLine("<form method=\"POST\" id=\"EditForm\" name=\"EditForm\" action=\"javascript: void(null);\" enctype=\"multipart/form-data\">");
             sb.AppendLine("<div id=\"EditDialogBody\" class=\"modal-body\">");
             sb.AppendLine("     <div class=\"row\">");
-            sb.AppendLine("     <form method=\"POST\" id=\"EditForm\" action=\"javascript: void(null);\" onsubmit=\"submit()\">");
 
             // Inputs
             string value = string.Empty;
@@ -129,7 +132,7 @@ namespace WARP
             foreach (TableColumn tableColumn in Master.ColumnList)
             {
                 // Текущие или стандарные значения для инпута
-                if (tableColumn.EditType != TableColumnEditType.None)
+                if (tableColumn.EditType != TableColumnEditType.None && tableColumn.EditType != TableColumnEditType.Files && tableColumn.EditType != TableColumnEditType.Text)
                     switch (Master.Action)
                     {
                         case TableAction.Create:
@@ -229,29 +232,83 @@ namespace WARP
                         js.AppendLine("                 this.value = accounting.unformat(this.value.trim());");
                         js.AppendLine("             });");
                         break;
+
                     default:
                         break;
                 }
             }
-
-            sb.AppendLine("     </form>");// row
             sb.AppendLine("     </div>");// row
-            sb.AppendLine("     <div class=\"row\">");
-            sb.AppendLine("     таб часть будет тут");
-            sb.AppendLine("     </div>");
-            sb.AppendLine("     <div class=\"row\">");
-            sb.AppendLine("     </div>");
+            sb.AppendLine();
 
+            //Табличная часть
+            sb.AppendLine("     <div>");
+            StringBuilder li = new StringBuilder(); // Вкладки
+            StringBuilder tp = new StringBuilder(); // Содержимое
+            foreach (TableColumn tableColumn in Master.ColumnList)
+            {
+                // Вкладка Файлы
+                if (tableColumn.DataType == TableColumnType.Files)
+                {
+                    li.AppendLine("			  <li><a data-target=\"#" + tableColumn.DataNameSql + "Tab\" data-toggle=\"tab\">" + tableColumn.ViewCaption + "</a></li>");
+                    tp.AppendLine("           <div role=\"tabpanel\" class=\"tab-pane fade\" id=\"" + tableColumn.DataNameSql + "Tab\" style=\"height: " + EditDialogTabHeight + "px;\">");
+                    tp.AppendLine("                 <label class=\"btn btn-primary btn-file\">");
+                    tp.AppendLine("                     Добавить&nbsp;<span id=\"badge\" class=\"badge\"></span><input id=\"" + tableColumn.DataNameSql + "\" name=\"" + tableColumn.DataNameSql + "\" type=\"file\" multiple/ onchange=\"$('#badge').html('Файлов:'+$('#Files').get(0).files.length);\">");
+                    tp.AppendLine("                 </label>");
+
+                    if (Master.Action != TableAction.Create) // Если карточка не новая
+                    {
+                        DataTable dtFiles = Master.GetFileList(data["IdVer"].ToString()); // Получаем список файлов
+                        if (dtFiles.Rows.Count > 0)
+                        {
+                            foreach (DataRow row in dtFiles.Rows)
+                            {
+                                tp.AppendLine("                 <button type=\"button\" class=\"btn btn-default\" onclick=\"window.open('/Handler/GetFileHandler.ashx?curBase=" + Master.SqlBase + "&curTable=" + Master.TableSql + "&IdFile=" + row["IdFile"].ToString() + "');\">");
+                                tp.AppendLine(row["fileName"].ToString());
+                                tp.AppendLine("                 </button>");
+                            }
+                        }
+                    }
+                    tp.AppendLine("           </div>");
+                }
+                // Вкладка Текст
+                if (tableColumn.DataType == TableColumnType.Text)
+                {
+                    li.AppendLine("			  <li><a data-target=\"#" + tableColumn.DataNameSql + "Tab\" data-toggle=\"tab\">" + tableColumn.ViewCaption + "</a></li>");
+                    tp.AppendLine("           <div role=\"tabpanel\" class=\"tab-pane fade\" id=\"" + tableColumn.DataNameSql + "Tab\" style=\"height: " + EditDialogTabHeight + "px;\">");
+                    string text = string.Empty;
+                    if (Master.Action != TableAction.Create) // Если карточка не новая
+                        text = Master.GetText(data["IdDocText"].ToString()); // Получаем текст для версии
+                    tp.AppendLine("                 <textarea id=\"" + tableColumn.DataNameSql + "\" name=\"" + tableColumn.DataNameSql + "\" class=\"card-form-control card-textarea\">" + text + "</textarea>");
+                    tp.AppendLine("           </div>");
+                }
+            }
+            if (li.Length > 0)
+            {
+                sb.AppendLine("         <ul class=\"nav nav-tabs\" id=\"myTab\">");
+                sb.AppendLine(li.ToString());
+                sb.AppendLine("			</ul>");
+                sb.AppendLine("         <div class=\"tab-content\">");
+                sb.AppendLine(tp.ToString());
+                sb.AppendLine("         </div>");
+            }
+            sb.AppendLine("     </div>");
+            sb.AppendLine("     </form>");
+            js.AppendLine();
+            js.AppendLine("     $('#myTab a:first').tab('show');");
+
+            // Футер
             sb.AppendLine("<div class=\"card-modal-footer\">");
             sb.AppendLine("     <div class=\"card-modal-footer-left\">");
             sb.AppendLine("         <button type=\"button\" class=\"btn btn-default btn-sm\">New</button>");
             sb.AppendLine("     </div>");
             sb.AppendLine("     <div class=\"card-modal-footer-rigth\">");
             sb.AppendLine("         <button type=\"button\" class=\"btn btn-default btn-sm\" data-dismiss=\"modal\">Close</button>");
-            sb.AppendLine("         <button type=\"button\" id =\"SaveButton\" class=\"btn btn-primary btn-sm\" onclick=\"submit()\" disabled>Save changes</button>");
+            sb.AppendLine("         <button type=\"button\" id =\"SaveButton\" class=\"btn btn-primary btn-sm\" onclick=\"SubmitForm();\" disabled>Save changes</button>");
             sb.AppendLine("     </div>");
             sb.AppendLine("</div>");
             sb.AppendLine();
+
+            // Скрипты
             sb.AppendLine("<script>");
             sb.AppendLine();
             sb.AppendLine("     $('#EditDialog input').bind('change keyup', function(event) {AllowSave();});"); // Активирует кнопку Сохранить при изменениях в инпутах
@@ -261,12 +318,16 @@ namespace WARP
             sb.AppendLine("         $('#SaveButton').prop('disabled', false);");
             sb.AppendLine("     }");
             sb.AppendLine();
-            sb.AppendLine("     function submit() {");
-            sb.AppendLine("         var msg = $('#EditForm').serialize();");
+            sb.AppendLine("     function SubmitForm() {");
+            sb.AppendLine("           var formData = new FormData($('#EditForm')[0]); ");
             sb.AppendLine("         $.ajax({");
             sb.AppendLine("             type: 'POST',");
             sb.AppendLine("             url: '/Handler/CardSaveDataHandler.ashx?curBase=" + Master.SqlBase + "&curTable=" + Master.TableSql + "&curPage=" + Master.PageName + "&curId=" + curId + "&action=" + Master.Action + "', ");
-            sb.AppendLine("             data: msg,");
+            sb.AppendLine("             data: formData,");
+            sb.AppendLine("             processData: false,");
+            sb.AppendLine("             async: false,");
+            sb.AppendLine("             cache: false,");
+            sb.AppendLine("             contentType: false,");
             sb.AppendLine("             success: function(data) {");
             sb.AppendLine("                $('.card-input-error').html('&nbsp;');");// убираем предыдущие сообщения об ошибках
             sb.AppendLine("                $('.card-input-group').removeClass('has-error');"); // убираем красный цвет

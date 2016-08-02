@@ -326,6 +326,7 @@
     <Content Include="Content\ContextMenu-2.2.4\jquery.contextMenu.min.js.map" />
     <Content Include="Handler\EditDialogHandler.ashx" />
     <Content Include="Handler\CardSaveDataHandler.ashx" />
+    <Content Include="Handler\GetFileHandler.ashx" />
     <None Include="Properties\PublishProfiles\Test.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -384,6 +385,9 @@
     </Compile>
     <Compile Include="Handler\CardSaveDataHandler.ashx.cs">
       <DependentUpon>CardSaveDataHandler.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Handler\GetFileHandler.ashx.cs">
+      <DependentUpon>GetFileHandler.ashx</DependentUpon>
     </Compile>
     <Compile Include="Handler\GridSaveDataHandler.ashx.cs">
       <DependentUpon>GridSaveDataHandler.ashx</DependentUpon>

@@ -36,6 +36,8 @@
         Integer,
         Money,
         DropDown,
+        Files,
+        Text
         
     }
 
@@ -56,7 +58,9 @@
         Money,
         DateTime,
         Date,
-        LookUp
+        LookUp,
+        Files,
+        Text
     }
 
     public enum TableSortDir
