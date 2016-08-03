@@ -400,6 +400,18 @@ namespace WARP
             return sb.ToString();
         }
 
+        // Плюсик
+        public virtual string GenerateJSTableInfoButton()
+        {
+            return string.Empty;
+        }
+
+        // Инфо под плюсиком
+        public virtual string GenerateJSTableInfoButtonContent(string id)
+        {
+            return string.Empty;
+        }
+
         // Grid
         public string GenerateJSDataTable()
         {
@@ -430,6 +442,10 @@ namespace WARP
             sb.AppendLine("                    url: '/content/DataTables-1.10.12/js/Russian.json'");
             sb.AppendLine("                }");
             sb.AppendLine("            });");
+            sb.AppendLine();
+            if (ShowRowInfoButtom)
+                sb.AppendLine(GenerateJSTableInfoButton());
+
             return sb.ToString();
         }
 
@@ -713,17 +729,27 @@ namespace WARP
                 return res.ToString();
         }
 
-        // Возвращает список файлов для текущей версии
+        // Возвращает список файлов для текущей версии или ID
         // idVer - id версии
-        public virtual DataTable GetFileList(string idVer)
+        public virtual DataTable GetFileList(string idVer, string Id = "0")
         {
             // Запрос
             StringBuilder sbQuery = new StringBuilder();
-            sbQuery.AppendLine("SELECT T.IdFile, F.fileName ");
-            sbQuery.AppendLine("FROM [dbo].[" + SqlBase + TableSql + "FileList] T");
-            sbQuery.AppendLine("JOIN [dbo].[" + SqlBase + TableSql + "Files] F ON F.Id = T.IdFile");
-            sbQuery.AppendLine("WHERE IdVer = " + idVer);
-
+            if (Id == "0")
+            {
+                sbQuery.AppendLine("SELECT T.IdFile, F.fileName ");
+                sbQuery.AppendLine("FROM [dbo].[" + SqlBase + TableSql + "FileList] T");
+                sbQuery.AppendLine("JOIN [dbo].[" + SqlBase + TableSql + "Files] F ON F.Id = T.IdFile");
+                sbQuery.AppendLine("WHERE T.IdVer = " + idVer);
+            }
+            else
+            {
+                sbQuery.AppendLine("SELECT T.IdFile, F.fileName ");
+                sbQuery.AppendLine("FROM [dbo].[" + SqlBase + TableSql + "] A");
+                sbQuery.AppendLine("JOIN [dbo].[" + SqlBase + TableSql + "FileList] T ON T.IdVer=A.IdVer");
+                sbQuery.AppendLine("JOIN [dbo].[" + SqlBase + TableSql + "Files] F ON F.Id = T.IdFile");
+                sbQuery.AppendLine("WHERE A.Active=1 AND A.Del=0 AND A.Id = " + Id);
+            }
             // Выполняем запрос
             DataTable dt = ComFunc.GetData(sbQuery.ToString());
             return dt;
@@ -1148,7 +1174,6 @@ namespace WARP
                                     HttpPostedFile file = RequestFiles[i];
                                     if (file.ContentLength > 0)
                                     {
-
                                         byte[] fileData = null;
                                         using (var binaryReader = new BinaryReader(file.InputStream))
                                         {

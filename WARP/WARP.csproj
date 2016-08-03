@@ -327,6 +327,7 @@
     <Content Include="Handler\EditDialogHandler.ashx" />
     <Content Include="Handler\CardSaveDataHandler.ashx" />
     <Content Include="Handler\GetFileHandler.ashx" />
+    <Content Include="Handler\InfoButtonHandler.ashx" />
     <None Include="Properties\PublishProfiles\Test.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -379,6 +380,9 @@
     </Compile>
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Handler\InfoButtonHandler.ashx.cs">
+      <DependentUpon>InfoButtonHandler.ashx</DependentUpon>
     </Compile>
     <Compile Include="Handler\EditDialogHandler.ashx.cs">
       <DependentUpon>EditDialogHandler.ashx</DependentUpon>

@@ -270,6 +270,8 @@ namespace WARP
                     }
                     tp.AppendLine("           </div>");
                 }
+
+
                 // Вкладка Текст
                 if (tableColumn.DataType == TableColumnType.Text)
                 {

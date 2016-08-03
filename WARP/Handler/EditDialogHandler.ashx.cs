@@ -26,9 +26,6 @@ namespace WARP
             // ID
             string curId = context.Request["curId"];
 
-            // Загрузка после сохранения?
-            string isSaved = context.Request["saved"];
-
             // В зависимости от таблицы, используем соответствующий класс
             AppPage appPage = null;
             switch (curTable)

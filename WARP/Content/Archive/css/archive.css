@@ -216,7 +216,7 @@ td.details-control {
     cursor: pointer;
 }
 
-tr.shown td.details-control {
+tr.details td.details-control {
     background: url('../img/rowminus.png') no-repeat center center;
 }
 

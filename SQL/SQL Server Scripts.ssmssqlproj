@@ -15,7 +15,19 @@
           <ConnectionProtocol>NotSpecified</ConnectionProtocol>
           <ApplicationName>Microsoft SQL Server Management Studio - Query</ApplicationName>
         </ConnectionNode>
-        <ConnectionNode Name="SKY-SP-SQL1\SHAREPOINT:ZAO\a.fazilyanov">
+        <ConnectionNode Name="FAZL-PC:fazl">
+          <Created>2016-08-02T09:48:26.6474951+05:00</Created>
+          <Type>SQL</Type>
+          <Server>FAZL-PC</Server>
+          <UserName>fazl</UserName>
+          <Authentication>SQL</Authentication>
+          <InitialDB />
+          <LoginTimeout>15</LoginTimeout>
+          <ExecutionTimeout>0</ExecutionTimeout>
+          <ConnectionProtocol>NotSpecified</ConnectionProtocol>
+          <ApplicationName>Microsoft SQL Server Management Studio - Query</ApplicationName>
+        </ConnectionNode>
+        <ConnectionNode Name="SKY-SP-SQL1\SHAREPOINT:FAZL-PC\FAZL">
           <Created>2016-07-12T16:40:13.5342143+05:00</Created>
           <Type>SQL</Type>
           <Server>SKY-SP-SQL1\SHAREPOINT</Server>
@@ -32,20 +44,20 @@
     <LogicalFolder Name="Queries" Type="0" Sorted="true">
       <Items>
         <FileNode Name="Truncate.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SKY-SP-SQL1\SHAREPOINT:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>SKY-SP-SQL1\SHAREPOINT</AssociatedConnSrvName>
-          <AssociatedConnUserName />
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:FAZL-PC:False:fazl</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>FAZL-PC</AssociatedConnSrvName>
+          <AssociatedConnUserName>fazl</AssociatedConnUserName>
           <FullPath>Truncate.sql</FullPath>
         </FileNode>
         <FileNode Name="TruncateNtzArchive.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:192.168.100.209:False:fazl</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>192.168.100.209</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:FAZL-PC:False:fazl</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>FAZL-PC</AssociatedConnSrvName>
           <AssociatedConnUserName>fazl</AssociatedConnUserName>
           <FullPath>TruncateNtzArchive.sql</FullPath>
         </FileNode>
         <FileNode Name="TruncateTable_LogError.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:192.168.100.209:False:fazl</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>192.168.100.209</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:FAZL-PC:False:fazl</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>FAZL-PC</AssociatedConnSrvName>
           <AssociatedConnUserName>fazl</AssociatedConnUserName>
           <FullPath>TruncateTable_LogError.sql</FullPath>
         </FileNode>

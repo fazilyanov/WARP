@@ -205,7 +205,98 @@ namespace WARP
             DataTable dt = ComFunc.GetData(sbQuery.ToString(), sqlParameterArray);
             return dt;
         }
+
+        public override string GenerateJSTableInfoButtonContent(string id)
+        {
+            DataTable dtFiles = GetFileList("0", id);
+            StringBuilder ib = new StringBuilder();
+            if (dtFiles.Rows.Count > 0)
+            {
+                foreach (DataRow row in dtFiles.Rows)
+                {
+                    ib.AppendLine("                 <button type=\"button\" class=\"btn btn-default\" onclick=\"window.open('/Handler/GetFileHandler.ashx?curBase=" + SqlBase + "&curTable=" + TableSql + "&IdFile=" + row["IdFile"].ToString() + "');\">");
+                    ib.AppendLine(row["fileName"].ToString());
+                    ib.AppendLine("                 </button>");
+                }
+            }
+            else
+            {
+                ib.AppendLine("Файлов нет");
+            }
+            return ib.ToString();
+        }
+        public override string GenerateJSTableInfoButton()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("             var detailRows = [];");
+            sb.AppendLine();
+            sb.AppendLine("             function format(id) {return '<div id=\"RowInfo'+id+'\"></div>';}");
+            sb.AppendLine();
+            sb.AppendLine("             $('#table" + TableSql + " tbody').on( 'click', 'tr td.details-control', function () {");
+            sb.AppendLine("                 var tr = $(this).closest('tr');");
+            sb.AppendLine("                 var row = table.row(tr);");
+            sb.AppendLine();
+            sb.AppendLine("                 if (row.child.isShown()) {");
+            sb.AppendLine("                     tr.removeClass('details');");
+            sb.AppendLine("                     row.child.hide();");
+            sb.AppendLine("                 }");
+            sb.AppendLine("                 else {");
+            sb.AppendLine("                     tr.addClass('details');");
+            sb.AppendLine("                     row.child('<div id=\"RowInfo' + row.data().Id + '\">Загрузка..</div>').show();");
+
+            sb.AppendLine("                     $('#RowInfo' + row.data().Id).load(");
+            sb.AppendLine("                         '/Handler/InfoButtonHandler.ashx?curBase=" + SqlBase + "&curTable=" +TableSql + "&curPage=" + PageName + "&curId='+row.data().Id, null,");
+            sb.AppendLine("                         function(){");
+            sb.AppendLine("                         }");
+            sb.AppendLine("                     );");
+
+            sb.AppendLine("                 }");
+            sb.AppendLine("             });");
+            sb.AppendLine();
+            //sb.AppendLine("             table.on( 'draw', function () {");
+            //sb.AppendLine("                 $.each( detailRows, function (i, id) {");
+            //sb.AppendLine("                     $('#'+id+' td.details-control').trigger('click');");
+            //sb.AppendLine("                 });");
+            //sb.AppendLine("             });");
+            return sb.ToString();
+        }
+
+
     }
+    //public override string GenerateJSTableInfoButton()
+    //{
+    //    StringBuilder sb = new StringBuilder();
+    //    sb.AppendLine("             var detailRows = [];");
+    //    sb.AppendLine();
+    //    sb.AppendLine("             function format(d) {return 'skjdflksjlkjs';}");
+    //    sb.AppendLine();
+    //    sb.AppendLine("             $('#table" + TableSql + " tbody').on( 'click', 'tr td.details-control', function () {");
+    //    sb.AppendLine("                 var tr = $(this).closest('tr');");
+    //    sb.AppendLine("                 var row = table.row(tr);");
+    //    sb.AppendLine("                 var idx = $.inArray( tr.attr('id'), detailRows );");
+    //    sb.AppendLine();
+    //    sb.AppendLine("                 if (row.child.isShown()) {");
+    //    sb.AppendLine("                     tr.removeClass('details');");
+    //    sb.AppendLine("                     row.child.hide();");
+    //    sb.AppendLine("                     detailRows.splice( idx, 1 );");
+    //    sb.AppendLine("                 }");
+    //    sb.AppendLine("                 else {");
+    //    sb.AppendLine("                     tr.addClass('details');");
+    //    sb.AppendLine("                     row.child(format(row.data())).show();");
+    //    sb.AppendLine();
+    //    sb.AppendLine("                     if ( idx === -1 ) {");
+    //    sb.AppendLine("                         detailRows.push(tr.attr('id'));");
+    //    sb.AppendLine("                     }");
+    //    sb.AppendLine("                 }");
+    //    sb.AppendLine("             });");
+    //    sb.AppendLine();
+    //    sb.AppendLine("             table.on( 'draw', function () {");
+    //    sb.AppendLine("                 $.each( detailRows, function (i, id) {");
+    //    sb.AppendLine("                     $('#'+id+' td.details-control').trigger('click');");
+    //    sb.AppendLine("                 });");
+    //    sb.AppendLine("             });");
+    //    return sb.ToString();
+    //}
 
     // Страница
     public class AppPageArchive : AppPage
