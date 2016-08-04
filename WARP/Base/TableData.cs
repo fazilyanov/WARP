@@ -545,7 +545,7 @@ namespace WARP
             sb.AppendLine("                        action: function (e, dt, node, config) {");
             sb.AppendLine("                            $('#EditDialog').modal();");
             sb.AppendLine("                            $('#EditDialogContent').html('Загрузка..');");
-            sb.AppendLine("                            $('#EditDialogContent').load('/Handler/EditDialogHandler.ashx?curBase=" + SqlBase + "&curTable=" + TableSql + "&curPage=" + PageName + "&action=create&curId=0');");
+            sb.AppendLine("                            $('#EditDialogContent').load('/Handler/EditDialogHandler.ashx?curBase=" + SqlBase + "&curTable=" + TableSql + "&curPage=" + PageName + "&action=create&curId=0&_=' + (new Date()).getTime());");
             sb.AppendLine("                        },");
             sb.AppendLine("                        key: \"n\",");
             sb.AppendLine("                        className: \"btn-sm\",");
@@ -712,14 +712,14 @@ namespace WARP
         }
 
         // Возвращает текст текущей версии
-        // id - id текста
+        // id - id Карточки
         public virtual string GetText(string id)
         {
             // Запрос
             StringBuilder sbQuery = new StringBuilder();
             sbQuery.AppendLine("SELECT [Text] ");
             sbQuery.AppendLine("FROM [dbo].[" + SqlBase + TableSql + "Text]");
-            sbQuery.AppendLine("WHERE Id = " + id);
+            sbQuery.AppendLine("WHERE IdArchive = " + id);
 
             // Выполняем запрос
             var res = ComFunc.ExecuteScalar(sbQuery.ToString());
@@ -735,22 +735,21 @@ namespace WARP
         {
             // Запрос
             StringBuilder sbQuery = new StringBuilder();
+            sbQuery.AppendLine("SELECT T.IdFile, F.fileName, F.IsPrivate ");
             if (Id == "0")
             {
-                sbQuery.AppendLine("SELECT T.IdFile, F.fileName ");
                 sbQuery.AppendLine("FROM [dbo].[" + SqlBase + TableSql + "FileList] T");
                 sbQuery.AppendLine("JOIN [dbo].[" + SqlBase + TableSql + "Files] F ON F.Id = T.IdFile");
                 sbQuery.AppendLine("WHERE T.IdVer = " + idVer);
             }
             else
             {
-                sbQuery.AppendLine("SELECT T.IdFile, F.fileName ");
                 sbQuery.AppendLine("FROM [dbo].[" + SqlBase + TableSql + "] A");
                 sbQuery.AppendLine("JOIN [dbo].[" + SqlBase + TableSql + "FileList] T ON T.IdVer=A.IdVer");
                 sbQuery.AppendLine("JOIN [dbo].[" + SqlBase + TableSql + "Files] F ON F.Id = T.IdFile");
                 sbQuery.AppendLine("WHERE A.Active=1 AND A.Del=0 AND A.Id = " + Id);
             }
-            // Выполняем запрос
+
             DataTable dt = ComFunc.GetData(sbQuery.ToString());
             return dt;
         }
@@ -959,6 +958,7 @@ namespace WARP
                 switch (Action)
                 {
                     case TableAction.Create:
+                    case TableAction.Copy:
                         // Для каждой переданной строки с данными, создаем строку запроса и параметры к ней, выполняем запрос
                         foreach (KeyValuePair<string, List<RequestData>> pair in RequestRows)
                         {
@@ -973,7 +973,7 @@ namespace WARP
                             foreach (RequestData rd in pair.Value)
                             {
                                 TableColumn tableColumn = ColumnList.Find(x => x.DataNameSql == rd.FieldName);
-                                if (tableColumn != null && tableColumn.EditType != TableColumnEditType.Text)
+                                if (tableColumn != null && tableColumn.EditType != TableColumnEditType.Text) // Текст сохраняем отдельно
                                 {
                                     query.AppendLine("    ,[" + rd.FieldName + "]");
                                 }
@@ -1051,7 +1051,7 @@ namespace WARP
                                         query.AppendLine("SET @fileId = SCOPE_IDENTITY();");// Узнали его id
                                         query.AppendLine("INSERT INTO [dbo].[" + SqlBase + TableSql + "FileList]([IdVer],[IdFile])VALUES(@si,@fileId);");
 
-                                        param.Add(new SqlParameter { ParameterName = "@fileName" + i, SqlDbType = SqlDbType.NVarChar, Value = Path.GetFileName(file.FileName) });
+                                        param.Add(new SqlParameter { ParameterName = "@fileName" + i, SqlDbType = SqlDbType.NVarChar, Value = Path.GetFileName(file.FileName).Trim() });
                                         param.Add(new SqlParameter { ParameterName = "@fileData" + i, SqlDbType = SqlDbType.VarBinary, Value = fileData });
                                     }
                                 }
@@ -1061,14 +1061,11 @@ namespace WARP
                             foreach (RequestData rd in pair.Value)
                             {
                                 TableColumn tableColumn = ColumnList.Find(x => x.DataNameSql == rd.FieldName);
-                                if (tableColumn.EditType == TableColumnEditType.Text && rd.FieldValue.Length > 0)
+                                if (tableColumn!=null && tableColumn.EditType == TableColumnEditType.Text)
                                 {
                                     query.AppendLine();
-                                    query.AppendLine("DECLARE @textId AS int;");
-                                    query.AppendLine("INSERT INTO [dbo].[" + SqlBase + TableSql + "Text]([Text])VALUES(@Text);");// Записали файл
+                                    query.AppendLine("INSERT INTO [dbo].[" + SqlBase + TableSql + "Text]([IdArchive],[Text])VALUES(@si,@Text);"); // Записали файл
                                     param.Add(new SqlParameter { ParameterName = "@Text", SqlDbType = SqlDbType.Text, Value = rd.FieldValue });
-                                    query.AppendLine("SET @textId = SCOPE_IDENTITY();");// Узнали его id
-                                    query.AppendLine("UPDATE [dbo].[" + SqlBase + TableSql + "]SET [" + tableColumn.DataNameSql + "] = @textId WHERE IdVer=@si; ");// Узнали его id
                                 }
                             }
 
@@ -1106,7 +1103,7 @@ namespace WARP
                             foreach (RequestData rd in pair.Value)
                             {
                                 TableColumn tableColumn = ColumnList.Find(x => x.DataNameSql == rd.FieldName);
-                                if (tableColumn.EditType != TableColumnEditType.Text)
+                                if (tableColumn != null && tableColumn.EditType != TableColumnEditType.Text)
                                 {
                                     query.AppendLine("    ,[" + rd.FieldName + "]");
                                 }
@@ -1123,7 +1120,7 @@ namespace WARP
                             foreach (RequestData rd in pair.Value)
                             {
                                 TableColumn tableColumn = ColumnList.Find(x => x.DataNameSql == rd.FieldName);
-                                if (tableColumn.EditType != TableColumnEditType.Text)
+                                if (tableColumn != null && tableColumn.EditType != TableColumnEditType.Text)
                                 {
                                     query.AppendLine("    ,@" + rd.FieldName);
                                     SqlDbType sqlDbType = SqlDbType.NVarChar;
@@ -1190,27 +1187,32 @@ namespace WARP
                                 }
                             }
 
-                            // TODO: Из инпута получить удаленные id и исключить из селекта
-                            // Копируем файлы из предыдущей версии
-                            query.AppendLine("INSERT INTO [dbo].[" + SqlBase + TableSql + "FileList]([IdVer],[IdFile]) SELECT @nextVer, IdFile FROM [dbo].[" + SqlBase + TableSql + "FileList] WHERE IdVer=@prevVer;");
+                            string toPrivate, toDelete = string.Empty;
+                            toPrivate = RequestRows[pair.Key].Find(x => x.FieldName == "FilesToPrivate").FieldValue;
+                            toDelete = RequestRows[pair.Key].Find(x => x.FieldName == "FilesToDelete").FieldValue;
 
-                            //// Сохраняем текст
-                            //foreach (RequestData rd in pair.Value)
-                            //{
-                            //    TableColumn tableColumn = ColumnList.Find(x => x.DataNameSql == rd.FieldName);
-                            //    if (tableColumn.EditType == TableColumnEditType.Text && rd.FieldValue.Length > 0)
-                            //    {
-                            //        query.AppendLine();
-                            //        query.AppendLine("DECLARE @textId AS int;");
-                            //        query.AppendLine("SELECT @textId=[" + tableColumn.DataNameSql + "] FROM [dbo].[" + SqlBase + TableSql + "] WHERE IdVer=@prevVer;");
-                            //        query.AppendLine("SELECT @textId=[" + tableColumn.DataNameSql + "] FROM [dbo].[" + SqlBase + TableSql + "Text] WHERE Id=@textId AND [Text]=@Text;");
+                            if (!string.IsNullOrEmpty(toPrivate))
+                            {
+                                query.AppendLine("UPDATE [dbo].[" + SqlBase + TableSql + "Files] SET [IsPrivate] = 1 WHERE [ID] in (" + toPrivate + ");");
+                            }
+                            query.AppendLine();
 
-                            //        query.AppendLine("INSERT INTO [dbo].[" + SqlBase + TableSql + "Text]([Text])VALUES(@Text);");// Записали файл
-                            //        param.Add(new SqlParameter { ParameterName = "@Text", SqlDbType = SqlDbType.Text, Value = rd.FieldValue });
-                            //        query.AppendLine("SET @textId = SCOPE_IDENTITY();");// Узнали его id
-                            //        query.AppendLine("UPDATE [dbo].[" + SqlBase + TableSql + "]SET [" + tableColumn.DataNameSql + "] = @textId WHERE IdVer=@si; ");// Узнали его id
-                            //    }
-                            //}
+                            // Копируем файлы из предыдущей версии без удаленных
+                            query.AppendLine("INSERT INTO [dbo].[" + SqlBase + TableSql + "FileList]([IdVer],[IdFile]) ");
+                            query.AppendLine("      SELECT @nextVer, IdFile FROM [dbo].[" + SqlBase + TableSql + "FileList]");
+                            query.AppendLine("      WHERE IdVer=@prevVer" + (string.IsNullOrEmpty(toDelete) ? "" : " AND [IdFile] NOT IN (" + toDelete + ")") + ";");
+
+                            // Сохраняем текст
+                            foreach (RequestData rd in pair.Value)
+                            {
+                                TableColumn tableColumn = ColumnList.Find(x => x.DataNameSql == rd.FieldName);
+                                if (tableColumn != null && tableColumn.EditType == TableColumnEditType.Text && rd.FieldValue.Length > 0)
+                                {
+                                    query.AppendLine();
+                                    query.AppendLine("UPDATE [dbo].[" + SqlBase + TableSql + "Text] SET [Text]=@Text WHERE [IdArchive]=" + pair.Key+" and CAST([Text] as nvarchar(max))<>@Text");
+                                    param.Add(new SqlParameter { ParameterName = "@Text", SqlDbType = SqlDbType.NVarChar, Value = rd.FieldValue });
+                                }
+                            }
 
                             sqlCommand = new SqlCommand(query.ToString(), sqlConnection, sqlTransaction);
                             sqlCommand.Parameters.AddRange(param.ToArray());
@@ -1265,7 +1267,7 @@ namespace WARP
                 JavaScriptSerializer javaScriptSerializer = new JavaScriptSerializer();
                 result = javaScriptSerializer.Serialize(new { error = "Ошибка при сохранении: " + ex.Message.Trim() });
 
-                ComFunc.LogSqlError(ex.Message.Trim(), sqlCommand.CommandText, param.ToArray());
+                ComFunc.LogSqlError(ex, sqlCommand.CommandText, param.ToArray());
             }
             finally
             {
@@ -1292,86 +1294,88 @@ namespace WARP
 
                     // Ищем настройки для этого поля, по переданному имени поля
                     TableColumn tableColumn = ColumnList.Find(x => x.DataNameSql == rd.FieldName);
-
-                    // Обязательность заполнения поля
-                    if (resume && tableColumn.EditRequired)
+                    if (tableColumn != null)
                     {
-                        // Для текстовых/числовых не пропускаем пустые строки, для справочников не пропускаем еще и нули
-                        if (string.IsNullOrEmpty(rd.FieldValue) || ((tableColumn.EditType == TableColumnEditType.Autocomplete || tableColumn.EditType == TableColumnEditType.DropDown) && rd.FieldValue == "0"))
+                        // Обязательность заполнения поля
+                        if (resume && tableColumn.EditRequired)
                         {
-                            fieldErrors.Add(new FieldErrors { name = tableColumn.DataNameSql, status = "Поле обязательно для заполнения" });
-                            resume = false;
+                            // Для текстовых/числовых не пропускаем пустые строки, для справочников не пропускаем еще и нули
+                            if (string.IsNullOrEmpty(rd.FieldValue) || ((tableColumn.EditType == TableColumnEditType.Autocomplete || tableColumn.EditType == TableColumnEditType.DropDown) && rd.FieldValue == "0"))
+                            {
+                                fieldErrors.Add(new FieldErrors { name = tableColumn.DataNameSql, status = "Поле обязательно для заполнения" });
+                                resume = false;
+                            }
                         }
-                    }
 
-                    // Проверяем тип введенных данных
-                    if (resume)
-                    {
-                        switch (tableColumn.EditType)
+                        // Проверяем тип введенных данных
+                        if (resume)
                         {
-                            case TableColumnEditType.Date:
-                                if (!string.IsNullOrEmpty(rd.FieldValue))
-                                {
-                                    DateTime date;
-                                    if (!DateTime.TryParse(rd.FieldValue, out date))
+                            switch (tableColumn.EditType)
+                            {
+                                case TableColumnEditType.Date:
+                                    if (!string.IsNullOrEmpty(rd.FieldValue))
                                     {
-                                        fieldErrors.Add(new FieldErrors { name = tableColumn.DataNameSql, status = "Неверный формат даты" });
+                                        DateTime date;
+                                        if (!DateTime.TryParse(rd.FieldValue, out date))
+                                        {
+                                            fieldErrors.Add(new FieldErrors { name = tableColumn.DataNameSql, status = "Неверный формат даты" });
+                                            resume = false;
+                                        }
+                                        else if (date > new DateTime(2020, 1, 1) || date < new DateTime(2000, 1, 1))
+                                        {
+                                            fieldErrors.Add(new FieldErrors { name = tableColumn.DataNameSql, status = "Выбрана недопустимая дата" });
+                                            resume = false;
+                                        }
+                                        else rd.FieldValue = date.ToString("yyyy-MM-dd");
+                                    }
+                                    break;
+
+                                case TableColumnEditType.Autocomplete:
+                                case TableColumnEditType.DropDown:
+                                case TableColumnEditType.Integer:
+                                    if (string.IsNullOrEmpty(rd.FieldValue))
+                                        rd.FieldValue = "0";
+                                    break;
+
+                                case TableColumnEditType.Money:
+                                    decimal money;
+                                    rd.FieldValue = rd.FieldValue.Replace('.', ',');
+                                    if (!decimal.TryParse(rd.FieldValue, out money))
+                                    {
+                                        fieldErrors.Add(new FieldErrors { name = tableColumn.DataNameSql, status = "Неверный формат суммы" });
                                         resume = false;
                                     }
-                                    else if (date > new DateTime(2020, 1, 1) || date < new DateTime(2000, 1, 1))
+                                    break;
+
+                                default:
+                                    break;
+                            }
+                        }
+
+                        // Ограничения
+                        if (resume)
+                        {
+                            switch (tableColumn.EditType)
+                            {
+                                case TableColumnEditType.String:
+                                    if (tableColumn.EditMax > -1 && rd.FieldValue.Length > tableColumn.EditMax)
                                     {
-                                        fieldErrors.Add(new FieldErrors { name = tableColumn.DataNameSql, status = "Выбрана недопустимая дата" });
+                                        fieldErrors.Add(new FieldErrors { name = tableColumn.DataNameSql, status = "Максимально допустимая длина поля: " + tableColumn.EditMax + " симв." });
                                         resume = false;
                                     }
-                                    else rd.FieldValue = date.ToString("yyyy-MM-dd");
-                                }
-                                break;
 
-                            case TableColumnEditType.Autocomplete:
-                            case TableColumnEditType.DropDown:
-                            case TableColumnEditType.Integer:
-                                if (string.IsNullOrEmpty(rd.FieldValue))
-                                    rd.FieldValue = "0";
-                                break;
+                                    if (tableColumn.EditMin > -1 && rd.FieldValue.Length < tableColumn.EditMin)
+                                    {
+                                        fieldErrors.Add(new FieldErrors { name = tableColumn.DataNameSql, status = "Минимально допустимая длина поля: " + tableColumn.EditMin + " симв." });
+                                        resume = false;
+                                    }
+                                    break;
 
-                            case TableColumnEditType.Money:
-                                decimal money;
-                                rd.FieldValue = rd.FieldValue.Replace('.', ',');
-                                if (!decimal.TryParse(rd.FieldValue, out money))
-                                {
-                                    fieldErrors.Add(new FieldErrors { name = tableColumn.DataNameSql, status = "Неверный формат суммы" });
-                                    resume = false;
-                                }
-                                break;
-
-                            default:
-                                break;
-                        }
-                    }
-
-                    // Ограничения
-                    if (resume)
-                    {
-                        switch (tableColumn.EditType)
-                        {
-                            case TableColumnEditType.String:
-                                if (tableColumn.EditMax > -1 && rd.FieldValue.Length > tableColumn.EditMax)
-                                {
-                                    fieldErrors.Add(new FieldErrors { name = tableColumn.DataNameSql, status = "Максимально допустимая длина поля: " + tableColumn.EditMax + " симв." });
-                                    resume = false;
-                                }
-
-                                if (tableColumn.EditMin > -1 && rd.FieldValue.Length < tableColumn.EditMin)
-                                {
-                                    fieldErrors.Add(new FieldErrors { name = tableColumn.DataNameSql, status = "Минимально допустимая длина поля: " + tableColumn.EditMin + " симв." });
-                                    resume = false;
-                                }
-                                break;
-
-                            case TableColumnEditType.Integer:
-                            case TableColumnEditType.Money:
-                                // TODO :
-                                break;
+                                case TableColumnEditType.Integer:
+                                case TableColumnEditType.Money:
+                                    // TODO :
+                                    break;
+                            }
                         }
                     }
                 }

@@ -42,7 +42,7 @@ namespace WARP
             sb.AppendLine("                var id = table.row(this).id();");
             sb.AppendLine("                $('#EditDialog').modal();");
             // sb.AppendLine("                $('#EditDialogContent').html('Загрузка..');");
-            sb.AppendLine("                $('#EditDialogContent').load('/Handler/EditDialogHandler.ashx?curBase=" + Master.SqlBase + "&curTable=" + Master.TableSql + "&curPage=" + Master.PageName + "&action=edit&curId=' + id);");
+            sb.AppendLine("                $('#EditDialogContent').load('/Handler/EditDialogHandler.ashx?curBase=" + Master.SqlBase + "&curTable=" + Master.TableSql + "&curPage=" + Master.PageName + "&action=edit&curId=' + id +'&_=' + (new Date()).getTime());");
             sb.AppendLine("            });");
             return sb.ToString();
         }
@@ -77,10 +77,8 @@ namespace WARP
             DataRow data = null;
             switch (Master.Action)
             {
-                case TableAction.Create:
-                    break;
-
                 case TableAction.Edit:
+                case TableAction.Copy:
                     DataTable dt = Master.GetData(curId);
                     if (dt.Rows.Count == 0)
                     {
@@ -92,14 +90,13 @@ namespace WARP
                     }
                     break;
 
-                case TableAction.Remove:
-                    break;
-
                 default:
                     break;
             }
 
             StringBuilder sb = new StringBuilder();
+
+            #region Шапка Диалога
 
             sb.AppendLine("<div class=\"card-modal-header\">");
             sb.AppendLine("     <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button>");
@@ -108,6 +105,7 @@ namespace WARP
             switch (Master.Action)
             {
                 case TableAction.Create:
+                case TableAction.Copy:
                     sb.AppendLine("     <h4 class=\"modal-title\">Новая запись</h4>");
                     break;
 
@@ -121,11 +119,15 @@ namespace WARP
                     break;
             }
             sb.AppendLine("</div>");
+
+            #endregion Шапка Диалога
+
+            #region Шапка документа
+
             sb.AppendLine("<form method=\"POST\" id=\"EditForm\" name=\"EditForm\" action=\"javascript: void(null);\" enctype=\"multipart/form-data\">");
             sb.AppendLine("<div id=\"EditDialogBody\" class=\"modal-body\">");
             sb.AppendLine("     <div class=\"row\">");
 
-            // Inputs
             string value = string.Empty;
             string valueText = string.Empty;
             StringBuilder js = new StringBuilder();
@@ -141,6 +143,7 @@ namespace WARP
                             break;
 
                         case TableAction.Edit:
+                        case TableAction.Copy:
                             value = data[tableColumn.DataNameSql].ToString();
                             if (tableColumn.EditType == TableColumnEditType.Autocomplete || tableColumn.EditType == TableColumnEditType.DropDown)
                                 valueText = (data[tableColumn.DataLookUpResult] ?? string.Empty).ToString();
@@ -240,13 +243,17 @@ namespace WARP
             sb.AppendLine("     </div>");// row
             sb.AppendLine();
 
-            //Табличная часть
+            #endregion Шапка документа
+
+            #region Табличная часть
+
             sb.AppendLine("     <div>");
             StringBuilder li = new StringBuilder(); // Вкладки
             StringBuilder tp = new StringBuilder(); // Содержимое
             foreach (TableColumn tableColumn in Master.ColumnList)
             {
-                // Вкладка Файлы
+                #region Вкладка Файлы
+
                 if (tableColumn.DataType == TableColumnType.Files)
                 {
                     li.AppendLine("			  <li><a data-target=\"#" + tableColumn.DataNameSql + "Tab\" data-toggle=\"tab\">" + tableColumn.ViewCaption + "</a></li>");
@@ -254,35 +261,61 @@ namespace WARP
                     tp.AppendLine("                 <label class=\"btn btn-primary btn-file\">");
                     tp.AppendLine("                     Добавить&nbsp;<span id=\"badge\" class=\"badge\"></span><input id=\"" + tableColumn.DataNameSql + "\" name=\"" + tableColumn.DataNameSql + "\" type=\"file\" multiple/ onchange=\"$('#badge').html('Файлов:'+$('#Files').get(0).files.length);\">");
                     tp.AppendLine("                 </label>");
+                    tp.AppendLine("                 <div style=\"width: 470px;display: table;margin-top:10px;\">");
+                    tp.AppendLine("                 <input type=\"hidden\" id=\"" + tableColumn.DataNameSql + "ToPrivate\" name=\"" + tableColumn.DataNameSql + "ToPrivate\" value=\"0\">");
+                    tp.AppendLine("                 <input type=\"hidden\" id=\"" + tableColumn.DataNameSql + "ToDelete\" name=\"" + tableColumn.DataNameSql + "ToDelete\" value=\"0\">");
 
-                    if (Master.Action != TableAction.Create) // Если карточка не новая
+                    if (Master.Action != TableAction.Create && Master.Action != TableAction.Copy) // Если карточка не новая | скопированная
                     {
                         DataTable dtFiles = Master.GetFileList(data["IdVer"].ToString()); // Получаем список файлов
                         if (dtFiles.Rows.Count > 0)
                         {
+                            string fn, fid, hash = string.Empty;
+                            bool isPrivate = false;
                             foreach (DataRow row in dtFiles.Rows)
                             {
-                                tp.AppendLine("                 <button type=\"button\" class=\"btn btn-default\" onclick=\"window.open('/Handler/GetFileHandler.ashx?curBase=" + Master.SqlBase + "&curTable=" + Master.TableSql + "&IdFile=" + row["IdFile"].ToString() + "');\">");
-                                tp.AppendLine(row["fileName"].ToString());
-                                tp.AppendLine("                 </button>");
+                                fid = row["IdFile"].ToString();
+                                fn = row["fileName"].ToString().Trim();
+                                hash = ComFunc.GetMd5Hash(ComFunc.GetMd5Hash(fid) + fid);
+                                isPrivate = (bool)row["IsPrivate"];
+
+                                tp.AppendLine("                  <div class=\"file-button\"  id=\"FileButton" + fid + "\">");
+                                tp.AppendLine("                     <div class=\"btn-group\">");
+                                tp.AppendLine("                         <button type=\"button\"  class=\"btn btn-default " + (isPrivate ? "opacity" : "") + "\" style=\"width:200px;\" title=\"" + fn + "\"");
+                                tp.AppendLine("                              onclick =\"window.open('/Handler/GetFileHandler.ashx?curBase=" + Master.SqlBase + "&curTable=" + Master.TableSql + "&IdFile=" + row["IdFile"].ToString() + "&key=" + hash + "');\" >" + (fn.Length > 24 ? fn.Substring(0, 22) + ".." : fn) + "</button>");//
+                                tp.AppendLine("                         <button type=\"button\" class=\"btn btn-default dropdown-toggle " + (isPrivate ? "opacity" : "") + "\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">");
+                                tp.AppendLine("                             <span class=\"caret\"></span>");
+                                tp.AppendLine("                             <span class=\"sr-only\">Toggle Dropdown</span>");
+                                tp.AppendLine("                         </button>");
+                                tp.AppendLine("                         <ul class=\"dropdown-menu\">");
+                                tp.AppendLine("                             <li><a href=\"#\" onclick=\"var tp = $('#" + tableColumn.DataNameSql + "ToPrivate'); tp.val(tp.val()+'," + fid + "');$('#FileButton" + fid + " .btn').animate({opacity: 0.5}); AllowSave();\">Скрыть</a></li>");
+                                tp.AppendLine("                              <li><a href=\"#\" onclick=\"var tp = $('#" + tableColumn.DataNameSql + "ToDelete'); tp.val(tp.val()+'," + fid + "');$('#FileButton" + fid + "').fadeOut();AllowSave();\">Удалить</a></li>");
+                                tp.AppendLine("                         </ul>");
+                                tp.AppendLine("                     </div>");
+                                tp.AppendLine("                  </div>");
                             }
                         }
                     }
+                    tp.AppendLine("                 </div>");
                     tp.AppendLine("           </div>");
                 }
 
+                #endregion Вкладка Файлы
 
-                // Вкладка Текст
+                #region Вкладка Текст
+
                 if (tableColumn.DataType == TableColumnType.Text)
                 {
                     li.AppendLine("			  <li><a data-target=\"#" + tableColumn.DataNameSql + "Tab\" data-toggle=\"tab\">" + tableColumn.ViewCaption + "</a></li>");
                     tp.AppendLine("           <div role=\"tabpanel\" class=\"tab-pane fade\" id=\"" + tableColumn.DataNameSql + "Tab\" style=\"height: " + EditDialogTabHeight + "px;\">");
                     string text = string.Empty;
-                    if (Master.Action != TableAction.Create) // Если карточка не новая
-                        text = Master.GetText(data["IdDocText"].ToString()); // Получаем текст для версии
+                    if (Master.Action != TableAction.Create && Master.Action != TableAction.Copy) // Если карточка не новая
+                        text = Master.GetText(data["Id"].ToString()); // Получаем текст для версии
                     tp.AppendLine("                 <textarea id=\"" + tableColumn.DataNameSql + "\" name=\"" + tableColumn.DataNameSql + "\" class=\"card-form-control card-textarea\">" + text + "</textarea>");
                     tp.AppendLine("           </div>");
                 }
+
+                #endregion Вкладка Текст
             }
             if (li.Length > 0)
             {
@@ -298,19 +331,32 @@ namespace WARP
             js.AppendLine();
             js.AppendLine("     $('#myTab a:first').tab('show');");
 
+            #endregion Табличная часть
+
+            #region Футер
+
             // Футер
             sb.AppendLine("<div class=\"card-modal-footer\">");
             sb.AppendLine("     <div class=\"card-modal-footer-left\">");
-            sb.AppendLine("         <button type=\"button\" class=\"btn btn-default btn-sm\">New</button>");
+            sb.AppendLine("         <button type=\"button\" class=\"btn btn-default btn-sm\" onclick=\"$('#EditDialogContent').load('/Handler/EditDialogHandler.ashx?curBase=" + Master.SqlBase + "&curTable=" + Master.TableSql + "&curPage=" + Master.PageName + "&action=create&curId=0&_=' + (new Date()).getTime());\">Новая</button>");
+            sb.AppendLine("         <button type=\"button\" class=\"btn btn-default btn-sm\" onclick=\" $('#EditDialogContent').load('/Handler/EditDialogHandler.ashx?curBase=" + Master.SqlBase + "&curTable=" + Master.TableSql + "&curPage=" + Master.PageName + "&action=copy&curId=" + curId + "&_=' + (new Date()).getTime());\">Копировать</button>");
             sb.AppendLine("     </div>");
             sb.AppendLine("     <div class=\"card-modal-footer-rigth\">");
-            sb.AppendLine("         <button type=\"button\" class=\"btn btn-default btn-sm\" data-dismiss=\"modal\">Close</button>");
-            sb.AppendLine("         <button type=\"button\" id =\"SaveButton\" class=\"btn btn-primary btn-sm\" onclick=\"SubmitForm();\" disabled>Save changes</button>");
+            sb.AppendLine("         <button type=\"button\" class=\"btn btn-default btn-sm\" onclick=\"if($('#SaveButton').is(':disabled')){$('#EditDialog').modal('hide');}else if (confirm('Закрыть без сохранения?')){$('#EditDialog').modal('hide');}\">Закрыть</button>");
+            sb.AppendLine("         <button type=\"button\" id =\"SaveButton\" class=\"btn btn-primary btn-sm\" onclick=\"SubmitForm();\" disabled>Сохранить</button>");
             sb.AppendLine("     </div>");
             sb.AppendLine("</div>");
             sb.AppendLine();
 
-            // Скрипты
+            #endregion Футер
+
+            #region Скрипты
+
+            if (Master.Action==TableAction.Copy)
+            {
+                curId = "0";
+            }
+
             sb.AppendLine("<script>");
             sb.AppendLine();
             sb.AppendLine("     $('#EditDialog input').bind('change keyup', function(event) {AllowSave();});"); // Активирует кнопку Сохранить при изменениях в инпутах
@@ -348,7 +394,7 @@ namespace WARP
             sb.AppendLine("                }");
             sb.AppendLine("                else{");
             sb.AppendLine("                     $('#EditDialogContent').load(");
-            sb.AppendLine("                         '/Handler/EditDialogHandler.ashx?curBase=" + Master.SqlBase + "&curTable=" + Master.TableSql + "&curPage=" + Master.PageName + "&action=edit&curId=" + (curId != "0" ? curId + "'" : "' + data") + ",null,");
+            sb.AppendLine("                         '/Handler/EditDialogHandler.ashx?curBase=" + Master.SqlBase + "&curTable=" + Master.TableSql + "&curPage=" + Master.PageName + "&action=edit&_=' + (new Date()).getTime() + '&curId=" + (curId != "0" ? curId + "'" : "' + data") + ",null,");
             sb.AppendLine("                         function(){");
             sb.AppendLine("                             $('#HeaderMsg').hide();");
             sb.AppendLine("                             $('#HeaderMsg').html('" + (curId != "0" ? "Запись сохранена" : "Запись создана") + "');");
@@ -363,6 +409,9 @@ namespace WARP
             sb.AppendLine("         }); ");
             sb.AppendLine("     } ");
             sb.AppendLine("</script>");
+
+            #endregion Скрипты
+
             return sb.ToString();
         }
 

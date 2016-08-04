@@ -129,7 +129,7 @@ namespace WARP
                     ViewCaption         = "Файлы",
                 },
                 new TableColumn {
-                    DataNameSql         = "IdDocText",
+                    DataNameSql         = "DocText",
                     DataType            = TableColumnType.Text,
                     EditType            = TableColumnEditType.Text,
                     ViewCaption         = "Текст документа",
@@ -184,7 +184,6 @@ namespace WARP
             sbQuery.AppendLine("   ,T.IdFrmContr");
             sbQuery.AppendLine("   ,F.Name as FrmContr");
             sbQuery.AppendLine("   ,T.Summ");
-            sbQuery.AppendLine("   ,T.IdDocText");
             sbQuery.AppendLine("   ,T.DocPack");
             sbQuery.AppendLine("   FROM [dbo].[" + SqlBase + TableSql + "] T");
             sbQuery.AppendLine("   LEFT JOIN [dbo].[Frm] F on T.IdFrmContr = F.ID");
@@ -245,7 +244,7 @@ namespace WARP
             sb.AppendLine("                     row.child('<div id=\"RowInfo' + row.data().Id + '\">Загрузка..</div>').show();");
 
             sb.AppendLine("                     $('#RowInfo' + row.data().Id).load(");
-            sb.AppendLine("                         '/Handler/InfoButtonHandler.ashx?curBase=" + SqlBase + "&curTable=" +TableSql + "&curPage=" + PageName + "&curId='+row.data().Id, null,");
+            sb.AppendLine("                         '/Handler/InfoButtonHandler.ashx?curBase=" + SqlBase + "&curTable=" +TableSql + "&curPage=" + PageName + "&curId='+row.data().Id+'&_=' + (new Date()).getTime(), null,");
             sb.AppendLine("                         function(){");
             sb.AppendLine("                         }");
             sb.AppendLine("                     );");

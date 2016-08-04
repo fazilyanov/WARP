@@ -10,8 +10,7 @@ namespace WARP
         {
             if (Session["ErrorException"] != null)
             {
-                errorText = (Session["ErrorException"] ?? "").ToString();
-                ComFunc.LogError(errorText);
+                ComFunc.LogError((Exception)Session["ErrorException"]);
                 //SendMail();
             }
             Session.Clear();

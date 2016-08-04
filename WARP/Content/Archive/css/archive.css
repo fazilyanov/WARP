@@ -339,6 +339,17 @@ tr.details td.details-control {
     cursor: inherit;
     display: block;
 }
+
+/*Кнопки файлов*/
+.file-button{
+    padding-top: 5px;
+    padding-right: 5px;
+    float: left;
+}
+
+.file-button .opacity{
+    opacity: 0.5;
+}
 .card-textarea{
     height:100%;
 }

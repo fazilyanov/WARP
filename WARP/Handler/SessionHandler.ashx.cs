@@ -41,7 +41,7 @@ namespace WARP
             }
             catch (System.Exception ex)
             {
-                ComFunc.LogError(ex.Message + "\r\n" + ex.StackTrace);
+                ComFunc.LogError(ex);
             }
         }
 

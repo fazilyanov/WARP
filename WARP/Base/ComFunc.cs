@@ -4,13 +4,14 @@ using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Security.Cryptography;
+using System.Text;
 using System.Web;
 using System.Web.Caching;
 using System.Web.UI;
 
 namespace WARP
 {
-    
     // Общие функции проекта
     public class ComFunc
     {
@@ -210,7 +211,7 @@ namespace WARP
             }
             catch (Exception ex)
             {
-                LogSqlError(ex.Message.Trim(), sqlCommand.CommandText, sqlParameterArray);
+                LogSqlError(ex, sqlCommand.CommandText, sqlParameterArray);
             }
             finally
             {
@@ -246,7 +247,7 @@ namespace WARP
             catch (Exception ex)
             {
                 sqlTransaction.Rollback();
-                LogSqlError(ex.Message.Trim(), sqlCommand.CommandText, sqlParameterArray);
+                LogSqlError(ex, sqlCommand.CommandText, sqlParameterArray);
             }
             finally
             {
@@ -309,7 +310,7 @@ namespace WARP
             catch (Exception ex)
             {
                 dt = null;
-                LogSqlError(ex.Message.Trim(), sqlCommand.CommandText, sqlParameterArray);
+                LogSqlError(ex, sqlCommand.CommandText, sqlParameterArray);
             }
             finally
             {
@@ -349,7 +350,7 @@ namespace WARP
             }
             catch (Exception ex)
             {
-                LogSqlError(ex.Message.Trim(), sqlCommand.CommandText, null);
+                LogSqlError(ex, sqlCommand.CommandText, null);
             }
             finally
             {
@@ -411,7 +412,7 @@ namespace WARP
         /// </summary>
         /// <param name="errorText">Сообщение исключения</param>
         /// <param name="sqlQuery">Запрос в котором произошла ошибка</param>
-        public static void LogSqlError(string errorText, string sqlQuery, SqlParameter[] sqlParameterArray)
+        public static void LogSqlError(Exception ex, string sqlQuery, SqlParameter[] sqlParameterArray)
         {
             string paramList = "";
             if (sqlParameterArray != null)
@@ -421,9 +422,7 @@ namespace WARP
                     paramList += item.ParameterName + " = " + item.Value.ToString() + Environment.NewLine;
                 }
             }
-            LogError(
-                "Ошибка:" + Environment.NewLine + errorText + Environment.NewLine + Environment.NewLine +
-                "SQL:" + Environment.NewLine + sqlQuery + Environment.NewLine + "Params:" + Environment.NewLine + paramList);
+            LogError(ex, Environment.NewLine + Environment.NewLine + "SQL:" + Environment.NewLine + sqlQuery + Environment.NewLine + "Params:" + Environment.NewLine + paramList);
         }
 
         /// <summary>
@@ -434,10 +433,11 @@ namespace WARP
         /// если проблемы с БД отправляем письмо, если и письмо отправить не получилось,
         /// тогда уж хз
         /// </remarks>
-        public static void LogError(string errorText)
+        public static void LogError(Exception ex, string extra = "")
         {
             int ret = -1;
             SqlCommand sqlCommand;
+            string errorText = "Ошибка:" + ex.Message + Environment.NewLine + Environment.NewLine + ex.StackTrace + extra;
             SqlConnection sqlConnection = new SqlConnection(Properties.Settings.Default.ConnectionString);
             try
             {
@@ -454,9 +454,9 @@ namespace WARP
                 // Последнюю ошибку сохраняем в сессии для вывода
                 HttpContext.Current.Session["LastError"] = errorText;
             }
-            catch (Exception ex)
+            catch (Exception ex2)
             {
-                SendMailAdmin(ex.Message + Environment.NewLine + errorText, "Архив: Неудачная запись в лог ошибок");
+                SendMailAdmin(ex2.Message + Environment.NewLine + errorText, "Архив: Неудачная запись в лог ошибок");
             }
             finally
             {
@@ -507,6 +507,19 @@ namespace WARP
         public static T ParseEnum<T>(string value)
         {
             return (T)Enum.Parse(typeof(T), value, true);
+        }
+
+        // Генерит hash строки
+        public static string GetMd5Hash(string input)
+        {
+            StringBuilder sBuilder = new StringBuilder();
+            using (MD5 md5Hash = MD5.Create())
+            {
+                byte[] data = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(input));
+                for (int i = 0; i < data.Length; i++)
+                    sBuilder.Append(data[i].ToString("x2"));
+            }
+            return sBuilder.ToString();
         }
     }
 }

@@ -19,12 +19,13 @@ namespace WARP
 
             // Страница
             string curPage = context.Request["curPage"];
-            
+
             // Действие
             TableAction tableAction = ComFunc.ParseEnum<TableAction>(context.Request["action"]);
-            
+
             // ID
             string curId = context.Request["curId"];
+
 
             // В зависимости от таблицы, используем соответствующий класс
             AppPage appPage = null;
