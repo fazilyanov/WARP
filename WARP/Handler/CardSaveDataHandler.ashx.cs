@@ -39,28 +39,28 @@ namespace WARP
             }
 
             // Инитим соотвествующий класс
-            AppPage appPage = null;
             switch (curTable)
             {
-                case "Archive":
-                    appPage = new AppPageArchive();
-                    break;
+                //case "Archive":
+                //    AppPage appPage = new AppPageArchive();
+                //    appPage.Master.Init(curBase, curTable, curPage);
+                //    appPage.Master.Action = tableAction;
+                //    appPage.Master.RequestRows = requestRows;
+                //    if (context.Request.Files.Count > 0)
+                //        appPage.Master.RequestFiles = context.Request.Files;
 
-                case "Frm":
-                    
+                //    // Обрабатываем запрос
+                //    context.Response.Write(appPage.Process());
+                //    break;
+
+                case "Archive":
+                    context.Response.Write(Archive.Process(curBase, curTable, curPage, tableAction, requestRows, context.Request.Files));
                     break;
 
                 default:
                     break;
             }
-            appPage.Master.Init(curBase, curTable, curPage);
-            appPage.Master.Action = tableAction;
-            appPage.Master.RequestRows = requestRows;
-            if (context.Request.Files.Count > 0)
-                appPage.Master.RequestFiles = context.Request.Files;
-
-            // Обрабатываем запрос
-            context.Response.Write(appPage.Process());
+            
         }
 
         public bool IsReusable

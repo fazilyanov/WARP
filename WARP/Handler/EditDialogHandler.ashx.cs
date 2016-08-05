@@ -1,5 +1,4 @@
-﻿using System.Text;
-using System.Web;
+﻿using System.Web;
 using System.Web.SessionState;
 
 namespace WARP
@@ -26,17 +25,18 @@ namespace WARP
             // ID
             string curId = context.Request["curId"];
 
-
             // В зависимости от таблицы, используем соответствующий класс
-            AppPage appPage = null;
             switch (curTable)
             {
-                case "Archive":
-                    appPage = new AppPageArchive();
-                    break;
+                //case "Archive":
+                //    AppPage appPage = new AppPageArchive();
+                //    appPage.Master.Init(curBase, curTable, curPage);
+                //    appPage.Master.Action = tableAction;
+                //    context.Response.Write(appPage.GenerateEditDialog(curId));
+                //    break;
 
-                case "Frm":
-                    //  appPage = new AppPageFrm();
+                case "Archive":
+                    context.Response.Write(Archive.GenerateEditDialog(curBase, curTable,curPage,tableAction,curId));
                     break;
 
                 case "User":
@@ -46,11 +46,6 @@ namespace WARP
                 default:
                     break;
             }
-
-            StringBuilder sb = new StringBuilder();
-            appPage.Master.Init(curBase, curTable, curPage);
-            appPage.Master.Action = tableAction;
-            context.Response.Write(appPage.GenerateEditDialog(curId));
         }
 
         public bool IsReusable

@@ -417,7 +417,7 @@ namespace WARP
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("            var table = $('#table" + TableSql + "').DataTable({");
-            sb.AppendLine("                dom: '<\"row top-toolbar\"<\"col-sm-4\"B><\"col-sm-4\"p><\"col-sm-4\"i>>Zrt',");
+            sb.AppendLine("                dom: '<\"row top-toolbar\"<\"col-sm-4\"B><\"col-sm-4\"><\"col-sm-4\"pi>><\"row top-filterbar\">Zrt',");
             sb.AppendLine("                rowId: 'Id',");
             sb.AppendLine("                processing: true,");
             sb.AppendLine("                serverSide: true,");
@@ -576,6 +576,33 @@ namespace WARP
             sb.AppendLine("                        text: 'Настройка таблицы',");
             sb.AppendLine("                        buttons: [");
             sb.AppendLine("                            {");
+            sb.AppendLine("                                 extend: 'collection',");
+            sb.AppendLine("                                 text: 'Выбрать представление',");
+            sb.AppendLine("                                 buttons: [");
+            sb.AppendLine("                                     {");
+            sb.AppendLine("                                         text: 'Общие',");
+            sb.AppendLine("                                         action: function (e, dt, node, config) {");
+            sb.AppendLine("                                             dt.state.clear();");
+            sb.AppendLine("                                             window.location.reload();");
+            sb.AppendLine("                                         },");
+            sb.AppendLine("                                     },");
+            sb.AppendLine("                                     {");
+            sb.AppendLine("                                         text: 'Бухгалтерские документы',");
+            sb.AppendLine("                                         action: function (e, dt, node, config) {");
+            sb.AppendLine("                                             dt.state.clear();");
+            sb.AppendLine("                                             window.location.reload();");
+            sb.AppendLine("                                         },");
+            sb.AppendLine("                                     },");
+            sb.AppendLine("                                     {");
+            sb.AppendLine("                                         text: 'Договоры',");
+            sb.AppendLine("                                         action: function (e, dt, node, config) {");
+            sb.AppendLine("                                             dt.state.clear();");
+            sb.AppendLine("                                             window.location.reload();");
+            sb.AppendLine("                                         },");
+            sb.AppendLine("                                     },");
+            sb.AppendLine("                                 ],");
+            sb.AppendLine("                            },");
+            sb.AppendLine("                            {");
             sb.AppendLine("                                extend: 'colvis',");
             sb.AppendLine("                                text: 'Видимость столбцов',");
             sb.AppendLine("                                postfixButtons: ['colvisRestore']");
@@ -590,7 +617,8 @@ namespace WARP
             sb.AppendLine("                                    dt.state.clear();");
             sb.AppendLine("                                    window.location.reload();");
             sb.AppendLine("                                }");
-            sb.AppendLine("                            }");
+            sb.AppendLine("                            },");
+            
             sb.AppendLine("                        ],");
             sb.AppendLine("                        className: \"btn-sm\",");
             sb.AppendLine("                    },");

@@ -125,7 +125,7 @@ namespace WARP
         protected void Page_PreRender(object sender, EventArgs e)
         {
             tableData = new TableDataFrm();
-            tableData.Init(Master.curBaseName, "Frm");
+            tableData.Init(Master.curBase, "Frm");
             //tableData.BrowserTabTitle = "Контрагенты";
             //tableData.PageTitle = "Электронный архив | Справочники | " + tableData.BrowserTabTitle;
         }

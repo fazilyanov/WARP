@@ -1,11 +1,10 @@
-﻿using System.Text;
-using System.Web;
+﻿using System.Web;
 using System.Web.SessionState;
 
 namespace WARP
 {
     /// <summary>
-    /// Обрабатывает запросы 
+    /// Обрабатывает запросы
     /// </summary>
     public class InfoButtonHandler : IHttpHandler, IRequiresSessionState
     {
@@ -19,20 +18,22 @@ namespace WARP
 
             // Страница
             string curPage = context.Request["curPage"];
-            
+
             // ID
             string curId = context.Request["curId"];
-            
+
             // В зависимости от таблицы, используем соответствующий класс
-            AppPage appPage = null;
+
             switch (curTable)
             {
-                case "Archive":
-                    appPage = new AppPageArchive();
-                    break;
+                //case "Archive":
+                //    AppPage appPage = new AppPageArchive();
+                //    appPage.Master.Init(curBase, curTable, curPage);
+                //    context.Response.Write(appPage.Master.GenerateJSTableInfoButtonContent(curId));
+                //    break;
 
-                case "Frm":
-                    
+                case "Archive":
+                    context.Response.Write(Archive.GenerateJSTableInfoButtonContent(curBase, curTable, curId));
                     break;
 
                 case "User":
@@ -42,10 +43,6 @@ namespace WARP
                 default:
                     break;
             }
-
-            StringBuilder sb = new StringBuilder();
-            appPage.Master.Init(curBase, curTable, curPage);
-            context.Response.Write(appPage.Master.GenerateJSTableInfoButtonContent(curId));
         }
 
         public bool IsReusable

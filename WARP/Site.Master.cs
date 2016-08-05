@@ -11,19 +11,24 @@ namespace WARP
         /// <summary>
         /// Сокращенное имя текущей базы, переданное в параметре адресной строки
         /// </summary>
-        public string curBaseName;
-
+        public string curBase;
         /// <summary>
         /// Полное наименование текущей базы / организации
         /// </summary>
         public string curBaseNameRus;
 
+        /// <summary>
+        /// Страница или мод
+        /// </summary>
+        public string curPage;
+
         protected void Page_Load(object sender, EventArgs e)
         {
             Session["UserFormLogin"] = "a.fazilyanov";
 
-            curBaseName = (Page.RouteData.Values["pBase"] ?? string.Empty).ToString();
-            curBaseNameRus = curBaseName != string.Empty ? ComFunc.GetBaseNameRus(curBaseName) : curBaseName;
+            curBase = (Page.RouteData.Values["pBase"] ?? string.Empty).ToString();
+            curBaseNameRus = curBase != string.Empty ? ComFunc.GetBaseNameRus(curBase) : curBase;
+            curPage = (Page.RouteData.Values["pPage"] ?? string.Empty).ToString();
 
             // Если пользователь еще не авторизировался (любым из способов)
             if (Session["UserLogin"] == null)

@@ -47,6 +47,9 @@
         // Тип фильтра
         public TableColumnFilterType FilterType { get; set; } = TableColumnFilterType.None;
 
+        // Тип фильтра
+        public bool FilterShowInToolBar { get; set; } = false;
+
         // Выравнивание в ячейке текста
         public TableColumnAlign ViewAlign { get; set; } = TableColumnAlign.Left;
 

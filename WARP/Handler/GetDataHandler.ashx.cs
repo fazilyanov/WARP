@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using System.Collections.Generic;
+using System.Web;
 using System.Web.SessionState;
 
 namespace WARP
@@ -17,20 +18,23 @@ namespace WARP
             int drawCount = int.Parse(context.Request["draw"]);
             int displayLength = int.Parse(context.Request["length"]);
             int displayStart = int.Parse(context.Request["start"]);
-            int sortCol = int.Parse(context.Request["order[0][column]"]);
+            int sortColi = int.Parse(context.Request["order[0][column]"]);
             string sortDir = context.Request["order[0][dir]"];
             string search = context.Request["search[value]"];
 
             // В зависимости от таблицы, используем соответствующий класс
-            AppPage appPage = null;
             switch (curTable)
             {
-                case "Archive":
-                    appPage = new AppPageArchive();
-                    break;
+                //case "Archive":
+                //    AppPage appPage = new AppPageArchive();
+                //    appPage.Master.Init(curBase, curTable, curPage, drawCount, displayStart, displayLength, sortColi, sortDir);
+                //    context.Response.Write(appPage.Master.GetJsonData());
+                //    break;
 
-                case "Frm":
-                  //  appPage = new AppPageFrm();
+                case "Archive":
+                    
+                    if (sortColi > 0) sortColi--;// Если есть "плюсик" нумерация столбцов сбивается
+                    context.Response.Write(Archive.GetJsonData(curBase, curTable, Archive.GetData(curBase, curTable, curPage, displayStart, displayLength, Archive.GetColumnNameByIndex(sortColi), sortDir), drawCount));
                     break;
 
                 case "User":
@@ -40,8 +44,6 @@ namespace WARP
                 default:
                     break;
             }
-            appPage.Master.Init(curBase, curTable, curPage, drawCount, displayStart, displayLength, sortCol, sortDir);
-            context.Response.Write(appPage.Master.GetJsonData());
         }
 
         public bool IsReusable

@@ -15,6 +15,6 @@ D:\PROJECT\WARP\WARP\bin\WARP.dll
 D:\PROJECT\WARP\WARP\bin\WARP.pdb
 D:\PROJECT\WARP\WARP\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll
 D:\PROJECT\WARP\WARP\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.xml
-D:\PROJECT\WARP\WARP\obj\Debug\WARP.csprojResolveAssemblyReference.cache
 D:\PROJECT\WARP\WARP\obj\Debug\WARP.dll
 D:\PROJECT\WARP\WARP\obj\Debug\WARP.pdb
+D:\PROJECT\WARP\WARP\obj\Debug\WARP.csprojResolveAssemblyReference.cache
