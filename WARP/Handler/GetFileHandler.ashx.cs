@@ -55,7 +55,12 @@ namespace WARP
                         case ".CSV":
                             context.Response.ContentType = "text/csv";
                             break;
+
+                        case ".PNG":
+                            context.Response.ContentType = "image/png";
+                            break;
                     }
+
                     context.Response.AddHeader("content-length", bytes.Length.ToString());
                     //context.Response.AddHeader("content-disposition", "attachment;filename=" + file.Rows[0]["fileName"].ToString());
                     //context.Response. BinaryWrite(bytes);// Сразу сохраняет

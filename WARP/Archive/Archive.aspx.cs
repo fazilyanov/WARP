@@ -14,130 +14,22 @@ namespace WARP
     public partial class Archive : System.Web.UI.Page
     {
         public string curTable = "Archive";
+        public string curPageName = string.Empty;
 
-        public static string GetColumnNameByIndex(int index)
-        {
-            switch (index)
-            {
-                case 0: return "Id";
-                case 1: return "DateUpd";
-                case 2: return "User";
-                case 3: return "DocNum";
-                case 4: return "DocTree";
-                case 5: return "DocType";
-                case 6: return "DocDate";
-                case 7: return "DocContent";
-                case 8: return "FrmContr";
-                case 9: return "Summ";
-                case 10: return "Prim";
-                default: return string.Empty;
-            }
-        }
-
-        // Возвращает список файлов для текущей версии  idVer - id версии
-        public static DataTable GetFileList(string curBase, string curTable, string idVer, string Id = "0")
-        {
-            // Запрос
-            StringBuilder sbQuery = new StringBuilder();
-            sbQuery.AppendLine("SELECT T.IdFile, F.fileName, F.IsPrivate ");
-            if (Id == "0")
-            {
-                sbQuery.AppendLine("FROM [dbo].[" + curBase + curTable + "FileList] T");
-                sbQuery.AppendLine("JOIN [dbo].[" + curBase + curTable + "Files] F ON F.Id = T.IdFile");
-                sbQuery.AppendLine("WHERE T.IdVer = " + idVer);
-            }
-            else
-            {
-                sbQuery.AppendLine("FROM [dbo].[" + curBase + curTable + "] A");
-                sbQuery.AppendLine("JOIN [dbo].[" + curBase + curTable + "FileList] T ON T.IdVer=A.IdVer");
-                sbQuery.AppendLine("JOIN [dbo].[" + curBase + curTable + "Files] F ON F.Id = T.IdFile");
-                sbQuery.AppendLine("WHERE A.Active=1 AND A.Del=0 AND A.Id = " + Id);
-            }
-
-            DataTable dt = ComFunc.GetData(sbQuery.ToString());
-            return dt;
-        }
-
-        // Возвращает текст текущей версии id - id Карточки
-        public static string GetText(string curBase, string curTable, string id)
-        {
-            // Запрос
-            StringBuilder sbQuery = new StringBuilder();
-            sbQuery.AppendLine("SELECT [Text] ");
-            sbQuery.AppendLine("FROM [dbo].[" + curBase + curTable + "Text]");
-            sbQuery.AppendLine("WHERE IdArchive = " + id);
-
-            // Выполняем запрос
-            var res = ComFunc.ExecuteScalar(sbQuery.ToString());
-            if (res is DBNull || res == null)
-                return string.Empty;
-            else
-                return res.ToString();
-        }
-
-        // Генерит содержимое под кнопкой «+»
-        public static string GenerateJSTableInfoButtonContent(string curBase, string curTable, string Id)
-        {
-            StringBuilder li = new StringBuilder(); // Вкладки
-            StringBuilder tp = new StringBuilder(); // Содержимое
-
-            li.AppendLine("			  <li><a data-target=\"#FilesTab"+Id+"\" class=\"active\" data-toggle=\"tab\">Файлы</a></li>");
-            tp.AppendLine("           <div role=\"tabpanel\" class=\"tab-pane fade\" id=\"FilesTab" + Id + "\" style=\"height: 200px;width: 500px;\">");
-            tp.AppendLine("                 <div style=\"width: 470px;display: table;margin-top:10px;\">");
-
-            DataTable dtFiles = GetFileList(curBase, curTable, "0", Id); // Получаем список файлов
-            if (dtFiles.Rows.Count > 0)
-            {
-                string fn, fid, hash = string.Empty;
-                bool isPrivate = false;
-                foreach (DataRow row in dtFiles.Rows)
-                {
-                    fid = row["IdFile"].ToString();
-                    fn = row["fileName"].ToString().Trim();
-                    hash = ComFunc.GetMd5Hash(ComFunc.GetMd5Hash(fid) + fid);
-                    isPrivate = (bool)row["IsPrivate"];
-
-                    tp.AppendLine("                  <div class=\"file-button\"  id=\"FileButton" + fid + "\">");
-                    tp.AppendLine("                         <button type=\"button\"  class=\"btn btn-default " + (isPrivate ? "opacity" : "") + "\" style=\"width:200px;\" title=\"" + fn + "\"");
-                    tp.AppendLine("                              onclick =\"window.open('/Handler/GetFileHandler.ashx?curBase=" + curBase + "&curTable=" + curTable + "&IdFile=" + row["IdFile"].ToString() + "&key=" + hash + "');\" >" + (fn.Length > 24 ? fn.Substring(0, 22) + ".." : fn) + "</button>");//
-                    tp.AppendLine("                  </div>");
-                    
-                }
-            }
-
-            tp.AppendLine("                 </div>");
-            tp.AppendLine("           </div>");
-
-            li.AppendLine("			  <li><a data-target=\"#DocTextTab" + Id + "\" data-toggle=\"tab\">Текст документа</a></li>");
-            tp.AppendLine("           <div role=\"tabpanel\" class=\"tab-pane fade\" id=\"DocTextTab" + Id + "\" style=\"height: 200px;width: 500px;\">");
-            tp.AppendLine("                 <textarea id=\"DocText" + Id + "\" name=\"DocText" + Id + "\" class=\"card-form-control card-textarea\">" + GetText(curBase, curTable, Id) + "</textarea>");
-            tp.AppendLine("           </div>");
-
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine("     <div>");
-            sb.AppendLine("         <ul class=\"nav nav-tabs\" id=\"myTab"+Id+"\">");
-            sb.AppendLine(li.ToString());
-            sb.AppendLine("			</ul>");
-            sb.AppendLine("         <div class=\"tab-content\">");
-            sb.AppendLine(tp.ToString());
-            sb.AppendLine("         </div>");
-            sb.AppendLine("     </div>");
-
-            return sb.ToString();
-        }
+        #region Generate
 
         // Генерит условие из установленного фильтра
         public static string GenerateWhereClause(string curBase, string curTable, string curPage)
         {
             StringBuilder sbWhere = new StringBuilder();
-            Dictionary<string, string> filterList = (Dictionary<string, string>)HttpContext.Current.Session[curTable + curPage + "UserFilterList"];
+            Dictionary<string, string> filterList = (Dictionary<string, string>)HttpContext.Current.Session[curBase + curTable + curPage + "UserFilterList"];
             if (filterList != null)
             {
                 string key = string.Empty;
                 string value = string.Empty;
                 foreach (KeyValuePair<string, string> pair in filterList)
                 {
-                    key = pair.Key;
+                    key = pair.Key.Substring(1); // убираем вначале "f"
                     value = pair.Value;
                     switch (key)
                     {
@@ -146,8 +38,10 @@ namespace WARP
                         case "Prim":
                             string buf = "    AND a.[" + key + "]";
                             key = "Id" + key + "Cond";
+                            value = value.Replace("'", "''").Replace("[", "[[]");
                             if (filterList.ContainsKey(key))
                             {
+                                
                                 switch (filterList[key])
                                 {
                                     case "1":
@@ -174,9 +68,11 @@ namespace WARP
                             sbWhere.AppendLine(buf);
                             break;
 
-                        case "DocType":
-                        case "FrmContr":
-                        case "DocTree":
+                        case "Id":
+                        case "IdUser":
+                        case "IdDocType":
+                        case "IdFrmContr":
+                        case "IdDocTree":
                             sbWhere.AppendLine("    AND a.[" + key + "] = " + value);
                             break;
                     }
@@ -185,144 +81,54 @@ namespace WARP
             return sbWhere.ToString();
         }
 
-        public static DataTable GetData(string curBase, string curTable, string curPage, int displayStart, int displayLength, string sortCol, string sortDir, string ids = null)
+        // Генерит содержимое под кнопкой «+»
+        public static string GenerateJSTableInfoButtonContent(string curBase, string curTable, string Id)
         {
-            // Запрос
-            StringBuilder sbQuery = new StringBuilder();
-            // Условия отборки
-            StringBuilder sbWhere = new StringBuilder();
+            StringBuilder li = new StringBuilder(); // Вкладки
+            StringBuilder tp = new StringBuilder(); // Содержимое
 
-            sbWhere.AppendLine("	a.Del=0 ");
-            sbWhere.AppendLine("	AND a.Active=1 ");
-            sbWhere.AppendLine(GenerateWhereClause(curBase, curTable, curPage));
+            li.AppendLine("			  <li><a data-target=\"#FilesTab" + Id + "\" class=\"active\" data-toggle=\"tab\">Файлы</a></li>");
+            tp.AppendLine("           <div role=\"tabpanel\" class=\"tab-pane fade\" id=\"FilesTab" + Id + "\" style=\"height: 200px;width: 500px;\">");
+            tp.AppendLine("                 <div style=\"width: 470px;display: table;margin-top:10px;\">");
 
-            if (!string.IsNullOrEmpty(ids))
-                sbWhere.AppendLine("    AND a.Id in (" + ids + ")");
-
-            //
-            sbQuery.AppendLine("DECLARE @recordsFiltered int;");
-            sbQuery.AppendLine("SELECT @recordsFiltered=count(*)");
-            sbQuery.AppendLine("FROM [dbo].[" + curBase + curTable + "] a");
-            sbQuery.AppendLine("WHERE");
-            sbQuery.AppendLine(sbWhere.ToString());
-            sbQuery.AppendLine(";");
-
-            sbQuery.AppendLine("SELECT * FROM  (");
-            sbQuery.AppendLine("   SELECT @recordsFiltered AS recordsFiltered");
-            sbQuery.AppendLine("   ,T.Id");
-            sbQuery.AppendLine("   ,T.IdVer");
-            sbQuery.AppendLine("   ,T.Active");
-            sbQuery.AppendLine("   ,T.Del");
-            sbQuery.AppendLine("   ,T.DateUpd");
-            sbQuery.AppendLine("   ,T.IdUser");
-            sbQuery.AppendLine("   ,U.Name as [User]");
-            //
-            sbQuery.AppendLine("   ,T.DocNum");
-            sbQuery.AppendLine("   ,T.DocDate");
-            sbQuery.AppendLine("   ,T.IdDocType");
-            sbQuery.AppendLine("   ,DT.Name as DocType");
-            sbQuery.AppendLine("   ,T.IdDocTree");
-            sbQuery.AppendLine("   ,DT2.Name as DocTree");
-            sbQuery.AppendLine("   ,T.Prim");
-            sbQuery.AppendLine("   ,T.DocContent");
-            sbQuery.AppendLine("   ,T.IdFrmContr");
-            sbQuery.AppendLine("   ,F.Name as FrmContr");
-            sbQuery.AppendLine("   ,T.Summ");
-            sbQuery.AppendLine("   ,T.DocPack");
-            sbQuery.AppendLine("   FROM [dbo].[" + curBase + curTable + "] T");
-            sbQuery.AppendLine("   LEFT JOIN [dbo].[Frm] F on T.IdFrmContr = F.ID");
-            sbQuery.AppendLine("   LEFT JOIN [dbo].[User] U on T.IdUser = U.ID");
-            sbQuery.AppendLine("   LEFT JOIN [dbo].[DocType] DT on T.IdDocType = DT.ID");
-            sbQuery.AppendLine("   LEFT JOIN [dbo].[DocTree] DT2 on T.IdDocTree = DT2.ID");
-            sbQuery.AppendLine(") a");
-            sbQuery.AppendLine("WHERE");
-            sbQuery.AppendLine(sbWhere.ToString());
-            sbQuery.AppendLine("ORDER BY a.[" + sortCol + "] " + sortDir);
-            sbQuery.AppendLine("OFFSET @displayStart ROWS FETCH FIRST @displayLength ROWS ONLY");
-
-            SqlParameter[] sqlParameterArray = {
-                new SqlParameter { ParameterName = "@displayStart", SqlDbType = SqlDbType.Int, Value = displayStart },
-                new SqlParameter { ParameterName = "@displayLength", SqlDbType = SqlDbType.Int, Value = displayLength }
-            };
-
-            DataTable dt = ComFunc.GetData(sbQuery.ToString(), sqlParameterArray);
-            return dt;
-        }
-
-        // Форматирует полученные после запроса данные
-        private static List<Dictionary<string, object>> GetFormatData(DataTable dt)
-        {
-            List<Dictionary<string, object>> data = new List<Dictionary<string, object>>();
-            Dictionary<string, object> row;
-            CultureInfo ruRu = CultureInfo.CreateSpecificCulture("ru-RU");
-            foreach (DataRow dr in dt.Rows)
+            DataTable dtFiles = GetFileList(curBase, curTable, "0", Id); // Получаем список файлов
+            if (dtFiles.Rows.Count > 0)
             {
-                row = new Dictionary<string, object>();
-                foreach (DataColumn dc in dt.Columns)
+                string fn, fid, hash = string.Empty;
+                bool isPrivate = false;
+                foreach (DataRow row in dtFiles.Rows)
                 {
-                    switch (dc.ColumnName)
-                    {
-                        case "Id":
-                            row.Add(dc.ColumnName, Convert.ToInt32(dr[dc.ColumnName]));
-                            break;
+                    fid = row["IdFile"].ToString();
+                    fn = row["fileName"].ToString().Trim();
+                    hash = ComFunc.GetMd5Hash(ComFunc.GetMd5Hash(fid) + fid);
+                    isPrivate = (bool)row["IsPrivate"];
 
-                        case "Summ":
-                            row.Add(dc.ColumnName, String.Format(ruRu, "{0:0,0.00}", Convert.ToDecimal(dr[dc.ColumnName])));
-                            break;
-
-                        case "DateUpd":
-                            if (dr[dc.ColumnName] is DBNull)
-                                row.Add(dc.ColumnName, string.Empty);
-                            else
-                                row.Add(dc.ColumnName, ((DateTime)dr[dc.ColumnName]).ToString("dd.MM.yyyy HH:mm:ss"));
-                            break;
-
-                        case "DocDate":
-                            if (dr[dc.ColumnName] is DBNull)
-                                row.Add(dc.ColumnName, string.Empty);
-                            else
-                                row.Add(dc.ColumnName, ((DateTime)dr[dc.ColumnName]).ToString("dd.MM.yyyy"));
-                            break;
-
-                        case "DocNum":
-                        case "DocContent":
-                        case "Prim":
-                        case "User":
-                        case "DocTree":
-                        case "DocType":
-                        case "DocPack":
-                        case "FrmContr":
-                            row.Add(dc.ColumnName, dr[dc.ColumnName].ToString());
-                            break;
-                    }
+                    tp.AppendLine("                  <div class=\"file-button\"  id=\"FileButton" + fid + "\">");
+                    tp.AppendLine("                         <button type=\"button\"  class=\"btn btn-default " + (isPrivate ? "opacity" : "") + "\" style=\"width:200px;\" title=\"" + fn + "\"");
+                    tp.AppendLine("                              onclick =\"window.open('/Handler/GetFileHandler.ashx?curBase=" + curBase + "&curTable=" + curTable + "&IdFile=" + row["IdFile"].ToString() + "&key=" + hash + "');\" >" + (fn.Length > 24 ? fn.Substring(0, 22) + ".." : fn) + "</button>");//
+                    tp.AppendLine("                  </div>");
                 }
-                data.Add(row);
             }
-            return data;
-        }
 
-        // Формирует ответ гриду в JSON
-        public static string GetJsonData(string curBase, string curTable, DataTable dt, int drawCount)
-        {
-            string ret = string.Empty;
+            tp.AppendLine("                 </div>");
+            tp.AppendLine("           </div>");
 
-            JavaScriptSerializer javaScriptSerializer = new JavaScriptSerializer();
-            if (dt != null)
-            {
-                var result = new
-                {
-                    draw = drawCount,
-                    recordsTotal = (int)ComFunc.ExecuteScalar("SELECT COUNT(*) FROM [dbo].[" + curBase + curTable + "] WHERE Del=0 AND Active=1"),
-                    recordsFiltered = Convert.ToInt32(dt.Rows.Count > 0 ? dt.Rows[0]["recordsFiltered"] : 0),
-                    data = GetFormatData(dt)
-                };
-                ret = javaScriptSerializer.Serialize(result);
-            }
-            else if (HttpContext.Current.Session["LastError"] != null)
-            {
-                ret = javaScriptSerializer.Serialize(new { error = HttpContext.Current.Session["LastError"].ToString() });
-            }
-            return ret;
+            li.AppendLine("			  <li><a data-target=\"#DocTextTab" + Id + "\" data-toggle=\"tab\">Текст документа</a></li>");
+            tp.AppendLine("           <div role=\"tabpanel\" class=\"tab-pane fade\" id=\"DocTextTab" + Id + "\" style=\"height: 200px;width: 500px;\">");
+            tp.AppendLine("                 <textarea id=\"DocText" + Id + "\" name=\"DocText" + Id + "\" class=\"card-form-control card-textarea\">" + GetText(curBase, curTable, Id) + "</textarea>");
+            tp.AppendLine("           </div>");
+
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("     <div>");
+            sb.AppendLine("         <ul class=\"nav nav-tabs\" id=\"myTab" + Id + "\">");
+            sb.AppendLine(li.ToString());
+            sb.AppendLine("			</ul>");
+            sb.AppendLine("         <div class=\"tab-content\">");
+            sb.AppendLine(tp.ToString());
+            sb.AppendLine("         </div>");
+            sb.AppendLine("     </div>");
+
+            return sb.ToString();
         }
 
         // Генерит Диалоговое окно - карточку
@@ -574,7 +380,7 @@ namespace WARP
                         hash = ComFunc.GetMd5Hash(ComFunc.GetMd5Hash(fid) + fid);
                         isPrivate = (bool)row["IsPrivate"];
 
-                        tp.AppendLine("                  <div class=\"file-button\"  id=\"FileButton" + fid + "\">");
+                        tp.AppendLine("                  <div class=\"file-button\"  id=\"EditFileButton" + fid + "\">");
                         tp.AppendLine("                     <div class=\"btn-group\">");
                         tp.AppendLine("                         <button type=\"button\"  class=\"btn btn-default " + (isPrivate ? "opacity" : "") + "\" style=\"width:200px;\" title=\"" + fn + "\"");
                         tp.AppendLine("                              onclick =\"window.open('/Handler/GetFileHandler.ashx?curBase=" + curBase + "&curTable=" + curTable + "&IdFile=" + row["IdFile"].ToString() + "&key=" + hash + "');\" >" + (fn.Length > 24 ? fn.Substring(0, 22) + ".." : fn) + "</button>");//
@@ -583,8 +389,8 @@ namespace WARP
                         tp.AppendLine("                             <span class=\"sr-only\">Toggle Dropdown</span>");
                         tp.AppendLine("                         </button>");
                         tp.AppendLine("                         <ul class=\"dropdown-menu\">");
-                        tp.AppendLine("                             <li><a href=\"#\" onclick=\"var tp = $('#FilesToPrivate'); tp.val(tp.val()+'," + fid + "');$('#FileButton" + fid + " .btn').animate({opacity: 0.5}); AllowSave();\">Скрыть</a></li>");
-                        tp.AppendLine("                              <li><a href=\"#\" onclick=\"var tp = $('#FilesToDelete'); tp.val(tp.val()+'," + fid + "');$('#FileButton" + fid + "').fadeOut();AllowSave();\">Удалить</a></li>");
+                        tp.AppendLine("                             <li><a href=\"#\" onclick=\"var tp = $('#FilesToPrivate'); tp.val(tp.val()+'," + fid + "');$('#EditFileButton" + fid + " .btn').animate({opacity: 0.5}); AllowSave();\">Скрыть</a></li>");
+                        tp.AppendLine("                              <li><a href=\"#\" onclick=\"var tp = $('#FilesToDelete'); tp.val(tp.val()+'," + fid + "');$('#EditFileButton" + fid + "').fadeOut();AllowSave();\">Удалить</a></li>");
                         tp.AppendLine("                         </ul>");
                         tp.AppendLine("                     </div>");
                         tp.AppendLine("                  </div>");
@@ -704,6 +510,214 @@ namespace WARP
 
             return sb.ToString();
         }
+
+        #endregion Generate
+
+        #region Get
+
+        public static string GetColumnNameByIndex(int index)
+        {
+            switch (index)
+            {
+                case 0: return "Id";
+                case 1: return "DateUpd";
+                case 2: return "User";
+                case 3: return "DocNum";
+                case 4: return "DocTree";
+                case 5: return "DocType";
+                case 6: return "DocDate";
+                case 7: return "DocContent";
+                case 8: return "FrmContr";
+                case 9: return "Summ";
+                case 10: return "Prim";
+                default: return string.Empty;
+            }
+        }
+
+        // Возвращает список файлов для текущей версии  idVer - id версии
+        public static DataTable GetFileList(string curBase, string curTable, string idVer, string Id = "0")
+        {
+            // Запрос
+            StringBuilder sbQuery = new StringBuilder();
+            sbQuery.AppendLine("SELECT T.IdFile, F.fileName, F.IsPrivate ");
+            if (Id == "0")
+            {
+                sbQuery.AppendLine("FROM [dbo].[" + curBase + curTable + "FileList] T");
+                sbQuery.AppendLine("JOIN [dbo].[" + curBase + curTable + "Files] F ON F.Id = T.IdFile");
+                sbQuery.AppendLine("WHERE T.IdVer = " + idVer);
+            }
+            else
+            {
+                sbQuery.AppendLine("FROM [dbo].[" + curBase + curTable + "] A");
+                sbQuery.AppendLine("JOIN [dbo].[" + curBase + curTable + "FileList] T ON T.IdVer=A.IdVer");
+                sbQuery.AppendLine("JOIN [dbo].[" + curBase + curTable + "Files] F ON F.Id = T.IdFile");
+                sbQuery.AppendLine("WHERE A.Active=1 AND A.Del=0 AND A.Id = " + Id);
+            }
+
+            DataTable dt = ComFunc.GetData(sbQuery.ToString());
+            return dt;
+        }
+
+        // Возвращает текст текущей версии id - id Карточки
+        public static string GetText(string curBase, string curTable, string id)
+        {
+            // Запрос
+            StringBuilder sbQuery = new StringBuilder();
+            sbQuery.AppendLine("SELECT [Text] ");
+            sbQuery.AppendLine("FROM [dbo].[" + curBase + curTable + "Text]");
+            sbQuery.AppendLine("WHERE IdArchive = " + id);
+
+            // Выполняем запрос
+            var res = ComFunc.ExecuteScalar(sbQuery.ToString());
+            if (res is DBNull || res == null)
+                return string.Empty;
+            else
+                return res.ToString();
+        }
+
+        public static DataTable GetData(string curBase, string curTable, string curPage, int displayStart, int displayLength, string sortCol, string sortDir, string ids = null)
+        {
+            // Запрос
+            StringBuilder sbQuery = new StringBuilder();
+            // Условия отборки
+            StringBuilder sbWhere = new StringBuilder();
+
+            sbWhere.AppendLine("	a.Del=0 ");
+            sbWhere.AppendLine("	AND a.Active=1 ");
+            sbWhere.AppendLine(GenerateWhereClause(curBase, curTable, curPage));
+
+            if (!string.IsNullOrEmpty(ids))
+                sbWhere.AppendLine("    AND a.Id in (" + ids + ")");
+
+            //
+            sbQuery.AppendLine("DECLARE @recordsFiltered int;");
+            sbQuery.AppendLine("SELECT @recordsFiltered=count(*)");
+            sbQuery.AppendLine("FROM [dbo].[" + curBase + curTable + "] a");
+            sbQuery.AppendLine("WHERE");
+            sbQuery.AppendLine(sbWhere.ToString());
+            sbQuery.AppendLine(";");
+
+            sbQuery.AppendLine("SELECT * FROM  (");
+            sbQuery.AppendLine("   SELECT @recordsFiltered AS recordsFiltered");
+            sbQuery.AppendLine("   ,T.Id");
+            sbQuery.AppendLine("   ,T.IdVer");
+            sbQuery.AppendLine("   ,T.Active");
+            sbQuery.AppendLine("   ,T.Del");
+            sbQuery.AppendLine("   ,T.DateUpd");
+            sbQuery.AppendLine("   ,T.IdUser");
+            sbQuery.AppendLine("   ,U.Name as [User]");
+            //
+            sbQuery.AppendLine("   ,T.DocNum");
+            sbQuery.AppendLine("   ,T.DocDate");
+            sbQuery.AppendLine("   ,T.IdDocType");
+            sbQuery.AppendLine("   ,DT.Name as DocType");
+            sbQuery.AppendLine("   ,T.IdDocTree");
+            sbQuery.AppendLine("   ,DT2.Name as DocTree");
+            sbQuery.AppendLine("   ,T.Prim");
+            sbQuery.AppendLine("   ,T.DocContent");
+            sbQuery.AppendLine("   ,T.IdFrmContr");
+            sbQuery.AppendLine("   ,F.Name as FrmContr");
+            sbQuery.AppendLine("   ,T.Summ");
+            sbQuery.AppendLine("   ,T.DocPack");
+            sbQuery.AppendLine("   FROM [dbo].[" + curBase + curTable + "] T");
+            sbQuery.AppendLine("   LEFT JOIN [dbo].[Frm] F on T.IdFrmContr = F.ID");
+            sbQuery.AppendLine("   LEFT JOIN [dbo].[User] U on T.IdUser = U.ID");
+            sbQuery.AppendLine("   LEFT JOIN [dbo].[DocType] DT on T.IdDocType = DT.ID");
+            sbQuery.AppendLine("   LEFT JOIN [dbo].[DocTree] DT2 on T.IdDocTree = DT2.ID");
+            sbQuery.AppendLine(") a");
+            sbQuery.AppendLine("WHERE");
+            sbQuery.AppendLine(sbWhere.ToString());
+            sbQuery.AppendLine("ORDER BY a.[" + sortCol + "] " + sortDir);
+            sbQuery.AppendLine("OFFSET @displayStart ROWS FETCH FIRST @displayLength ROWS ONLY");
+
+            SqlParameter[] sqlParameterArray = {
+                new SqlParameter { ParameterName = "@displayStart", SqlDbType = SqlDbType.Int, Value = displayStart },
+                new SqlParameter { ParameterName = "@displayLength", SqlDbType = SqlDbType.Int, Value = displayLength }
+            };
+
+            DataTable dt = ComFunc.GetData(sbQuery.ToString(), sqlParameterArray);
+            return dt;
+        }
+
+        // Форматирует полученные после запроса данные
+        private static List<Dictionary<string, object>> GetFormatData(DataTable dt)
+        {
+            List<Dictionary<string, object>> data = new List<Dictionary<string, object>>();
+            Dictionary<string, object> row;
+            CultureInfo ruRu = CultureInfo.CreateSpecificCulture("ru-RU");
+            foreach (DataRow dr in dt.Rows)
+            {
+                row = new Dictionary<string, object>();
+                foreach (DataColumn dc in dt.Columns)
+                {
+                    switch (dc.ColumnName)
+                    {
+                        case "Id":
+                            row.Add(dc.ColumnName, Convert.ToInt32(dr[dc.ColumnName]));
+                            break;
+
+                        case "Summ":
+                            row.Add(dc.ColumnName, String.Format(ruRu, "{0:0,0.00}", Convert.ToDecimal(dr[dc.ColumnName])));
+                            break;
+
+                        case "DateUpd":
+                            if (dr[dc.ColumnName] is DBNull)
+                                row.Add(dc.ColumnName, string.Empty);
+                            else
+                                row.Add(dc.ColumnName, ((DateTime)dr[dc.ColumnName]).ToString("dd.MM.yyyy HH:mm:ss"));
+                            break;
+
+                        case "DocDate":
+                            if (dr[dc.ColumnName] is DBNull)
+                                row.Add(dc.ColumnName, string.Empty);
+                            else
+                                row.Add(dc.ColumnName, ((DateTime)dr[dc.ColumnName]).ToString("dd.MM.yyyy"));
+                            break;
+
+                        case "DocNum":
+                        case "DocContent":
+                        case "Prim":
+                        case "User":
+                        case "DocTree":
+                        case "DocType":
+                        case "DocPack":
+                        case "FrmContr":
+                            row.Add(dc.ColumnName, dr[dc.ColumnName].ToString());
+                            break;
+                    }
+                }
+                data.Add(row);
+            }
+            return data;
+        }
+
+        // Формирует ответ гриду в JSON
+        public static string GetJsonData(string curBase, string curTable, DataTable dt, int drawCount)
+        {
+            string ret = string.Empty;
+
+            JavaScriptSerializer javaScriptSerializer = new JavaScriptSerializer();
+            if (dt != null)
+            {
+                var result = new
+                {
+                    draw = drawCount,
+                    recordsTotal = (int)ComFunc.ExecuteScalar("SELECT COUNT(*) FROM [dbo].[" + curBase + curTable + "] WHERE Del=0 AND Active=1"),
+                    recordsFiltered = Convert.ToInt32(dt.Rows.Count > 0 ? dt.Rows[0]["recordsFiltered"] : 0),
+                    data = GetFormatData(dt)
+                };
+                ret = javaScriptSerializer.Serialize(result);
+            }
+            else if (HttpContext.Current.Session["LastError"] != null)
+            {
+                ret = javaScriptSerializer.Serialize(new { error = HttpContext.Current.Session["LastError"].ToString() });
+            }
+            return ret;
+        }
+
+        #endregion Get
+
+        #region Process
 
         public static string Validate(Dictionary<string, List<RequestData>> requestRows)
         {
@@ -1177,8 +1191,11 @@ namespace WARP
             return result;
         }
 
+        #endregion Process
+
         protected void Page_PreRender(object sender, EventArgs e)
         {
+            curPageName = ComFunc.GetArchivePageNameRus(Master.curPage);
         }
     }
 }

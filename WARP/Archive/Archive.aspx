@@ -30,19 +30,56 @@
         </div>
     </div>
 
+    <div id="FilterBar">
+        <form name="FilterForm" method="POST" id="FilterForm" action="javascript: void(null);">
+
+            <input type="hidden" name="page" value="<%=(Master.curBase+curTable+Master.curPage)%>">
+            <input type="hidden" name="act" value="setfilter">
+            <div class="col-sm-2" style="padding-right: 0px;">
+                <input id="fId" name="fId" class="card-form-control" value="" placeholder="Код ЭА">
+            </div>
+            <div class="col-sm-2" style="padding-right: 0px;">
+                <div id="scrollable-dropdown-menu-fUser">
+                    <input id="fUser" name="fUser" class="card-form-control" value="" placeholder="Оператор">
+                    <input id="fIdUser" name="fIdUser" type="hidden" value="0">
+                </div>
+            </div>
+            <div class="col-sm-2" style="padding-right: 0px;">
+                <input id="fDocNum" name="fDocNum" class="card-form-control" value="" placeholder="Номер документа">
+            </div>
+            <div class="col-sm-2" style="padding-right: 0px;">
+                <div id="scrollable-dropdown-menu-fDocTree">
+                    <input id="fDocTree" name="fDocTree" class="card-form-control" value="" placeholder="Документ">
+                    <input id="fIdDocTree" name="fIdDocTree" type="hidden" value="0">
+                </div>
+            </div>
+            <div class="col-sm-2" style="padding-right: 0px;">
+                <input id="fDocDateBegin" name="fDocDateBegin" class="card-form-control" value="" placeholder="Дата документа: c">
+                <input id="fDocDateEnd" name="fDocDateEnd" class="card-form-control" value="" placeholder="Дата документа: до">
+            </div>
+            <div class="col-sm-2">
+                <div id="scrollable-dropdown-menu-fFrmContr">
+                    <input id="fFrmContr" name="fFrmContr" class="card-form-control" value="" placeholder="Контрагент">
+                    <input id="fIdFrmContr" name="fIdFrmContr" type="hidden" value="0">
+                </div>
+            </div>
+        </form>
+    </div>
+
     <script>
         var editor;
 
         $(window).bind('resize', function () {
-            $('.dataTables_scrollBody').css('height', ($(window).height() - 125) + 'px');
+            $('.dataTables_scrollBody').css('height', ($(window).height() - 150) + 'px');
         });
 
         $(document).ready(function () {
 
-            document.title = 'Общие';
+            document.title = '<%=curPageName%>';
 
-            $('#curPageTitle').text('Электронный архив | База: ООО «НТЗ» | Документы | Все');
+            $('#curPageTitle').text('Электронный архив | База: <%=Master.curBaseNameRus%> | Документы | <%=curPageName%>');
 
+            // EDITOR
             editor = new $.fn.dataTable.Editor({
                 ajax: "/Handler/GridSaveDataHandler.ashx?curBase=Ntz&curTable=Archive&curPage=All",
                 table: "#table",
@@ -81,7 +118,6 @@
                              label: "Примечание:",
                              name: "Prim",
                          },
-                         
 
                 ],
                 i18n: {
@@ -114,8 +150,9 @@
                 }
             });
 
+            // DATATABLE
             var table = $('#table').DataTable({
-                dom: '<"row top-toolbar"<"col-sm-4"B><"col-sm-4"><"col-sm-4"pi>><"row top-toolbar">Zrt',
+                dom: '<"row top-toolbar"<"col-sm-4"B><"col-sm-4"><"col-sm-4"pi>><"row top-filterbar">Zrt',
                 rowId: 'Id',
                 processing: true,
                 serverSide: true,
@@ -193,22 +230,19 @@
                                     {
                                         text: 'Общие',
                                         action: function (e, dt, node, config) {
-                                            dt.state.clear();
-                                            window.location.reload();
+                                            window.location = '<%=GetRouteUrl("archive", new { pBase = Master.curBase, pPage = "All" })%>';
                                         },
                                     },
                                     {
                                         text: 'Бухгалтерские документы',
                                         action: function (e, dt, node, config) {
-                                            dt.state.clear();
-                                            window.location.reload();
+                                            window.location = '<%=GetRouteUrl("archive", new { pBase = Master.curBase, pPage = "Acc" })%>';
                                         },
                                     },
                                     {
                                         text: 'Договоры',
                                         action: function (e, dt, node, config) {
-                                            dt.state.clear();
-                                            window.location.reload();
+                                            window.location = '<%=GetRouteUrl("archive", new { pBase = Master.curBase, pPage = "Dog" })%>';
                                         },
                                     },
                                 ],
@@ -232,21 +266,19 @@
                         ],
                         className: "btn-sm",
                     },
-                    {
-                        text: 'Фильтр',
-                        action: function (e, dt, node, config) {
-                            $('#modalFilterForm').modal();
-                        },
-                        key: "a",
-                        className: "btn-sm",
-                    }
-
                 ],
                 language: {
                     url: '/content/DataTables-1.10.12/js/Russian.json'
                 }
             });
 
+            // Заменяем блок фильтра после полной готовности грида
+            $('#table').on('init.dt', function () {
+                $('#FilterBar').prependTo('.top-filterbar');
+                $(window).resize();
+            }).dataTable();
+
+            // ROWINFO
             var detailRows = [];
 
             function format(id) { return '<div id="RowInfo' + id + '"></div>'; }
@@ -265,12 +297,13 @@
                     $('#RowInfo' + row.data().Id).load(
                         '/Handler/InfoButtonHandler.ashx?curBase=<%=Master.curBase%>&curTable=<%=curTable%>&curPage=<%=Master.curPage%>&curId=' + row.data().Id + '&_=' + (new Date()).getTime(), null,
                         function () {
-                            $('#myTab'+ row.data().Id+' a:first').tab('show');
+                            $('#myTab' + row.data().Id + ' a:first').tab('show');
                         }
                     );
                 }
             });
 
+            // ROWDBLCLICK
             $('#table').on('dblclick', 'tr', function () {
                 var table = $('#table').DataTable();
                 var id = table.row(this).id();
@@ -278,6 +311,7 @@
                 $('#EditDialogContent').load('/Handler/EditDialogHandler.ashx?curBase=<%=Master.curBase%>&curTable=<%=curTable%>&curPage=<%=Master.curPage%>&action=edit&curId=' + id + '&_=' + (new Date()).getTime());
             });
 
+            // CONTEXTMENU
             $.contextMenu({
                 selector: '#table .selected td',
                 items: {
@@ -296,7 +330,147 @@
                 }
             });
 
-            $(window).resize();
+            //FILTER
+
+            //ID
+            $("#fId").bind("keyup change", function () {
+                $(this).val($(this).val().replace(/[^0-9]+/g, ""));
+                if ($(this).val().trim() == '') {
+                    $(this).css('background-color', 'transparent');
+                }
+                else $(this).css('background-color', 'lemonchiffon;');
+                SendFilterValue();
+            });
+
+            //User
+            var sourcefUser = new Bloodhound({
+                datumTokenizer: Bloodhound.tokenizers.whitespace, queryTokenizer: Bloodhound.tokenizers.whitespace,
+                remote: {
+                    url: '/Handler/TypeaheadHandler.ashx?t=User&q=%QUERY',
+                    wildcard: '%QUERY'
+                },
+                limit: 30,
+            });
+
+            $('#scrollable-dropdown-menu-fUser #fUser').typeahead({
+                highlight: true,
+                minLength: 1,
+            },
+            {
+                name: 'thfUser',
+                display: 'Name',
+                highlight: true,
+                limit: 30,
+                source: sourcefUser,
+            });
+
+            $('#fUser').on("typeahead:selected typeahead:autocompleted", function (e, datum) {
+                $("#fIdUser").val(datum.ID);
+                $(this).css('background-color', 'lemonchiffon');
+                SendFilterValue();
+            });
+
+            $("#fUser").bind("change", function () {
+                if ($(this).val().trim() == '') {
+                    $("#fIdUser").val(0);
+                    $(this).css('background-color', 'transparent');
+                    SendFilterValue();
+                }
+            });
+
+            //DocNum
+            $("#fDocNum").bind("keyup change", function () {
+                if ($(this).val().trim() == '') {
+                    $(this).css('background-color', 'transparent');
+                }
+                else $(this).css('background-color', 'lemonchiffon;');
+                SendFilterValue();
+            });
+
+            //Doctree
+            var sourcefDocTree = new Bloodhound({
+                datumTokenizer: Bloodhound.tokenizers.whitespace, queryTokenizer: Bloodhound.tokenizers.whitespace,
+                remote: {
+                    url: '/Handler/TypeaheadHandler.ashx?t=DocTree&q=%QUERY',
+                    wildcard: '%QUERY'
+                },
+                limit: 30,
+            });
+
+            $('#scrollable-dropdown-menu-fDocTree #fDocTree').typeahead({
+                highlight: true,
+                minLength: 1,
+            },
+            {
+                name: 'thfDocTree',
+                display: 'Name',
+                highlight: true,
+                limit: 10,
+                source: sourcefDocTree,
+            });
+
+            $('#fDocTree').on("typeahead:selected typeahead:autocompleted", function (e, datum) {
+                $("#fIdDocTree").val(datum.ID);
+                $(this).css('background-color', 'lemonchiffon');
+                SendFilterValue();
+            });
+
+            $("#fDocTree").bind("change", function () {
+                if ($(this).val().trim() == '') {
+                    $("#fIdDocTree").val(0);
+                    $(this).css('background-color', 'transparent');
+                    SendFilterValue();
+                }
+            });
+
+            //Frm
+            var sourcefFrmContr = new Bloodhound({
+                datumTokenizer: Bloodhound.tokenizers.whitespace, queryTokenizer: Bloodhound.tokenizers.whitespace,
+                remote: {
+                    url: '/Handler/TypeaheadHandler.ashx?t=Frm&q=%QUERY',
+                    wildcard: '%QUERY'
+                },
+                limit: 30,
+            });
+
+            $('#scrollable-dropdown-menu-fFrmContr #fFrmContr').typeahead({
+                highlight: true,
+                minLength: 1,
+            },
+            {
+                name: 'thfFrmContr',
+                display: 'Name',
+                highlight: true,
+                limit: 30,
+                source: sourcefFrmContr,
+            });
+
+            $('#fFrmContr').on("typeahead:selected typeahead:autocompleted", function (e, datum) {
+                $("#fIdFrmContr").val(datum.ID);
+                $(this).css('background-color', 'lemonchiffon');
+                SendFilterValue();
+            });
+
+            $("#fFrmContr").bind("change", function () {
+                if ($(this).val().trim() == '') {
+                    $("#fIdFrmContr").val(0);
+                    $(this).css('background-color', 'transparent');
+                    SendFilterValue();
+                }
+            });
+
         });
+
+        function SendFilterValue() {
+            var msg = $('#FilterForm').serialize();
+            $.ajax({
+                type: 'POST',
+                url: '/Handler/SessionHandler.ashx',
+                data: msg,
+                success: function (data) {
+                    $('#table').DataTable().draw();
+                },
+            });
+        }
     </script>
 </asp:Content>

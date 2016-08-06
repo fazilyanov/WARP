@@ -25,13 +25,20 @@ namespace WARP
                     sqlQuery = "SELECT ID, Name FROM [" + table + "] ORDER by Name";
                     break;
                 default:
-                    sqlQuery = "SELECT TOP 30 ID, Name FROM [" + table + "] WHERE Name LIKE'%" + query + "%' ORDER by Name";
+                    sqlQuery = "SELECT TOP 20 ID, Name FROM [" + table + "] WHERE Name LIKE'%" + query + "%' ORDER by Name";
                     break;
             }
             DataTable dt = ComFunc.GetData(sqlQuery);
             List<Dictionary<string, object>> data = new List<Dictionary<string, object>>();
             Dictionary<string, object> row;
 
+            if (table=="User")
+            {
+                row = new Dictionary<string, object>();
+                row.Add("ID", HttpContext.Current.Session["UserId"].ToString());
+                row.Add("Name", "Я");
+                data.Add(row);
+            }
             foreach (DataRow dr in dt.Rows)
             {
                 row = new Dictionary<string, object>();
