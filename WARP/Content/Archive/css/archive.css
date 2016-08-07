@@ -140,7 +140,6 @@ td {
     padding-top: 5px;
 }
 
-
 /*Пустое пространство между кнопками в тулбаре*/
 .btn-space {
     margin-right: 10px;
@@ -364,9 +363,24 @@ tr.details td.details-control {
     height: 100%;
 }
 
-
 /*FilterBar*/
 [placeholder]:focus::-webkit-input-placeholder {
-  transition: opacity 0.7s 0.7s ease; 
-  opacity: 0;
+    transition: opacity 0.7s 0.7s ease;
+    opacity: 0;
+}
+
+.input-group-addon {
+    width: 30px !important;
+}
+
+.filter-active {
+    background-color: lemonchiffon !important;
+}
+
+.pr0 {
+    padding-right: 0px;
+}
+
+.extfLabel {
+    margin-top: 4px;
 }

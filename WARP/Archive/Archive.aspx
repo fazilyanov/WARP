@@ -23,6 +23,53 @@
         </thead>
     </table>
 
+    <div id="extFilterDialog" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" style="width: 750px;" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Расширенный фильтр</h4>
+                </div>
+                <div class="modal-body">
+                    <form name="extFilterForm" method="POST" id="extFilterForm" action="javascript: void(null);">
+                        <input type="hidden" name="page" value="<%=(Master.curBase+curTable+Master.curPage)%>">
+                        <input type="hidden" name="act" value="setextfilter">
+                        <div class='input-group' style="width: 100%">
+
+                            <%--Код ЭА--%>
+                            <div class="row">
+                                <div class="col-sm-2 pr0" >
+                                    <label for="extfId" class="extfLabel">Код ЭА</label>
+                                </div>
+                                <div class="col-sm-5 pr0">
+                                    <input id="extfId" name="extfId" type="text" class="form-control input-sm" value="">
+                                </div>
+                                <div class="col-sm-3 pr0">
+                                    <select class="form-control input-sm" id="extfIdCond" name="extfIdCond">
+                                        <option value="=">Равно</option>
+                                        <option value="<>">Не равно</option>
+                                        <option value=">">Больше</option>
+                                        <option value="<">Меньше</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-2">
+                                    <button type="button" class="btn btn-default btn-sm" id="extfClearId" onclick="$('#extfId').val('');$('#extfIdCond').val('=');">Очистить</button>
+                                </div>
+                            </div>
+
+                            
+
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" onclick="$('button[id^=\'extfClear\']').click();SendExtFilterValue();">Сбросить</button>
+                    <button type="button" class="btn btn-primary" onclick="SendExtFilterValue()">Применить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="EditDialog" class="modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
         <div class="modal-dialog modal-lg" style="width: 1007px;" role="document">
             <div id="EditDialogContent" class="modal-content">
@@ -35,33 +82,77 @@
 
             <input type="hidden" name="page" value="<%=(Master.curBase+curTable+Master.curPage)%>">
             <input type="hidden" name="act" value="setfilter">
-            <div class="col-sm-2" style="padding-right: 0px;">
-                <input id="fId" name="fId" class="card-form-control" value="" placeholder="Код ЭА">
+            <div class="col-sm-1" style="padding-right: 0px;">
+                <div class='input-group' style="width: 100%">
+                    <input id="fId" name="fId" type="text" class="form-control input-sm" value="" placeholder="Код ЭА">
+                    <span class="input-group-addon">
+                        <span id="fIdClear" class="glyphicon glyphicon-remove"></span>
+                    </span>
+                </div>
             </div>
-            <div class="col-sm-2" style="padding-right: 0px;">
+            <div class="col-sm-2 pr0">
                 <div id="scrollable-dropdown-menu-fUser">
-                    <input id="fUser" name="fUser" class="card-form-control" value="" placeholder="Оператор">
+                    <div class='input-group' style="width: 100%">
+                        <input id="fUser" name="fUser" type="text" class="form-control input-sm" style="width: 100%" value="" placeholder="Оператор">
+                        <span class="input-group-addon">
+                            <span id="fUserClear" class="glyphicon glyphicon-remove"></span>
+                        </span>
+                    </div>
                     <input id="fIdUser" name="fIdUser" type="hidden" value="0">
                 </div>
             </div>
-            <div class="col-sm-2" style="padding-right: 0px;">
-                <input id="fDocNum" name="fDocNum" class="card-form-control" value="" placeholder="Номер документа">
+            <div class="col-sm-2 pr0">
+                <div class='input-group' style="width: 100%">
+                    <input id="fDocNum" name="fDocNum" type="text" class="form-control input-sm" value="" placeholder="Номер документа">
+                    <span class="input-group-addon">
+                        <span id="fDocNumClear" class="glyphicon glyphicon-remove"></span>
+                    </span>
+                </div>
             </div>
-            <div class="col-sm-2" style="padding-right: 0px;">
+            <div class="col-sm-2 pr0">
                 <div id="scrollable-dropdown-menu-fDocTree">
-                    <input id="fDocTree" name="fDocTree" class="card-form-control" value="" placeholder="Документ">
+                    <div class='input-group' style="width: 100%">
+                        <input id="fDocTree" name="fDocTree" type="text" class="form-control input-sm" style="width: 100%" value="" placeholder="Документ">
+                        <span class="input-group-addon">
+                            <span id="fDocTreeClear" class="glyphicon glyphicon-remove"></span>
+                        </span>
+                    </div>
                     <input id="fIdDocTree" name="fIdDocTree" type="hidden" value="0">
                 </div>
             </div>
-            <div class="col-sm-2" style="padding-right: 0px;">
-                <input id="fDocDateBegin" name="fDocDateBegin" class="card-form-control" value="" placeholder="Дата документа: c">
-                <input id="fDocDateEnd" name="fDocDateEnd" class="card-form-control" value="" placeholder="Дата документа: до">
+            <div class="col-sm-2 pr0">
+                <div class="row">
+                    <div class="col-sm-6 pr0">
+                        <div class='input-group date' style="width: 100%" id='dpDocDateBegin'>
+                            <input id="fDocDateBegin" name="fDocDateBegin" type="text" class="form-control input-sm" value="" placeholder="Дата док. c">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6" style="padding-left: 5px;">
+                        <div class='input-group date' style="width: 100%" id='dpDocDateEnd'>
+                            <input id="fDocDateEnd" name="fDocDateEnd" type="text" class="form-control input-sm" value="" placeholder="Дата док. по">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="col-sm-2">
                 <div id="scrollable-dropdown-menu-fFrmContr">
-                    <input id="fFrmContr" name="fFrmContr" class="card-form-control" value="" placeholder="Контрагент">
-                    <input id="fIdFrmContr" name="fIdFrmContr" type="hidden" value="0">
+                    <div class='input-group' style="width: 100%">
+                        <input id="fFrmContr" name="fFrmContr" type="text" class="form-control input-sm" style="width: 100%" value="" placeholder="Контрагент">
+                        <span class="input-group-addon">
+                            <span id="fFrmContrClear" class="glyphicon glyphicon-remove"></span>
+                        </span>
+                    </div>
                 </div>
+                <input id="fIdFrmContr" name="fIdFrmContr" type="hidden" value="0">
+            </div>
+            <div class="col-sm-1" style="padding-left: 0px;">
+                <button type="button" class="btn btn-default btn-sm" onclick="$('#extFilterDialog').modal();">Расширенный фильтр</button>
             </div>
         </form>
     </div>
@@ -70,7 +161,7 @@
         var editor;
 
         $(window).bind('resize', function () {
-            $('.dataTables_scrollBody').css('height', ($(window).height() - 150) + 'px');
+            $('.dataTables_scrollBody').css('height', ($(window).height() - 170) + 'px');
         });
 
         $(document).ready(function () {
@@ -152,7 +243,7 @@
 
             // DATATABLE
             var table = $('#table').DataTable({
-                dom: '<"row top-toolbar"<"col-sm-4"B><"col-sm-4"><"col-sm-4"pi>><"row top-filterbar">Zrt',
+                dom: '<"row top-toolbar"<"col-sm-4"B><"col-sm-4"><"col-sm-4">><"row top-filterbar">Zr<"m"<"v">t><"row"<"col-sm-5"><"col-sm-3"p><"col-sm-4"i>>',
                 rowId: 'Id',
                 processing: true,
                 serverSide: true,
@@ -330,19 +421,29 @@
                 }
             });
 
-            //FILTER
+            // ----------------
+            // ----- FILTER----
+            // ----------------
 
-            //ID
-            $("#fId").bind("keyup change", function () {
+            //
+            // ID
+            //
+
+            $("#fId").bind("keyup", function () {
                 $(this).val($(this).val().replace(/[^0-9]+/g, ""));
-                if ($(this).val().trim() == '') {
-                    $(this).css('background-color', 'transparent');
-                }
-                else $(this).css('background-color', 'lemonchiffon;');
+                ChangeFilterColor($(this));
+                SendFilterValue();
+            });
+            $("#fIdClear").bind("click", function () {
+                $("#fId").val("");
+                ChangeFilterColor($("#fId"));
                 SendFilterValue();
             });
 
+            //
             //User
+            //
+
             var sourcefUser = new Bloodhound({
                 datumTokenizer: Bloodhound.tokenizers.whitespace, queryTokenizer: Bloodhound.tokenizers.whitespace,
                 remote: {
@@ -366,28 +467,40 @@
 
             $('#fUser').on("typeahead:selected typeahead:autocompleted", function (e, datum) {
                 $("#fIdUser").val(datum.ID);
-                $(this).css('background-color', 'lemonchiffon');
+                $("#fUser").parent().find('input').addClass("filter-active");
                 SendFilterValue();
             });
 
             $("#fUser").bind("change", function () {
-                if ($(this).val().trim() == '') {
-                    $("#fIdUser").val(0);
-                    $(this).css('background-color', 'transparent');
-                    SendFilterValue();
-                }
+                if ($(this).val().trim() == '')
+                    $("#fUserClear").click();
             });
 
-            //DocNum
-            $("#fDocNum").bind("keyup change", function () {
-                if ($(this).val().trim() == '') {
-                    $(this).css('background-color', 'transparent');
-                }
-                else $(this).css('background-color', 'lemonchiffon;');
+            $("#fUserClear").bind("click", function () {
+                $("#fIdUser").val(0);
+                $("#fUser").val('');
+                $("#fUser").parent().find('input').removeClass("filter-active");
                 SendFilterValue();
             });
 
+            //
+            //DocNum
+            //
+
+            $("#fDocNum").bind("keyup", function () {
+                ChangeFilterColor($("#fDocNum"));
+                SendFilterValue();
+            });
+            $("#fDocNumClear").bind("click", function () {
+                $("#fDocNum").val("");
+                ChangeFilterColor($("#fDocNum"));
+                SendFilterValue();
+            });
+
+            //
             //Doctree
+            //
+
             var sourcefDocTree = new Bloodhound({
                 datumTokenizer: Bloodhound.tokenizers.whitespace, queryTokenizer: Bloodhound.tokenizers.whitespace,
                 remote: {
@@ -411,19 +524,41 @@
 
             $('#fDocTree').on("typeahead:selected typeahead:autocompleted", function (e, datum) {
                 $("#fIdDocTree").val(datum.ID);
-                $(this).css('background-color', 'lemonchiffon');
+                $("#fDocTree").addClass("filter-active");
                 SendFilterValue();
             });
 
             $("#fDocTree").bind("change", function () {
-                if ($(this).val().trim() == '') {
-                    $("#fIdDocTree").val(0);
-                    $(this).css('background-color', 'transparent');
-                    SendFilterValue();
-                }
+                if ($(this).val().trim() == '')
+                    $("#fDocTreeClear").click();
             });
 
+            $("#fDocTreeClear").bind("click", function () {
+                $("#fIdDocTree").val(0);
+                $("#fDocTree").val('');
+                $("#fDocTree").parent().find('input').removeClass("filter-active");
+                SendFilterValue();
+            });
+
+            //
+            // DocDate
+            //
+
+            $('#fDocDateBegin,#fDocDateEnd').mask('99.99.9999', { placeholder: 'дд.мм.гггг' });
+            $('#dpDocDateBegin,#dpDocDateEnd').datetimepicker({ locale: 'ru', useCurrent: false, format: 'DD.MM.YYYY', });
+            $("#fDocDateBegin").bind("blur", function () {
+                ChangeFilterColor($(this));
+                SendFilterValue();
+            });
+            $("#fDocDateEnd").bind("blur", function () {
+                ChangeFilterColor($(this));
+                SendFilterValue();
+            });
+
+            //
             //Frm
+            //
+
             var sourcefFrmContr = new Bloodhound({
                 datumTokenizer: Bloodhound.tokenizers.whitespace, queryTokenizer: Bloodhound.tokenizers.whitespace,
                 remote: {
@@ -447,22 +582,60 @@
 
             $('#fFrmContr').on("typeahead:selected typeahead:autocompleted", function (e, datum) {
                 $("#fIdFrmContr").val(datum.ID);
-                $(this).css('background-color', 'lemonchiffon');
+                $("#fFrmContr").addClass("filter-active");
                 SendFilterValue();
             });
 
             $("#fFrmContr").bind("change", function () {
-                if ($(this).val().trim() == '') {
-                    $("#fIdFrmContr").val(0);
-                    $(this).css('background-color', 'transparent');
-                    SendFilterValue();
-                }
+                if ($(this).val().trim() == '')
+                    $("#fFrmContrClear").click();
+            });
+
+            $("#fFrmContrClear").bind("click", function () {
+                $("#fIdFrmContr").val(0);
+                $("#fFrmContr").val('');
+                $("#fFrmContr").parent().find('input').removeClass("filter-active");
+                SendFilterValue();
+            });
+
+            // ----------------
+            // ---EXT FILTER---
+            // ----------------
+
+            //
+            // Id
+            //
+
+            $("#extfId").bind("keyup", function () {
+                $(this).val($(this).val().replace(/[^0-9]+/g, ""));
             });
 
         });
 
+        function ChangeFilterColor(el) {
+            if (el.val().trim() == '') {
+                el.removeClass("filter-active");
+                console.log(el.val() + " no");
+            }
+            else {
+                el.addClass("filter-active");
+                console.log(el.val() + " yes");
+            }
+        }
+
         function SendFilterValue() {
             var msg = $('#FilterForm').serialize();
+            $.ajax({
+                type: 'POST',
+                url: '/Handler/SessionHandler.ashx',
+                data: msg,
+                success: function (data) {
+                    $('#table').DataTable().draw();
+                },
+            });
+        }
+        function SendExtFilterValue() {
+            var msg = $('#extFilterForm').serialize();
             $.ajax({
                 type: 'POST',
                 url: '/Handler/SessionHandler.ashx',

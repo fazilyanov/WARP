@@ -36,36 +36,7 @@ namespace WARP
                         case "DocNum":
                         case "DocContent":
                         case "Prim":
-                            string buf = "    AND a.[" + key + "]";
-                            key = "Id" + key + "Cond";
-                            value = value.Replace("'", "''").Replace("[", "[[]");
-                            if (filterList.ContainsKey(key))
-                            {
-                                
-                                switch (filterList[key])
-                                {
-                                    case "1":
-                                        buf += " = '" + value + "'";
-                                        break;
-
-                                    case "2":
-                                        buf += " LIKE '" + value + "%'";
-                                        break;
-
-                                    case "3":
-                                        buf += " LIKE '%" + value + "'";
-                                        break;
-
-                                    default:
-                                        buf += " LIKE '%" + value + "%'";
-                                        break;
-                                }
-                            }
-                            else
-                            {
-                                buf += " LIKE '%" + value + "%'";
-                            }
-                            sbWhere.AppendLine(buf);
+                            sbWhere.AppendLine(" AND a.[" + key + "] LIKE '%" + value.Replace("'", "''").Replace("[", "[[]") + "%'");
                             break;
 
                         case "Id":
@@ -75,9 +46,57 @@ namespace WARP
                         case "IdDocTree":
                             sbWhere.AppendLine("    AND a.[" + key + "] = " + value);
                             break;
+
+                        case "DocDateBegin":
+                            sbWhere.AppendLine("    AND a.[DocDate] >=CONVERT(DATE,'" + value + "',104)");
+                            break;
+
+                        case "DocDateEnd":
+                            sbWhere.AppendLine("    AND a.[DocDate] <=CONVERT(DATE,'" + value + "',104)");
+                            break;
                     }
                 }
             }
+
+            Dictionary<string, string> extFilterList = (Dictionary<string, string>)HttpContext.Current.Session[curBase + curTable + curPage + "UserExtFilterList"];
+            if (extFilterList != null)
+            {
+                string key = string.Empty;
+                string value = string.Empty;
+                foreach (KeyValuePair<string, string> pair in extFilterList)
+                {
+                    key = pair.Key; 
+                    value = pair.Value;
+                    switch (key)
+                    {
+                        case "DocNum":
+                        case "DocContent":
+                        case "Prim":
+                            sbWhere.AppendLine(" AND a.[" + key + "] LIKE '%" + value.Replace("'", "''").Replace("[", "[[]") + "%'");
+                            break;
+
+                        case "Id":
+                            sbWhere.AppendLine("    AND a.[" + key + "] " + (extFilterList.ContainsKey(key + "Cond") ? extFilterList[key + "Cond"] : "=") + " " + value);
+                            break;
+
+                        case "IdUser":
+                        case "IdDocType":
+                        case "IdFrmContr":
+                        case "IdDocTree":
+                            sbWhere.AppendLine("    AND a.[" + key + "] = " + value);
+                            break;
+
+                        case "DocDateBegin":
+                            sbWhere.AppendLine("    AND a.[DocDate] >=CONVERT(DATE,'" + value + "',104)");
+                            break;
+
+                        case "DocDateEnd":
+                            sbWhere.AppendLine("    AND a.[DocDate] <=CONVERT(DATE,'" + value + "',104)");
+                            break;
+                    }
+                }
+            }
+
             return sbWhere.ToString();
         }
 

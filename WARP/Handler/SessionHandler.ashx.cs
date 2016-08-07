@@ -13,28 +13,44 @@ namespace WARP
         {
             string page = string.Empty;
             string act = context.Request["act"] ?? string.Empty;
+            string val = string.Empty;
             try
             {
                 switch (act)
                 {
                     case "setfilter":// Значения Формы Фильтра
-                        page = context.Request.Form["page"].ToString();
                         Dictionary<string, string> filterList = new Dictionary<string, string>();
-
                         foreach (string key in context.Request.Form.AllKeys)
                         {
-                            string val = context.Request.Form[key].ToString().Trim();
+                            val = context.Request.Form[key].ToString().Trim();
                             if (val.Length > 0 && val != "0")
                             {
                                 filterList.Add(key, val);
                             }
                         }
-                        HttpContext.Current.Session[page + "UserFilterList"] = filterList;
+                        HttpContext.Current.Session[context.Request.Form["page"].ToString() + "UserFilterList"] = filterList;
                         break;
+
+                    case "setextfilter":// Значения Формы Фильтра
+
+                        Dictionary<string, string> extFilterList = new Dictionary<string, string>();
+
+                        foreach (string key in context.Request.Form.AllKeys)
+                        {
+                            val = context.Request.Form[key].ToString().Trim();
+                            if (val.Length > 0 && val != "0" && key != "page" && key != "act")
+                            {
+                                extFilterList.Add(key.Substring(4), val);
+                            }
+                        }
+                        HttpContext.Current.Session[context.Request.Form["page"].ToString() + "UserExtFilterList"] = extFilterList;
+                        break;
+
                     case "clearfilter":
                         page = context.Request.Form["page"].ToString();
                         HttpContext.Current.Session[page + "UserFilterList"] = null;
-                        break;  
+                        break;
+
                     default:
                         break;
                 }
