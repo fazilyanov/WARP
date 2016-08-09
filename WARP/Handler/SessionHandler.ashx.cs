@@ -23,27 +23,12 @@ namespace WARP
                         foreach (string key in context.Request.Form.AllKeys)
                         {
                             val = context.Request.Form[key].ToString().Trim();
-                            if (val.Length > 0 && val != "0")
+                            if (val.Length > 0 && key != "page" && key != "act")
                             {
                                 filterList.Add(key, val);
                             }
                         }
                         HttpContext.Current.Session[context.Request.Form["page"].ToString() + "UserFilterList"] = filterList;
-                        break;
-
-                    case "setextfilter":// Значения Формы Фильтра
-
-                        Dictionary<string, string> extFilterList = new Dictionary<string, string>();
-
-                        foreach (string key in context.Request.Form.AllKeys)
-                        {
-                            val = context.Request.Form[key].ToString().Trim();
-                            if (val.Length > 0 && val != "0" && key != "page" && key != "act")
-                            {
-                                extFilterList.Add(key.Substring(4), val);
-                            }
-                        }
-                        HttpContext.Current.Session[context.Request.Form["page"].ToString() + "UserExtFilterList"] = extFilterList;
                         break;
 
                     case "clearfilter":
@@ -57,7 +42,7 @@ namespace WARP
             }
             catch (System.Exception ex)
             {
-                ComFunc.LogError(ex);
+                Func.LogError(ex);
             }
         }
 

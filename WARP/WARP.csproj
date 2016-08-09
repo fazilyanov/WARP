@@ -70,7 +70,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Admin\Session.aspx" />
-    <Content Include="Archive\ArchiveOld.aspx" />
     <Content Include="Archive\Archive.aspx" />
     <Content Include="Content\Archive\css\archive.css" />
     <Content Include="Content\Archive\img\rowminus.png" />
@@ -334,7 +333,6 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <Content Include="Reference\Frm.aspx" />
     <Content Include="Site.Master" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -359,22 +357,10 @@
     <Compile Include="Admin\Session.aspx.designer.cs">
       <DependentUpon>Session.aspx</DependentUpon>
     </Compile>
-    <Compile Include="Archive\ArchiveOld.aspx.cs">
-      <DependentUpon>ArchiveOld.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="Archive\ArchiveOld.aspx.designer.cs">
-      <DependentUpon>ArchiveOld.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="Base\AppPage.cs" />
-    <Compile Include="Base\ComFunc.cs" />
-    <Compile Include="Base\Enum.cs" />
-    <Compile Include="Base\RequestData.cs" />
-    <Compile Include="Base\FieldErrors.cs" />
-    <Compile Include="Base\TableColumn.cs" />
-    <Compile Include="Base\TableData.cs" />
+    <Compile Include="Com\ComFunc.cs" />
+    <Compile Include="Com\ComClass.cs" />
     <Compile Include="Archive\Archive.aspx.cs">
       <DependentUpon>Archive.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Archive\Archive.aspx.designer.cs">
       <DependentUpon>Archive.aspx</DependentUpon>
@@ -419,12 +405,6 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="Reference\Frm.aspx.cs">
-      <DependentUpon>Frm.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="Reference\Frm.aspx.designer.cs">
-      <DependentUpon>Frm.aspx</DependentUpon>
-    </Compile>
     <Compile Include="Site.Master.cs">
       <DependentUpon>Site.Master</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -456,6 +436,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Complect\" />
+    <Folder Include="Reference\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

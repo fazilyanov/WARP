@@ -19,13 +19,14 @@ namespace WARP
             string IdFile = context.Request["IdFile"];
             string key = context.Request["key"];
             context.Response.Clear();
-            if (ComFunc.GetMd5Hash(ComFunc.GetMd5Hash(IdFile) + IdFile)== key)
+            if (Func.GetMd5Hash(Func.GetMd5Hash(IdFile) + IdFile)== key)
             {
-                DataTable file = ComFunc.GetData("SELECT * FROM [dbo].[" + curBase + curTable + "Files] WHERE Id = " + IdFile);
+                DataTable file = Func.GetData("SELECT * FROM [dbo].[" + curBase + curTable + "Files] WHERE Id = " + IdFile);
                 if (file.Rows.Count > 0)
                 {
                     Byte[] bytes = (Byte[])file.Rows[0]["fileData"];
-                    switch (Path.GetExtension(file.Rows[0]["fileName"].ToString()).ToUpper())
+                    string fileExt = Path.GetExtension(file.Rows[0]["fileName"].ToString()).ToUpper();
+                    switch (fileExt)
                     {
                         case ".PDF":
                             context.Response.ContentType = "application/pdf";
@@ -60,10 +61,21 @@ namespace WARP
                             context.Response.ContentType = "image/png";
                             break;
                     }
+                    switch (fileExt)
+                    {
+                        case ".PDF":
+                        case ".JPG":
+                        case ".JPEG":
+                        case ".BMP":
+                        case ".PNG":
+                            context.Response.AddHeader("content-disposition", "filename=" + file.Rows[0]["fileName"].ToString());
+                            break;
+                        default:
+                            context.Response.AddHeader("content-disposition", "attachment;filename=" + file.Rows[0]["fileName"].ToString());
+                            break;
+                    }
 
                     context.Response.AddHeader("content-length", bytes.Length.ToString());
-                    //context.Response.AddHeader("content-disposition", "attachment;filename=" + file.Rows[0]["fileName"].ToString());
-                    //context.Response. BinaryWrite(bytes);// Сразу сохраняет
                     context.Response.OutputStream.Write(bytes, 0, bytes.Length);
                     context.Response.Flush();
                     context.Response.End();

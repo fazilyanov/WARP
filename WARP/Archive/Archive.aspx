@@ -6,69 +6,10 @@
     <table id="table" class="table table-striped table-bordered table-condensed" style="table-layout: fixed; width: 100%">
         <thead>
             <tr>
-                <th></th>
-                <th>Код ЭА</th>
-                <th>Дата редак.</th>
-                <th>Оператор</th>
-                <th>Номер документа</th>
-                <th>Документ</th>
-                <th>Вид документа</th>
-                <th>Дата докум.</th>
-                <th>Содержание</th>
-                <th>Контрагент</th>
-                <th>Сумма</th>
-                <th>Пакет</th>
-                <th>Примечание</th>
+                <%=tableArchive.GenerateHtmlTable()%>
             </tr>
         </thead>
     </table>
-
-    <div id="extFilterDialog" class="modal" tabindex="-1" role="dialog">
-        <div class="modal-dialog" style="width: 750px;" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Расширенный фильтр</h4>
-                </div>
-                <div class="modal-body">
-                    <form name="extFilterForm" method="POST" id="extFilterForm" action="javascript: void(null);">
-                        <input type="hidden" name="page" value="<%=(Master.curBase+curTable+Master.curPage)%>">
-                        <input type="hidden" name="act" value="setextfilter">
-                        <div class='input-group' style="width: 100%">
-
-                            <%--Код ЭА--%>
-                            <div class="row">
-                                <div class="col-sm-2 pr0" >
-                                    <label for="extfId" class="extfLabel">Код ЭА</label>
-                                </div>
-                                <div class="col-sm-5 pr0">
-                                    <input id="extfId" name="extfId" type="text" class="form-control input-sm" value="">
-                                </div>
-                                <div class="col-sm-3 pr0">
-                                    <select class="form-control input-sm" id="extfIdCond" name="extfIdCond">
-                                        <option value="=">Равно</option>
-                                        <option value="<>">Не равно</option>
-                                        <option value=">">Больше</option>
-                                        <option value="<">Меньше</option>
-                                    </select>
-                                </div>
-                                <div class="col-sm-2">
-                                    <button type="button" class="btn btn-default btn-sm" id="extfClearId" onclick="$('#extfId').val('');$('#extfIdCond').val('=');">Очистить</button>
-                                </div>
-                            </div>
-
-                            
-
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" onclick="$('button[id^=\'extfClear\']').click();SendExtFilterValue();">Сбросить</button>
-                    <button type="button" class="btn btn-primary" onclick="SendExtFilterValue()">Применить</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div id="EditDialog" class="modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
         <div class="modal-dialog modal-lg" style="width: 1007px;" role="document">
@@ -82,77 +23,178 @@
 
             <input type="hidden" name="page" value="<%=(Master.curBase+curTable+Master.curPage)%>">
             <input type="hidden" name="act" value="setfilter">
-            <div class="col-sm-1" style="padding-right: 0px;">
-                <div class='input-group' style="width: 100%">
-                    <input id="fId" name="fId" type="text" class="form-control input-sm" value="" placeholder="Код ЭА">
-                    <span class="input-group-addon">
-                        <span id="fIdClear" class="glyphicon glyphicon-remove"></span>
-                    </span>
-                </div>
-            </div>
-            <div class="col-sm-2 pr0">
-                <div id="scrollable-dropdown-menu-fUser">
+            <div class="row">
+                <div class="col-sm-1 pr0">
                     <div class='input-group' style="width: 100%">
-                        <input id="fUser" name="fUser" type="text" class="form-control input-sm" style="width: 100%" value="" placeholder="Оператор">
-                        <span class="input-group-addon">
-                            <span id="fUserClear" class="glyphicon glyphicon-remove"></span>
-                        </span>
-                    </div>
-                    <input id="fIdUser" name="fIdUser" type="hidden" value="0">
-                </div>
-            </div>
-            <div class="col-sm-2 pr0">
-                <div class='input-group' style="width: 100%">
-                    <input id="fDocNum" name="fDocNum" type="text" class="form-control input-sm" value="" placeholder="Номер документа">
-                    <span class="input-group-addon">
-                        <span id="fDocNumClear" class="glyphicon glyphicon-remove"></span>
-                    </span>
-                </div>
-            </div>
-            <div class="col-sm-2 pr0">
-                <div id="scrollable-dropdown-menu-fDocTree">
-                    <div class='input-group' style="width: 100%">
-                        <input id="fDocTree" name="fDocTree" type="text" class="form-control input-sm" style="width: 100%" value="" placeholder="Документ">
-                        <span class="input-group-addon">
-                            <span id="fDocTreeClear" class="glyphicon glyphicon-remove"></span>
-                        </span>
-                    </div>
-                    <input id="fIdDocTree" name="fIdDocTree" type="hidden" value="0">
-                </div>
-            </div>
-            <div class="col-sm-2 pr0">
-                <div class="row">
-                    <div class="col-sm-6 pr0">
-                        <div class='input-group date' style="width: 100%" id='dpDocDateBegin'>
-                            <input id="fDocDateBegin" name="fDocDateBegin" type="text" class="form-control input-sm" value="" placeholder="Дата док. c">
-                            <span class="input-group-addon">
-                                <span class="glyphicon glyphicon-calendar"></span>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="col-sm-6" style="padding-left: 5px;">
-                        <div class='input-group date' style="width: 100%" id='dpDocDateEnd'>
-                            <input id="fDocDateEnd" name="fDocDateEnd" type="text" class="form-control input-sm" value="" placeholder="Дата док. по">
-                            <span class="input-group-addon">
-                                <span class="glyphicon glyphicon-calendar"></span>
-                            </span>
+                        <input id="fId" name="fId" type="text" class="form-control input-sm" value="" placeholder="Код ЭА">
+                        <div class="input-group-btn" style="width: 1%">
+                            <button type="button" id="fIdExt" class="btn btn-default btn-sm fbtn">
+                                <span class="glyphicon glyphicon-filter"></span>
+                            </button>
+                            <button type="button" id="fIdClear" class="btn btn-default btn-sm fbtn">
+                                <span class="glyphicon glyphicon-remove"></span>
+                            </button>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-sm-2">
-                <div id="scrollable-dropdown-menu-fFrmContr">
+                <div class="col-sm-1 pr0">
                     <div class='input-group' style="width: 100%">
-                        <input id="fFrmContr" name="fFrmContr" type="text" class="form-control input-sm" style="width: 100%" value="" placeholder="Контрагент">
-                        <span class="input-group-addon">
-                            <span id="fFrmContrClear" class="glyphicon glyphicon-remove"></span>
-                        </span>
+                        <input id="fBarcode" name="fBarcode" type="text" class="form-control input-sm" value="" placeholder="Штрихкод">
+                        <div class="input-group-btn" style="width: 1%">
+                            <button type="button" id="fBarcodeExt" class="btn btn-default btn-sm fbtn">
+                                <span class="glyphicon glyphicon-filter"></span>
+                            </button>
+                            <button type="button" id="fBarcodeClear" class="btn btn-default btn-sm fbtn">
+                                <span class="glyphicon glyphicon-remove"></span>
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <input id="fIdFrmContr" name="fIdFrmContr" type="hidden" value="0">
+                <div class="col-sm-1 pr0">
+                    <div class='input-group date' style="width: 100%" id='dpDocDateBegin'>
+                        <input id="fDocDate" name="fDocDate" type="text" class="form-control input-sm" value="" placeholder="Дата документа">
+                        <div class="input-group-btn" style="width: 1%">
+                            <button type="button" id="fDocDateExt" class="btn btn-default btn-sm fbtn">
+                                <span class="glyphicon glyphicon-filter"></span>
+                            </button>
+                            <button type="button" id="fDocDateClear" class="btn btn-default btn-sm fbtn">
+                                <span class="glyphicon glyphicon-remove"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-1 pr0">
+                    <div class='input-group' style="width: 100%">
+                        <input id="fDocNum" name="fDocNum" type="text" class="form-control input-sm" value="" placeholder="Номер документа">
+                        <div class="input-group-btn" style="width: 1%">
+                            <button type="button" id="fDocNumExt" class="btn btn-default btn-sm fbtn">
+                                <span class="glyphicon glyphicon-filter"></span>
+                            </button>
+                            <button type="button" id="fDocNumClear" class="btn btn-default btn-sm fbtn">
+                                <span class="glyphicon glyphicon-remove"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-2 pr0">
+                    <div id="scrollable-dropdown-menu-fParent">
+                        <div class='input-group' style="width: 100%">
+                            <input id="fParent" name="fParent" type="text" class="form-control input-sm" style="width: 100%" value="" placeholder="Договор">
+                            <div class="input-group-btn" style="width: 1%">
+                                <button type="button" id="fParentExt" class="btn btn-default btn-sm fbtn">
+                                    <span class="glyphicon glyphicon-filter"></span>
+                                </button>
+                                <button type="button" id="fParentClear" class="btn btn-default btn-sm fbtn">
+                                    <span class="glyphicon glyphicon-remove"></span>
+                                </button>
+                            </div>
+                        </div>
+                        <input id="fIdParent" name="fIdParent" type="hidden" value="">
+                    </div>
+                </div>
+
+                <div class="col-sm-2 pr0">
+                    <div id="scrollable-dropdown-menu-fDocTree">
+                        <div class='input-group' style="width: 100%">
+                            <input id="fDocTree" name="fDocTree" type="text" class="form-control input-sm" style="width: 100%" value="" placeholder="Документ">
+                            <div class="input-group-btn" style="width: 1%">
+                                <button type="button" id="fDocTreeExt" class="btn btn-default btn-sm fbtn">
+                                    <span class="glyphicon glyphicon-filter"></span>
+                                </button>
+                                <button type="button" id="fDocTreeClear" class="btn btn-default btn-sm fbtn">
+                                    <span class="glyphicon glyphicon-remove"></span>
+                                </button>
+                            </div>
+                        </div>
+                        <input id="fIdDocTree" name="fIdDocTree" type="hidden" value="">
+                    </div>
+                </div>
+
+                <div class="col-sm-2 pr0">
+                    <div id="scrollable-dropdown-menu-fFrmContr">
+                        <div class='input-group' style="width: 100%">
+                            <input id="fFrmContr" name="fFrmContr" type="text" class="form-control input-sm" style="width: 100%" value="" placeholder="Контрагент">
+                            <div class="input-group-btn" style="width: 1%">
+                                <button type="button" id="fFrmContrExt" class="btn btn-default btn-sm fbtn">
+                                    <span class="glyphicon glyphicon-filter"></span>
+                                </button>
+                                <button type="button" id="fFrmContrClear" class="btn btn-default btn-sm fbtn">
+                                    <span class="glyphicon glyphicon-remove"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <input id="fIdFrmContr" name="fIdFrmContr" type="hidden" value="">
+                </div>
+                <div class="col-sm-2" style="width: 15%;">
+                    <div id="scrollable-dropdown-menu-fUser">
+                        <div class='input-group' style="width: 100%">
+                            <input id="fUser" name="fUser" type="text" class="form-control input-sm" style="width: 100%" value="" placeholder="Оператор">
+                            <div class="input-group-btn" style="width: 1%">
+                                <button type="button" id="fUserClear" class="btn btn-default btn-sm fbtn">
+                                    <span class="glyphicon glyphicon-remove"></span>
+                                </button>
+                            </div>
+                        </div>
+                        <input id="fIdUser" name="fIdUser" type="hidden" value="">
+                    </div>
+                </div>
+                <div class="col-sm-2" style="width: 1%; padding: 5px 0px;">
+                    <a href="#" id="showAddFilter" onclick="$(this).hide();$('#hideAddFilter').show();$('#addFilter').fadeIn('fast',function(){$(window).resize();});" title="Показать остальные фильтры"><span class="glyphicon glyphicon-chevron-down"></span></a>
+                    <a href="#" id="hideAddFilter" onclick="$(this).hide();$('#showAddFilter').show();$('#addFilter').fadeOut('fast',function(){$(window).resize();});" style="display: none" title="Скрыть остальные фильтры"><span class="glyphicon glyphicon-chevron-up"></span></a>
+                </div>
             </div>
-            <div class="col-sm-1" style="padding-left: 0px;">
-                <button type="button" class="btn btn-default btn-sm" onclick="$('#extFilterDialog').modal();">Расширенный фильтр</button>
+
+            <!-- Расширенный -->
+            <div id="addFilter" style="display: none;">
+                <div class="row" style="padding-top: 5px">
+                    <div class="col-sm-1 pr0">
+                        <div id="scrollable-dropdown-menu-fStatus">
+                            <div class='input-group' style="width: 100%">
+                                <input id="fStatus" name="fStatus" type="text" class="form-control input-sm" style="width: 100%" value="" placeholder="Статус">
+                                <div class="input-group-btn" style="width: 1%">
+                                    <button type="button" id="fStatusExt" class="btn btn-default btn-sm fbtn">
+                                        <span class="glyphicon glyphicon-filter"></span>
+                                    </button>
+                                    <button type="button" id="fStatusClear" class="btn btn-default btn-sm fbtn">
+                                        <span class="glyphicon glyphicon-remove"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <input id="fIdStatus" name="fIdStatus" type="hidden" value="">
+                    </div>
+                    <div class="col-sm-1 pr0">
+                        <div id="scrollable-dropdown-menu-fSource">
+                            <div class='input-group' style="width: 100%">
+                                <input id="fSource" name="fSource" type="text" class="form-control input-sm" style="width: 100%" value="" placeholder="Источник">
+                                <div class="input-group-btn" style="width: 1%">
+                                    <button type="button" id="fSourceExt" class="btn btn-default btn-sm fbtn">
+                                        <span class="glyphicon glyphicon-filter"></span>
+                                    </button>
+                                    <button type="button" id="fSourceClear" class="btn btn-default btn-sm fbtn">
+                                        <span class="glyphicon glyphicon-remove"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <input id="fIdSource" name="fIdSource" type="hidden" value="">
+                    </div>
+                    <div class="col-sm-1 pr0">
+                    <div class='input-group' style="width: 100%">
+                        <input id="fDocContent" name="fDocContent" type="text" class="form-control input-sm" value="" placeholder="Содержание">
+                        <div class="input-group-btn" style="width: 1%">
+                            <button type="button" id="fDocContentExt" class="btn btn-default btn-sm fbtn">
+                                <span class="glyphicon glyphicon-filter"></span>
+                            </button>
+                            <button type="button" id="fDocContentClear" class="btn btn-default btn-sm fbtn">
+                                <span class="glyphicon glyphicon-remove"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                </div>
             </div>
         </form>
     </div>
@@ -161,14 +203,14 @@
         var editor;
 
         $(window).bind('resize', function () {
-            $('.dataTables_scrollBody').css('height', ($(window).height() - 170) + 'px');
+            $('.dataTables_scrollBody').css('height', ($(window).height() - $('.top-toolbar').height() - $('.top-filterbar').height() - 90) + 'px');
         });
 
         $(document).ready(function () {
 
             document.title = '<%=curPageName%>';
 
-            $('#ddSection').html('Документы: Представление: <%=curPageName%><b class="caret"></b>');
+            $('#ddSection').html('Поиск документов <b class="caret"></b>');
 
             // EDITOR
             editor = new $.fn.dataTable.Editor({
@@ -243,26 +285,13 @@
 
             // DATATABLE
             var table = $('#table').DataTable({
-                dom: '<"row top-toolbar"<"col-sm-4"B><"col-sm-4"><"col-sm-4">><"row top-filterbar">Zr<"m"<"v">t><"row"<"col-sm-5"><"col-sm-3"p><"col-sm-4"i>>',
+                dom: '<"row top-toolbar"<"col-sm-7"B><"col-sm-5"<"row"<"col-sm-7"p><"col-sm-5"i>>>><"top-filterbar">Zrt',
                 rowId: 'Id',
                 processing: true,
                 serverSide: true,
                 ajax: "/Handler/GetDataHandler.ashx?curBase=<%=Master.curBase%>&curTable=<%=curTable%>&curPage=<%=Master.curPage%>",
                 columns: [
-                    { "className": 'details-control', "orderable": false, "data": null, "defaultContent": '', "width": "20px" },
-                    { "data": "Id", className: "dt-body-left", "width": "70px" },
-                    { "data": "DateUpd", className: "dt-body-center", "width": "115px" },
-                    { "data": "User", className: "dt-body-left", "width": "125px" },
-                    { "data": "DocNum", className: "dt-body-left", "width": "300px" },
-                    { "data": "DocTree", className: "dt-body-left", "width": "150px" },
-                    { "data": "DocType", className: "dt-body-left", "width": "150px" },
-                    { "data": "DocDate", className: "dt-body-center", "width": "85px" },
-                    { "data": "DocContent", className: "dt-body-left", "width": "300px" },
-                    { "data": "FrmContr", className: "dt-body-left", "width": "250px" },
-                    { "data": "Summ", className: "dt-body-right", "width": "100px" },
-                    { "data": "DocPack", className: "dt-body-right", "width": "100px" },
-                    { "data": "Prim", className: "dt-body-left", "width": "300px" },
-
+<%=tableArchive.GenerateJSTableColumns()%>
                 ],
                 autoWidth: false,
                 select: true,
@@ -312,7 +341,7 @@
                     { extend: 'remove', editor: editor, className: 'btn-sm btn-space', key: "e", text: '<span class="glyphicon glyphicon-trash" title="Удалить текущую запись"></span>' },
                     {
                         extend: 'collection',
-                        text: 'Настройка таблицы',
+                        text: 'Настройка таблицы: <%=curPageName%>',
                         buttons: [
                             {
                                 extend: 'collection',
@@ -398,8 +427,10 @@
             $('#table').on('dblclick', 'tr', function () {
                 var table = $('#table').DataTable();
                 var id = table.row(this).id();
-                $('#EditDialog').modal();
-                $('#EditDialogContent').load('/Handler/EditDialogHandler.ashx?curBase=<%=Master.curBase%>&curTable=<%=curTable%>&curPage=<%=Master.curPage%>&action=edit&curId=' + id + '&_=' + (new Date()).getTime());
+                if (id > 0) {
+                    $('#EditDialog').modal();
+                    $('#EditDialogContent').load('/Handler/EditDialogHandler.ashx?curBase=<%=Master.curBase%>&curTable=<%=curTable%>&curPage=<%=Master.curPage%>&action=edit&curId=' + id + '&_=' + (new Date()).getTime());
+                }
             });
 
             // CONTEXTMENU
@@ -441,6 +472,21 @@
             });
 
             //
+            // Barcode
+            //
+
+            $("#fBarcode").bind("keyup", function () {
+                $(this).val($(this).val().replace(/[^0-9]+/g, ""));
+                ChangeFilterColor($(this));
+                SendFilterValue();
+            });
+            $("#fBarcodeClear").bind("click", function () {
+                $("#fBarcode").val('');
+                ChangeFilterColor($("#fBarcode"));
+                SendFilterValue();
+            });
+
+            //
             //User
             //
 
@@ -477,7 +523,7 @@
             });
 
             $("#fUserClear").bind("click", function () {
-                $("#fIdUser").val(0);
+                $("#fIdUser").val('');
                 $("#fUser").val('');
                 $("#fUser").parent().find('input').removeClass("filter-active");
                 SendFilterValue();
@@ -518,7 +564,7 @@
                 name: 'thfDocTree',
                 display: 'Name',
                 highlight: true,
-                limit: 10,
+                limit: 30,
                 source: sourcefDocTree,
             });
 
@@ -534,9 +580,62 @@
             });
 
             $("#fDocTreeClear").bind("click", function () {
-                $("#fIdDocTree").val(0);
+                $("#fIdDocTree").val('');
                 $("#fDocTree").val('');
                 $("#fDocTree").parent().find('input').removeClass("filter-active");
+                SendFilterValue();
+            });
+
+            //
+            //Parent
+            //
+
+            var sourcefParent = new Bloodhound({
+                datumTokenizer: Bloodhound.tokenizers.whitespace, queryTokenizer: Bloodhound.tokenizers.whitespace,
+                remote: {
+                    url: '/Handler/TypeaheadHandler.ashx?b=<%=Master.curBase%>&t=Archive&q=%QUERY',
+                    wildcard: '%QUERY'
+                },
+                limit: 30,
+            });
+
+            $('#scrollable-dropdown-menu-fParent #fParent').typeahead({
+                highlight: true,
+                minLength: 1,
+            },
+            {
+                name: 'thfParent',
+                display: 'Name',
+                highlight: true,
+                limit: 30,
+                source: sourcefParent,
+                templates: {
+                    empty: [
+                      '<div class="empty-message">',
+                        'Ничего не найдено',
+                      '</div>'
+                    ].join('\n'),
+                    suggestion: function (data) {
+                        return '<div>' + data.Name + '  (Код ЭА:' + data.ID + ')</div>'
+                    }
+                }
+            });
+
+            $('#fParent').on("typeahead:selected typeahead:autocompleted", function (e, datum) {
+                $("#fIdParent").val(datum.ID);
+                $("#fParent").addClass("filter-active");
+                SendFilterValue();
+            });
+
+            $("#fParent").bind("change", function () {
+                if ($(this).val().trim() == '')
+                    $("#fParentClear").click();
+            });
+
+            $("#fParentClear").bind("click", function () {
+                $("#fIdParent").val('');
+                $("#fParent").val('');
+                $("#fParent").parent().find('input').removeClass("filter-active");
                 SendFilterValue();
             });
 
@@ -544,14 +643,15 @@
             // DocDate
             //
 
-            $('#fDocDateBegin,#fDocDateEnd').mask('99.99.9999', { placeholder: 'дд.мм.гггг' });
-            $('#dpDocDateBegin,#dpDocDateEnd').datetimepicker({ locale: 'ru', useCurrent: false, format: 'DD.MM.YYYY', });
-            $("#fDocDateBegin").bind("blur", function () {
+            $('#fDocDate').mask('99.99.9999', { placeholder: 'дд.мм.гггг' });
+            $('#fDocDate').datetimepicker({ locale: 'ru', useCurrent: false, format: 'DD.MM.YYYY', });
+            $("#fDocDate").bind("blur", function () {
                 ChangeFilterColor($(this));
                 SendFilterValue();
             });
-            $("#fDocDateEnd").bind("blur", function () {
-                ChangeFilterColor($(this));
+            $("#fDocDateClear").bind("click", function () {
+                $("#fDocDate").val("");
+                ChangeFilterColor($("#fDocDate"));
                 SendFilterValue();
             });
 
@@ -592,58 +692,146 @@
             });
 
             $("#fFrmContrClear").bind("click", function () {
-                $("#fIdFrmContr").val(0);
+                $("#fIdFrmContr").val('');
                 $("#fFrmContr").val('');
                 $("#fFrmContr").parent().find('input').removeClass("filter-active");
                 SendFilterValue();
             });
 
-            // ----------------
-            // ---EXT FILTER---
-            // ----------------
-
             //
-            // Id
+            // Status
             //
 
-            $("#extfId").bind("keyup", function () {
-                $(this).val($(this).val().replace(/[^0-9]+/g, ""));
+            var sourcefStatus = new Bloodhound({
+                datumTokenizer: Bloodhound.tokenizers.whitespace, queryTokenizer: Bloodhound.tokenizers.whitespace,
+                remote: {
+                    url: '/Handler/TypeaheadHandler.ashx?t=Status&q=',
+                    wildcard: '%QUERY'
+                },
+                limit: 30,
+            });
+
+            $('#scrollable-dropdown-menu-fStatus #fStatus').typeahead({
+                minLength: 0,
+            },
+            {
+                name: 'thfStatus',
+                display: 'Name',
+                highlight: true,
+                limit: 30,
+                source: sourcefStatus,
+            });
+
+            $('#fStatus').on("typeahead:selected typeahead:autocompleted", function (e, datum) {
+                $("#fIdStatus").val(datum.ID);
+                $("#fStatus").addClass("filter-active");
+                $("#fStatus").blur();
+                SendFilterValue();
+            });
+
+            $("#fStatus").bind("change", function () {
+                if ($(this).val().trim() == '')
+                    $("#fStatusClear").click();
+            });
+
+            $("#fStatusClear").bind("click", function () {
+                $("#fIdStatus").val('');
+                $("#fStatus").val('');
+                $("#fStatus").parent().find('input').removeClass("filter-active");
+                SendFilterValue();
+            });
+
+            //
+            // Source
+            //
+
+            var sourcefSource = new Bloodhound({
+                datumTokenizer: Bloodhound.tokenizers.whitespace, queryTokenizer: Bloodhound.tokenizers.whitespace,
+                remote: {
+                    url: '/Handler/TypeaheadHandler.ashx?t=Source&q=',
+                    wildcard: '%QUERY'
+                },
+                limit: 30,
+            });
+
+            $('#scrollable-dropdown-menu-fSource #fSource').typeahead({
+                minLength: 0,
+            },
+            {
+                name: 'thfSource',
+                display: 'Name',
+                highlight: true,
+                limit: 30,
+                source: sourcefSource,
+            });
+
+            $('#fSource').on("typeahead:selected typeahead:autocompleted", function (e, datum) {
+                $("#fIdSource").val(datum.ID);
+                $("#fSource").addClass("filter-active");
+                $("#fSource").blur();
+                SendFilterValue();
+            });
+
+            $("#fSource").bind("change", function () {
+                if ($(this).val().trim() == '')
+                    $("#fSourceClear").click();
+            });
+
+            $("#fSourceClear").bind("click", function () {
+                $("#fIdSource").val('');
+                $("#fSource").val('');
+                $("#fSource").parent().find('input').removeClass("filter-active");
+                SendFilterValue();
+            });
+
+            //
+            // DocContent
+            //
+
+            $("#fDocContent").bind("keyup", function () {
+                ChangeFilterColor($("#fDocContent"));
+                SendFilterValue();
+            });
+            $("#fDocContentClear").bind("click", function () {
+                $("#fDocContent").val("");
+                ChangeFilterColor($("#fDocContent"));
+                SendFilterValue();
             });
 
         });
 
-        function ChangeFilterColor(el) {
-            if (el.val().trim() == '') {
-                el.removeClass("filter-active");
-                console.log(el.val() + " no");
+            function ChangeFilterColor(el) {
+                if (el.val().trim() == '') {
+                    el.removeClass("filter-active");
+                    console.log(el.val() + " no");
+                }
+                else {
+                    el.addClass("filter-active");
+                    console.log(el.val() + " yes");
+                }
             }
-            else {
-                el.addClass("filter-active");
-                console.log(el.val() + " yes");
-            }
-        }
 
-        function SendFilterValue() {
-            var msg = $('#FilterForm').serialize();
-            $.ajax({
-                type: 'POST',
-                url: '/Handler/SessionHandler.ashx',
-                data: msg,
-                success: function (data) {
-                    $('#table').DataTable().draw();
-                },
-            });
-        }
-        function SendExtFilterValue() {
-            var msg = $('#extFilterForm').serialize();
-            $.ajax({
-                type: 'POST',
-                url: '/Handler/SessionHandler.ashx',
-                data: msg,
-                success: function (data) {
-                    $('#table').DataTable().draw();
-                },
-            });
-        }
+            function SendFilterValue() {
+                var msg = $('#FilterForm').serialize();
+                $.ajax({
+                    type: 'POST',
+                    url: '/Handler/SessionHandler.ashx',
+                    data: msg,
+                    success: function (data) {
+                        $('#table').DataTable().draw();
+                    },
+                });
+            }
+            function SendExtFilterValue() {
+                var msg = $('#extFilterForm').serialize();
+                $.ajax({
+                    type: 'POST',
+                    url: '/Handler/SessionHandler.ashx',
+                    data: msg,
+                    success: function (data) {
+                        $('#table').DataTable().draw();
+                    },
+                });
+            }
     </script>
 </asp:Content>

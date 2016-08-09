@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
@@ -13,7 +14,7 @@ using System.Web.UI;
 namespace WARP
 {
     // Общие функции проекта
-    public class ComFunc
+    public class Func
     {
         #region GetInfo
 
@@ -382,7 +383,7 @@ namespace WARP
         {
             int ret = -1;
             int resInt = 0;
-            var res = ComFunc.ExecuteScalar(query, connString);
+            var res = Func.ExecuteScalar(query, connString);
             if (int.TryParse((res is DBNull || res == null ? "-1" : res.ToString()), out resInt))
                 ret = resInt;
             return ret;
@@ -521,5 +522,11 @@ namespace WARP
             }
             return sBuilder.ToString();
         }
+
+        #region HTML Generate
+
+       
+
+        #endregion HTML Generate
     }
 }

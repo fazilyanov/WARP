@@ -30,7 +30,7 @@ namespace WARP
                     password = (Request.Form["password"] ?? "").ToString().Trim().ToLower();
                     rememberme = (Request.Form["rememberme"] ?? "").ToString();
 
-                    if (login != "" && password != "" && ComFunc.ExecuteScalarInt("SELECT id FROM [dbo].[User] WHERE [Login]='" + login + "' AND [Password]='" + password + "'") > 0)
+                    if (login != "" && password != "" && Func.ExecuteScalarInt("SELECT id FROM [dbo].[User] WHERE [Login]='" + login + "' AND [Password]='" + password + "'") > 0)
                     {
                         Session["UserFormLogin"] = login;
                         if (rememberme != "")
@@ -40,14 +40,14 @@ namespace WARP
                             cookie["password"] = password;
                             cookie.Expires = DateTime.Now.AddYears(1);
                             Response.Cookies.Add(cookie);
-                            ComFunc.LogIt(2);
+                            Func.LogIt(2);
                         }
                         Response.Redirect("/");
                     }
                     else
                     {
                         error = "Ошибка авторизации";
-                        ComFunc.LogIt(3, login + " / " + password);
+                        Func.LogIt(3, login + " / " + password);
                     }
                     break;
 

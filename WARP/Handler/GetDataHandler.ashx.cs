@@ -32,16 +32,13 @@ namespace WARP
                 //    break;
 
                 case "Archive":
-                    
-                    if (sortColi > 0) sortColi--;// Если есть "плюсик" нумерация столбцов сбивается
                     context.Response.Write(Archive.GetJsonData(curBase, curTable, Archive.GetData(curBase, curTable, curPage, displayStart, displayLength, Archive.GetColumnNameByIndex(sortColi), sortDir), drawCount));
                     break;
 
-                case "User":
-
-                    break;
+                
 
                 default:
+                    context.Response.Write("you one ugly mother f..");
                     break;
             }
         }

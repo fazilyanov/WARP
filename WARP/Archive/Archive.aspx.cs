@@ -11,10 +11,38 @@ using System.Web.Script.Serialization;
 
 namespace WARP
 {
+    public class TableArchive : Table
+    {
+        public TableArchive()
+        {
+            ShowRowInfoButton = true;
+            FieldList = new List<Field>()
+            {
+                new Field { Caption = "Код ЭА",             Name = "Id",            Align = Align.Left,     Width = 70 },
+                new Field { Caption = "Дата редак.",        Name = "DateUpd",       Align = Align.Center,   Width = 115},
+                new Field { Caption = "Оператор",           Name = "User",          Align = Align.Left,     Width = 125},
+                new Field { Caption = "Номер документа",    Name = "DocNum",        Align = Align.Left,     Width = 300},
+                new Field { Caption = "Дата докум.",        Name = "DocDate",       Align = Align.Center,   Width = 85},
+                new Field { Caption = "Документ",           Name = "DocTree",       Align = Align.Left,     Width = 150},
+                new Field { Caption = "Контрагент",         Name = "FrmContr",      Align = Align.Left,     Width = 250},
+                new Field { Caption = "Содержание",         Name = "DocContent",    Align = Align.Left,     Width = 300},
+                new Field { Caption = "Сумма",              Name = "Summ",          Align = Align.Right,    Width = 100},
+                new Field { Caption = "Пакет",              Name = "DocPack",       Align = Align.Right,    Width = 80},
+                new Field { Caption = "Примечание",         Name = "Prim",          Align = Align.Left,     Width = 300},
+                new Field { Caption = "Договор",            Name = "Parent",        Align = Align.Left,     Width = 150},
+                new Field { Caption = "Штрихкод",           Name = "Barcode",       Align = Align.Left,     Width = 80},
+                new Field { Caption = "Статус",             Name = "Status",        Align = Align.Left,     Width = 150},
+                new Field { Caption = "Источник",           Name = "Source",        Align = Align.Left,     Width = 150},
+                new Field { Caption = "Дата перед.",        Name = "DateTrans",     Align = Align.Center,   Width = 85},
+            };
+        }
+    }
+
     public partial class Archive : System.Web.UI.Page
     {
         public string curTable = "Archive";
         public string curPageName = string.Empty;
+        public Table tableArchive = new TableArchive();
 
         #region Generate
 
@@ -41,49 +69,18 @@ namespace WARP
 
                         case "Id":
                         case "IdUser":
-                        case "IdDocType":
+                        case "IdStatus":
+                        case "IdSource":
                         case "IdFrmContr":
                         case "IdDocTree":
+                        case "IdParent":
+                        case "Barcode":
                             sbWhere.AppendLine("    AND a.[" + key + "] = " + value);
                             break;
 
-                        case "DocDateBegin":
-                            sbWhere.AppendLine("    AND a.[DocDate] >=CONVERT(DATE,'" + value + "',104)");
-                            break;
-
-                        case "DocDateEnd":
-                            sbWhere.AppendLine("    AND a.[DocDate] <=CONVERT(DATE,'" + value + "',104)");
-                            break;
-                    }
-                }
-            }
-
-            Dictionary<string, string> extFilterList = (Dictionary<string, string>)HttpContext.Current.Session[curBase + curTable + curPage + "UserExtFilterList"];
-            if (extFilterList != null)
-            {
-                string key = string.Empty;
-                string value = string.Empty;
-                foreach (KeyValuePair<string, string> pair in extFilterList)
-                {
-                    key = pair.Key; 
-                    value = pair.Value;
-                    switch (key)
-                    {
-                        case "DocNum":
-                        case "DocContent":
-                        case "Prim":
-                            sbWhere.AppendLine(" AND a.[" + key + "] LIKE '%" + value.Replace("'", "''").Replace("[", "[[]") + "%'");
-                            break;
-
-                        case "Id":
-                            sbWhere.AppendLine("    AND a.[" + key + "] " + (extFilterList.ContainsKey(key + "Cond") ? extFilterList[key + "Cond"] : "=") + " " + value);
-                            break;
-
-                        case "IdUser":
-                        case "IdDocType":
-                        case "IdFrmContr":
-                        case "IdDocTree":
-                            sbWhere.AppendLine("    AND a.[" + key + "] = " + value);
+                        case "DateTrans":
+                        case "DocDate":
+                            sbWhere.AppendLine("    AND a.[DocDate] = CONVERT(DATE,'" + value + "',104)");
                             break;
 
                         case "DocDateBegin":
@@ -119,7 +116,7 @@ namespace WARP
                 {
                     fid = row["IdFile"].ToString();
                     fn = row["fileName"].ToString().Trim();
-                    hash = ComFunc.GetMd5Hash(ComFunc.GetMd5Hash(fid) + fid);
+                    hash = Func.GetMd5Hash(Func.GetMd5Hash(fid) + fid);
                     isPrivate = (bool)row["IsPrivate"];
 
                     tp.AppendLine("                  <div class=\"file-button\"  id=\"FileButton" + fid + "\">");
@@ -151,10 +148,10 @@ namespace WARP
         }
 
         // Генерит Диалоговое окно - карточку
-        public static string GenerateEditDialog(string curBase, string curTable, string curPage, TableAction action, string curId)
+        public static string GenerateEditDialog(string curBase, string curTable, string curPage, Action action, string curId)
         {
             DataRow data = null;
-            if (action == TableAction.Edit || action == TableAction.Copy)
+            if (action == Action.Edit || action == Action.Copy)
             {
                 DataTable dt = GetData(curBase, curTable, curPage, 0, 1, "Id", "Asc", curId);
                 if (dt.Rows.Count > 0)
@@ -173,13 +170,13 @@ namespace WARP
             sb.AppendLine("     <div id=\"HeaderError\" class=\"label label-danger card-modal-header-msg\"></div>");
             switch (action)
             {
-                case TableAction.Create:
-                case TableAction.Copy:
+                case Action.Create:
+                case Action.Copy:
                     sb.AppendLine("     <h4 class=\"modal-title\">Новая запись</h4>");
                     break;
 
-                case TableAction.Edit:
-                case TableAction.Remove:
+                case Action.Edit:
+                case Action.Remove:
                     sb.AppendLine("     <h4 class=\"modal-title\">Запись № " + curId.ToString() + "</h4>");
                     sb.AppendLine("     <h6 class=\"modal-title\">Дата редактирования: " + data["DateUpd"].ToString() + " " + data["User"].ToString() + "</h6>");
                     break;
@@ -201,7 +198,7 @@ namespace WARP
             sb.AppendLine("     <div class=\"row\">");
 
             // Номер документа
-            value = (action != TableAction.Create ? data["DocNum"].ToString() : string.Empty);
+            value = (action != Action.Create ? data["DocNum"].ToString() : string.Empty);
             sb.AppendLine("         <div class=\"card-input-group\">");
             sb.AppendLine("             <label class=\"card-label\">Номер документа</label>");
             sb.AppendLine("                 <input id=\"DocNum\" name=\"DocNum\" class=\"card-form-control\" value=\"" + value + "\" >");
@@ -209,8 +206,8 @@ namespace WARP
             sb.AppendLine("         </div>");
 
             // Документ
-            value = (action != TableAction.Create ? data["IdDocTree"].ToString() : "0");
-            valueText = (action != TableAction.Create ? data["DocTree"].ToString() : string.Empty);
+            value = (action != Action.Create ? data["IdDocTree"].ToString() : "0");
+            valueText = (action != Action.Create ? data["DocTree"].ToString() : string.Empty);
             sb.AppendLine("         <div id=\"scrollable-dropdown-menu\">");
             sb.AppendLine("             <div class=\"card-input-group\">");
             sb.AppendLine("                 <label class=\"card-label\">Документ</label>");
@@ -244,45 +241,8 @@ namespace WARP
             js.AppendLine();
             js.AppendLine("         $(\"#DocTree\").on(\"typeahead:selected typeahead:autocompleted\", function (e, datum) { $(\"#IdDocTree\").val(datum.ID); });");
 
-            // Вид документа
-            value = (action != TableAction.Create ? data["IdDocType"].ToString() : "0");
-            valueText = (action != TableAction.Create ? data["DocType"].ToString() : string.Empty);
-            sb.AppendLine("         <div id=\"scrollable-dropdown-menu\">");
-            sb.AppendLine("             <div class=\"card-input-group\">");
-            sb.AppendLine("                 <label class=\"card-label\" >Вид документа</label>");
-            sb.AppendLine("                 <input type=\"text\"  id=\"DocType\" onchange=\"if ($('#DocType').val().trim() == '')$('#IdDocType').val(0);\" ");
-            sb.AppendLine("                     class=\"card-form-control\"  value=\"" + valueText + "\" placeholder=\"Начните вводить для поиска по справочнику..\">");
-            sb.AppendLine("                 <input type=\"hidden\" id=\"IdDocType\" name=\"IdDocType\" value=\"" + value + "\">");
-            sb.AppendLine("                 <div id=\"IdDocTypeError\" class=\"card-input-error\">&nbsp;</div>");
-            sb.AppendLine("             </div>");
-            sb.AppendLine("         </div>");
-
-            js.AppendLine("         var sourceDocType = new Bloodhound({");
-            js.AppendLine("                datumTokenizer: Bloodhound.tokenizers.whitespace,");
-            js.AppendLine("                queryTokenizer: Bloodhound.tokenizers.whitespace,");
-            js.AppendLine("                remote: {");
-            js.AppendLine("                    url: '/Handler/TypeaheadHandler.ashx?t=DocType&q=%QUERY',");
-            js.AppendLine("                    wildcard: '%QUERY'");
-            js.AppendLine("                },");
-            js.AppendLine("                limit: 30,");
-            js.AppendLine("         });");
-            js.AppendLine();
-            js.AppendLine("         $('#scrollable-dropdown-menu #DocType').typeahead({");
-            js.AppendLine("                highlight: true,");
-            js.AppendLine("                minLength: 0,");
-            js.AppendLine("         },");
-            js.AppendLine("         {");
-            js.AppendLine("                name: 'thDocType',");
-            js.AppendLine("                display: 'Name',");
-            js.AppendLine("                highlight: true,");
-            js.AppendLine("                limit: 30,");
-            js.AppendLine("                source: sourceDocType,");
-            js.AppendLine("         });");
-            js.AppendLine();
-            js.AppendLine("         $(\"#DocType\").on(\"typeahead:selected typeahead:autocompleted\", function (e, datum) { $(\"#IdDocType\").val(datum.ID); });");
-
             // Дата документа
-            value = (action != TableAction.Create ? data["DocDate"].ToString() : string.Empty);
+            value = (action != Action.Create ? data["DocDate"].ToString() : string.Empty);
             sb.AppendLine("         <div class=\"card-input-group\">");
             sb.AppendLine("             <label class=\"card-label\" >Дата документа</label>");
             sb.AppendLine("             <input id=\"DocDate\" name=\"DocDate\" class=\"card-form-control\" value=\"" + value + "\" >");
@@ -292,7 +252,7 @@ namespace WARP
             js.AppendLine("         $('#DocDate').datetimepicker({locale: 'ru', useCurrent:false, format: 'DD.MM.YYYY',}); ");
 
             // Содержание
-            value = (action != TableAction.Create ? data["DocContent"].ToString() : string.Empty);
+            value = (action != Action.Create ? data["DocContent"].ToString() : string.Empty);
             sb.AppendLine("         <div class=\"card-input-group\">");
             sb.AppendLine("             <label class=\"card-label\">Содержание</label>");
             sb.AppendLine("                 <input id=\"DocContent\" name=\"DocContent\" class=\"card-form-control\" value=\"" + value + "\" >");
@@ -300,8 +260,8 @@ namespace WARP
             sb.AppendLine("         </div>");
 
             // Контрагент
-            value = (action != TableAction.Create ? data["IdFrmContr"].ToString() : "0");
-            valueText = (action != TableAction.Create ? data["FrmContr"].ToString() : string.Empty);
+            value = (action != Action.Create ? data["IdFrmContr"].ToString() : "0");
+            valueText = (action != Action.Create ? data["FrmContr"].ToString() : string.Empty);
             sb.AppendLine("         <div id=\"scrollable-dropdown-menu\">");
             sb.AppendLine("             <div class=\"card-input-group\">");
             sb.AppendLine("                 <label class=\"card-label\" >Контрагент</label>");
@@ -336,7 +296,7 @@ namespace WARP
             js.AppendLine("         $(\"#FrmContr\").on(\"typeahead:selected typeahead:autocompleted\", function (e, datum) { $(\"#IdFrmContr\").val(datum.ID); });");
 
             // Сумма
-            value = (action != TableAction.Create ? data["Summ"].ToString() : "0");
+            value = (action != Action.Create ? data["Summ"].ToString() : "0");
             sb.AppendLine("             <div class=\"card-input-group\">");
             sb.AppendLine("                 <label class=\"card-label\" >Сумма</label>");
             sb.AppendLine("                 <input id=\"Summ\" name=\"Summ\" class=\"card-form-control\" value=\"" + value + "\" >");
@@ -352,7 +312,7 @@ namespace WARP
             js.AppendLine("             });");
 
             // Пакет
-            value = (action != TableAction.Create ? data["DocPack"].ToString() : "0");
+            value = (action != Action.Create ? data["DocPack"].ToString() : "0");
             sb.AppendLine("         <div class=\"card-input-group\">");
             sb.AppendLine("             <label class=\"card-label\">Пакет</label>");
             sb.AppendLine("                 <input id=\"DocPack\" name=\"DocPack\" class=\"card-form-control\" value=\"" + value + "\" >");
@@ -360,7 +320,7 @@ namespace WARP
             sb.AppendLine("         </div>");
 
             // Примечание
-            value = (action != TableAction.Create ? data["Prim"].ToString() : string.Empty);
+            value = (action != Action.Create ? data["Prim"].ToString() : string.Empty);
             sb.AppendLine("         <div class=\"card-input-group\">");
             sb.AppendLine("             <label class=\"card-label\">Примечание</label>");
             sb.AppendLine("                 <input id=\"Prim\" name=\"Prim\" class=\"card-form-control\" value=\"" + value + "\" >");
@@ -385,7 +345,7 @@ namespace WARP
             tp.AppendLine("                     <input type=\"hidden\" id=\"FilesToPrivate\" name=\"FilesToPrivate\" value=\"0\">");
             tp.AppendLine("                     <input type=\"hidden\" id=\"FilesToDelete\" name=\"FilesToDelete\" value=\"0\">");
 
-            if (action != TableAction.Create && action != TableAction.Copy) // Если карточка не новая | скопированная
+            if (action != Action.Create && action != Action.Copy) // Если карточка не новая | скопированная
             {
                 DataTable dtFiles = GetFileList(curBase, curTable, data["IdVer"].ToString()); // Получаем список файлов
                 if (dtFiles.Rows.Count > 0)
@@ -396,7 +356,7 @@ namespace WARP
                     {
                         fid = row["IdFile"].ToString();
                         fn = row["fileName"].ToString().Trim();
-                        hash = ComFunc.GetMd5Hash(ComFunc.GetMd5Hash(fid) + fid);
+                        hash = Func.GetMd5Hash(Func.GetMd5Hash(fid) + fid);
                         isPrivate = (bool)row["IsPrivate"];
 
                         tp.AppendLine("                  <div class=\"file-button\"  id=\"EditFileButton" + fid + "\">");
@@ -426,7 +386,7 @@ namespace WARP
             li.AppendLine("			  <li><a data-target=\"#DocTextTab\" data-toggle=\"tab\">Текст документа</a></li>");
             tp.AppendLine("           <div role=\"tabpanel\" class=\"tab-pane fade\" id=\"DocTextTab\" style=\"height: 300px;\">");
             string text = string.Empty;
-            if (action != TableAction.Create && action != TableAction.Copy) // Если карточка не новая
+            if (action != Action.Create && action != Action.Copy) // Если карточка не новая
                 text = GetText(curBase, curTable, data["Id"].ToString()); // Получаем текст для карточки
             tp.AppendLine("                 <textarea id=\"DocText\" name=\"DocText\" class=\"card-form-control card-textarea\">" + text + "</textarea>");
             tp.AppendLine("           </div>");
@@ -467,7 +427,7 @@ namespace WARP
 
             #region Скрипты
 
-            if (action == TableAction.Copy)
+            if (action == Action.Copy)
             {
                 curId = "0";
             }
@@ -536,21 +496,9 @@ namespace WARP
 
         public static string GetColumnNameByIndex(int index)
         {
-            switch (index)
-            {
-                case 0: return "Id";
-                case 1: return "DateUpd";
-                case 2: return "User";
-                case 3: return "DocNum";
-                case 4: return "DocTree";
-                case 5: return "DocType";
-                case 6: return "DocDate";
-                case 7: return "DocContent";
-                case 8: return "FrmContr";
-                case 9: return "Summ";
-                case 10: return "Prim";
-                default: return string.Empty;
-            }
+            Table t = new TableArchive();
+            if (t.ShowRowInfoButton) index--;
+            return t.FieldList[index].Name;
         }
 
         // Возвращает список файлов для текущей версии  idVer - id версии
@@ -573,7 +521,7 @@ namespace WARP
                 sbQuery.AppendLine("WHERE A.Active=1 AND A.Del=0 AND A.Id = " + Id);
             }
 
-            DataTable dt = ComFunc.GetData(sbQuery.ToString());
+            DataTable dt = Func.GetData(sbQuery.ToString());
             return dt;
         }
 
@@ -587,7 +535,7 @@ namespace WARP
             sbQuery.AppendLine("WHERE IdArchive = " + id);
 
             // Выполняем запрос
-            var res = ComFunc.ExecuteScalar(sbQuery.ToString());
+            var res = Func.ExecuteScalar(sbQuery.ToString());
             if (res is DBNull || res == null)
                 return string.Empty;
             else
@@ -628,8 +576,6 @@ namespace WARP
             //
             sbQuery.AppendLine("   ,T.DocNum");
             sbQuery.AppendLine("   ,T.DocDate");
-            sbQuery.AppendLine("   ,T.IdDocType");
-            sbQuery.AppendLine("   ,DT.Name as DocType");
             sbQuery.AppendLine("   ,T.IdDocTree");
             sbQuery.AppendLine("   ,DT2.Name as DocTree");
             sbQuery.AppendLine("   ,T.Prim");
@@ -638,11 +584,21 @@ namespace WARP
             sbQuery.AppendLine("   ,F.Name as FrmContr");
             sbQuery.AppendLine("   ,T.Summ");
             sbQuery.AppendLine("   ,T.DocPack");
+            sbQuery.AppendLine("   ,T.IdParent");
+            sbQuery.AppendLine("   ,P.DocNum as [Parent]");
+            sbQuery.AppendLine("   ,T.Barcode");
+            sbQuery.AppendLine("   ,T.IdStatus");
+            sbQuery.AppendLine("   ,ST.Name as Status");
+            sbQuery.AppendLine("   ,T.IdSource");
+            sbQuery.AppendLine("   ,SR.Name as Source");
+            sbQuery.AppendLine("   ,T.DateTrans");
             sbQuery.AppendLine("   FROM [dbo].[" + curBase + curTable + "] T");
-            sbQuery.AppendLine("   LEFT JOIN [dbo].[Frm] F on T.IdFrmContr = F.ID");
-            sbQuery.AppendLine("   LEFT JOIN [dbo].[User] U on T.IdUser = U.ID");
-            sbQuery.AppendLine("   LEFT JOIN [dbo].[DocType] DT on T.IdDocType = DT.ID");
-            sbQuery.AppendLine("   LEFT JOIN [dbo].[DocTree] DT2 on T.IdDocTree = DT2.ID");
+            sbQuery.AppendLine("   LEFT JOIN [dbo].[Frm] F on T.IdFrmContr = F.Id");
+            sbQuery.AppendLine("   LEFT JOIN [dbo].[User] U on T.IdUser = U.Id");
+            sbQuery.AppendLine("   LEFT JOIN [dbo].[Status] ST on T.IdStatus = ST.Id");
+            sbQuery.AppendLine("   LEFT JOIN [dbo].[Source] SR on T.IdSource = SR.Id");
+            sbQuery.AppendLine("   LEFT JOIN [dbo].[DocTree] DT2 on T.IdDocTree = DT2.Id");
+            sbQuery.AppendLine("   LEFT JOIN [dbo].[" + curBase + curTable + "] P on T.IdParent = P.Id AND P.Active=1 AND P.Del=0");
             sbQuery.AppendLine(") a");
             sbQuery.AppendLine("WHERE");
             sbQuery.AppendLine(sbWhere.ToString());
@@ -654,7 +610,7 @@ namespace WARP
                 new SqlParameter { ParameterName = "@displayLength", SqlDbType = SqlDbType.Int, Value = displayLength }
             };
 
-            DataTable dt = ComFunc.GetData(sbQuery.ToString(), sqlParameterArray);
+            DataTable dt = Func.GetData(sbQuery.ToString(), sqlParameterArray);
             return dt;
         }
 
@@ -671,10 +627,6 @@ namespace WARP
                 {
                     switch (dc.ColumnName)
                     {
-                        case "Id":
-                            row.Add(dc.ColumnName, Convert.ToInt32(dr[dc.ColumnName]));
-                            break;
-
                         case "Summ":
                             row.Add(dc.ColumnName, String.Format(ruRu, "{0:0,0.00}", Convert.ToDecimal(dr[dc.ColumnName])));
                             break;
@@ -687,20 +639,14 @@ namespace WARP
                             break;
 
                         case "DocDate":
+                        case "DateTrans":
                             if (dr[dc.ColumnName] is DBNull)
                                 row.Add(dc.ColumnName, string.Empty);
                             else
                                 row.Add(dc.ColumnName, ((DateTime)dr[dc.ColumnName]).ToString("dd.MM.yyyy"));
                             break;
 
-                        case "DocNum":
-                        case "DocContent":
-                        case "Prim":
-                        case "User":
-                        case "DocTree":
-                        case "DocType":
-                        case "DocPack":
-                        case "FrmContr":
+                        default:
                             row.Add(dc.ColumnName, dr[dc.ColumnName].ToString());
                             break;
                     }
@@ -721,15 +667,15 @@ namespace WARP
                 var result = new
                 {
                     draw = drawCount,
-                    recordsTotal = (int)ComFunc.ExecuteScalar("SELECT COUNT(*) FROM [dbo].[" + curBase + curTable + "] WHERE Del=0 AND Active=1"),
+                    recordsTotal = (int)Func.ExecuteScalar("SELECT COUNT(*) FROM [dbo].[" + curBase + curTable + "] WHERE Del=0 AND Active=1"),
                     recordsFiltered = Convert.ToInt32(dt.Rows.Count > 0 ? dt.Rows[0]["recordsFiltered"] : 0),
                     data = GetFormatData(dt)
                 };
                 ret = javaScriptSerializer.Serialize(result);
             }
-            else if (HttpContext.Current.Session["LastError"] != null)
+            else 
             {
-                ret = javaScriptSerializer.Serialize(new { error = HttpContext.Current.Session["LastError"].ToString() });
+                ret = javaScriptSerializer.Serialize(new { error = "Данные не получены" });
             }
             return ret;
         }
@@ -842,7 +788,7 @@ namespace WARP
         }
 
         // Сохраняет изменения в базе
-        public static string Save(string curBase, string curTable, string curPage, TableAction tableAction, Dictionary<string, List<RequestData>> requestRows, HttpFileCollection requestFiles)
+        public static string Save(string curBase, string curTable, string curPage, Action tableAction, Dictionary<string, List<RequestData>> requestRows, HttpFileCollection requestFiles)
         {
             string result = string.Empty;
 
@@ -863,8 +809,8 @@ namespace WARP
                 // Выбираем переданное действие
                 switch (tableAction)
                 {
-                    case TableAction.Create:
-                    case TableAction.Copy:
+                    case Action.Create:
+                    case Action.Copy:
                         // Для каждой переданной строки с данными, создаем строку запроса и параметры к ней, выполняем запрос
                         foreach (KeyValuePair<string, List<RequestData>> pair in requestRows)
                         {
@@ -978,7 +924,7 @@ namespace WARP
                         }
                         break;
 
-                    case TableAction.Edit:
+                    case Action.Edit:
                         // Для каждой переданной строки с данными, создаем строку запроса и параметры к ней, выполняем запрос
                         foreach (KeyValuePair<string, List<RequestData>> pair in requestRows)
                         {
@@ -1113,7 +1059,7 @@ namespace WARP
                         }
                         break;
 
-                    case TableAction.Remove:// TODO : удалять из основной и версий совсем устаревшие данные (полгода), routine
+                    case Action.Remove:// TODO : удалять из основной и версий совсем устаревшие данные (полгода), routine
                         foreach (KeyValuePair<string, List<RequestData>> pair in requestRows)
                         {
                             query = new StringBuilder();
@@ -1161,7 +1107,7 @@ namespace WARP
                 JavaScriptSerializer javaScriptSerializer = new JavaScriptSerializer();
                 result = javaScriptSerializer.Serialize(new { error = "Ошибка при сохранении: " + ex.Message.Trim() });
 
-                ComFunc.LogSqlError(ex, sqlCommand.CommandText, param.ToArray());
+                Func.LogSqlError(ex, sqlCommand.CommandText, param.ToArray());
             }
             finally
             {
@@ -1172,7 +1118,7 @@ namespace WARP
         }
 
         // Обрабатывает запросы на редактирование данных
-        public static string Process(string curBase, string curTable, string curPage, TableAction tableAction, Dictionary<string, List<RequestData>> requestRows, HttpFileCollection requestFiles)
+        public static string Process(string curBase, string curTable, string curPage, Action tableAction, Dictionary<string, List<RequestData>> requestRows, HttpFileCollection requestFiles)
         {
             // Ответ
             string result = string.Empty;
@@ -1185,7 +1131,7 @@ namespace WARP
             //------
 
             // Чекаем на простые условия (обязательность, длинна и вообще изменилось ли что нибудь)
-            if (tableAction != TableAction.Remove)
+            if (tableAction != Action.Remove)
                 result = Validate(requestRows);
 
             //------
@@ -1214,7 +1160,7 @@ namespace WARP
 
         protected void Page_PreRender(object sender, EventArgs e)
         {
-            curPageName = ComFunc.GetArchivePageNameRus(Master.curPage);
+            curPageName = Func.GetArchivePageNameRus(Master.curPage);
         }
     }
 }

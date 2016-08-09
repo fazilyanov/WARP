@@ -22,7 +22,7 @@ namespace WARP
             string curPage = context.Request["curPage"];
 
             // Действие
-            TableAction tableAction = ComFunc.ParseEnum<TableAction>(context.Request["action"]);
+            Action tableAction = Func.ParseEnum<Action>(context.Request["action"]);
 
             // Id
             string curId = context.Request["curId"];

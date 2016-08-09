@@ -27,7 +27,7 @@ namespace WARP
             Session["UserFormLogin"] = "a.fazilyanov";
 
             curBase = (Page.RouteData.Values["pBase"] ?? string.Empty).ToString();
-            curBaseNameRus = curBase != string.Empty ? ComFunc.GetBaseNameRus(curBase) : curBase;
+            curBaseNameRus = curBase != string.Empty ? Func.GetBaseNameRus(curBase) : curBase;
             curPage = (Page.RouteData.Values["pPage"] ?? string.Empty).ToString();
 
             // Если пользователь еще не авторизировался (любым из способов)
@@ -47,7 +47,7 @@ namespace WARP
                 }
                 if (Login.Length > 0)
                 {
-                    DataTable dt = ComFunc.GetUserInfo(Login); // Ищем в базе
+                    DataTable dt = Func.GetUserInfo(Login); // Ищем в базе
 
                     if (dt == null || dt.Rows.Count == 0) // если нет такого, просим залогиниться вручную
                     {
@@ -59,7 +59,7 @@ namespace WARP
                         Session["UserLogin"] = dt.Rows[0]["Login"];
                         Session["UserName"] = dt.Rows[0]["Name"];
                         //
-                        ComFunc.LogIt(1);
+                        Func.LogIt(1);
                     }
                 }
                 else

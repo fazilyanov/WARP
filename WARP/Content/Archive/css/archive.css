@@ -160,13 +160,11 @@ td {
 /* Пагинация */
 .paging_simple_numbers {
     font-size: 12px !important;
-    text-align: center !important;
 }
 
 .pagination {
     margin: 0px !important;
     vertical-align: middle !important;
-    float: left !important;
 }
 
     .pagination > li > a {
@@ -185,7 +183,7 @@ td {
 }
 
 /* Быстрый фильтр */
-.top-filterbar {
+.top-filterbar,.top-filterbar2 {
     padding-top: 5px;
 }
 
@@ -216,7 +214,7 @@ td {
 }
 
 .tt-menu { /* used to be tt-dropdown-menu in older versions */
-    width: 422px;
+    width: 118%;
     margin-top: 35px;
     padding: 4px 0;
     background-color: #fff;
@@ -244,9 +242,10 @@ td {
         margin: 0;
     }
 
-#scrollable-dropdown-menu .tt-menu {
-    max-height: 250px;
+.tt-menu {
+    max-height: 300px;
     overflow-y: auto;
+
 }
 
 /* IE */
@@ -419,7 +418,8 @@ tr.details td.details-control {
 }
 
 .input-group-addon {
-    width: 30px !important;
+    width: 20px !important;
+    padding: 6px 0px;
 }
 
 .filter-active {
@@ -430,6 +430,6 @@ tr.details td.details-control {
     padding-right: 0px;
 }
 
-.extfLabel {
-    margin-top: 4px;
+.fbtn {
+    padding: 5px;
 }

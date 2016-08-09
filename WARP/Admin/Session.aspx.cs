@@ -13,7 +13,7 @@ namespace WARP
         protected void Page_Load(object sender, EventArgs e)
         {
             Response.Clear();
-            Response.Write(ComFunc.GetSessionValues());
+            Response.Write(Func.GetSessionValues());
             Response.End();
         }
         

@@ -13,6 +13,7 @@ namespace WARP
     {
         public void ProcessRequest(HttpContext context)
         {
+            /*
             // База
             string curBase = context.Request["curBase"];
 
@@ -81,6 +82,7 @@ namespace WARP
 
             // Обрабатываем запрос
             context.Response.Write(tableData.Process());
+            */
         }
 
         public bool IsReusable
