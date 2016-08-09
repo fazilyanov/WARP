@@ -168,7 +168,7 @@
 
             document.title = '<%=curPageName%>';
 
-            $('#curPageTitle').text('Электронный архив | База: <%=Master.curBaseNameRus%> | Документы | <%=curPageName%>');
+            $('#ddSection').html('Документы: Представление: <%=curPageName%><b class="caret"></b>');
 
             // EDITOR
             editor = new $.fn.dataTable.Editor({

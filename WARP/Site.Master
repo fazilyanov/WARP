@@ -28,7 +28,7 @@
     <link rel="stylesheet" type="text/css" href="/Content/RowReorder-1.1.2/css/rowReorder.bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="/Content/Select-1.2.0/css/select.bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="/Content/ContextMenu-2.2.4/jquery.contextMenu.css" />
-    <link rel="stylesheet" type="text/css" href="/Content/BootstrapDateTimePicker/css/bootstrap-datetimepicker.css"  />
+    <link rel="stylesheet" type="text/css" href="/Content/BootstrapDateTimePicker/css/bootstrap-datetimepicker.css" />
     <link rel="stylesheet" type="text/css" href="/Content/Archive/css/archive.css?v=1" />
 
     <script type="text/javascript" src="/Content/jQuery-2.2.3/jquery-2.2.3.js"></script>
@@ -78,14 +78,18 @@
 <body>
     <div class="container-fluid" style="padding-top: 2px;">
         <nav class="navbar navbar-blue ">
-            <div class="container-fluid">
+            <div class="container-fluid" style="padding-left: 0px">
                 <ul class="nav navbar-nav">
-                    <li><a id="curPageTitle" href="/" style="padding-left: 0px;">Электронный Архив</a></li>
-                </ul>
-                <ul class="nav navbar-nav navbar-right">
-
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">База<span class="caret"></span></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Электронный архив<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/">Электронный архив</a></li>
+                            <li><a href="#">Система заявок</a></li>
+                            <li><a href="#">Корпоративные справочники</a></li>
+                        </ul>
+                    </li>
+                    <li id="ddBase" class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Организация: <%=(curBase != string.Empty?curBaseNameRus:"Не выбрана")%><span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <%=WARP.ComFunc.GetBaseHtmlList()%>
                         </ul>
@@ -94,49 +98,47 @@
                         if (curBase != string.Empty)
                         {
                     %>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Документы<span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <%=WARP.ComFunc.GetArchivePageHtmlList(curBase)%>
-                        </ul>
-                    </li>
-                    <%
-                        }
-                    %>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Справочники<span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="<%=GetRouteUrl("frm", new {})%>">Контрагенты</a></li>
-                            <li role="separator" class="divider"></li>
-                            <li><a href="#">Another action</a></li>
+                    <li id="ddDoc" class="dropdown">
+                        <a id="ddSection" role="button" data-toggle="dropdown" href="#">Разделы<b class="caret"></b></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li class="dropdown-submenu">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Документы</a>
+                                <ul class="dropdown-menu">
+                                    <li role="presentation"><a role="menuitem" href="<%=Page.GetRouteUrl("archive", new { pBase = curBase, pPage = "All"})%>">Поиск</a></li>
+                                </ul>
+                            </li>
+                            <li class="dropdown-submenu">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Реестры</a>
+                                <ul class="dropdown-menu">
+                                    <li role="presentation"><a role="menuitem" target="_blank" href="#">Реестр1</a></li>
+                                    <li role="presentation"><a role="menuitem" target="_blank" href="#">Реестр2</a></li>
+                                </ul>
+                            </li>
+                            <li class="dropdown-submenu">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Справочники</a>
+                                <ul class="dropdown-menu">
+                                    <li role="presentation"><a role="menuitem" target="_blank" href="#">Сотрудники1</a></li>
+                                    <li role="presentation"><a role="menuitem" target="_blank" href="#">Сотрудники2</a></li>
+                                </ul>
+                            </li>
+                            <li class="dropdown-submenu">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Отчеты</a>
+                                <ul class="dropdown-menu">
+                                    <li role="presentation"><a role="menuitem" href="#">Отчет1</a></li>
+                                    <li role="presentation"><a role="menuitem" href="#">Отчет2</a></li>
+                                </ul>
+                            </li>
                         </ul>
                     </li>
 
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Сервис<span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="#">Action</a></li>
-                            <li><a href="#">Another action</a></li>
-                            <li><a href="#">Something else here</a></li>
-                            <li role="separator" class="divider"></li>
-                            <li><a href="#">Separated link</a></li>
-                            <li role="separator" class="divider"></li>
-                            <li><a href="#">One more separated link</a></li>
-                        </ul>
-                    </li>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Справка<span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="#">Action</a></li>
-                            <li><a href="#">Another action</a></li>
-                            <li><a href="#">Something else here</a></li>
-                            <li role="separator" class="divider"></li>
-                            <li><a href="#">Separated link</a></li>
-                            <li role="separator" class="divider"></li>
-                            <li><a href="#">One more separated link</a></li>
-                        </ul>
-                    </li>
+                    <%
+                        }
+                    %>
                 </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#"><span class="glyphicon glyphicon-cog"></span></a></li>
+                    <li><a href="#"><span class="glyphicon glyphicon-question-sign"></span></a></li>
+                    </ul>
             </div>
         </nav>
         <asp:ContentPlaceHolder ID="cph" runat="server">

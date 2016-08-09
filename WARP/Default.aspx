@@ -7,17 +7,16 @@
     <script type="text/javascript">
         jQuery(document).ready(function () {
         <%
-        if (Master.curBaseName == string.Empty)
+        if (Master.curBase == string.Empty)
         {
         %>
-            $('.navbar-right > li').first().addClass('open');
+            $('#ddBase').addClass('open');
         <%
         }
         else
         {
         %>
-            $('.navbar-right > li').first().next().addClass('open');
-            $('#curPageTitle').text('Электронный архив / База: <%=Master.curBaseNameRus%>');
+            $('#ddDoc').addClass('open');
         <%
         }
         %>

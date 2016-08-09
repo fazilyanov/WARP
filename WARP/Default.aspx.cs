@@ -5,7 +5,7 @@ namespace WARP
 {
     public partial class Default : System.Web.UI.Page
     {
-        public string htmlBaseList = string.Empty;
+      
 
         protected void Page_PreRender(object sender, EventArgs e)
         {
