@@ -25,6 +25,9 @@ namespace WARP
             // ID
             string curId = context.Request["curId"];
 
+            // 
+            string showVer = context.Request["showVer"] ?? "0";
+
             // В зависимости от таблицы, используем соответствующий класс
             switch (curTable)
             {
@@ -36,7 +39,10 @@ namespace WARP
                 //    break;
 
                 case "Archive":
-                    context.Response.Write(Archive.GenerateEditDialog(curBase, curTable,curPage,tableAction,curId));
+                    if (showVer == "0")
+                        context.Response.Write(Archive.GenerateEditDialog(curBase, curTable,curPage,tableAction,curId));
+                    else
+                        context.Response.Write(ArchiveVer.GenerateEditDialog(curBase, curTable, curPage, tableAction, curId));
                     break;
 
                 case "User":

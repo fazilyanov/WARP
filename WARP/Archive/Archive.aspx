@@ -24,6 +24,8 @@
             <input type="hidden" name="page" value="<%=(Master.curBase+curTable+Master.curPage)%>">
             <input type="hidden" name="act" value="setfilter">
             <div class="row">
+
+                <!-- Id -->
                 <div class="col-sm-1 pr0">
                     <div class='input-group' style="width: 100%">
                         <input id="fId" name="fId" type="text" class="form-control input-sm" value="" placeholder="Код ЭА">
@@ -37,6 +39,8 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Barcode -->
                 <div class="col-sm-1 pr0">
                     <div class='input-group' style="width: 100%">
                         <input id="fBarcode" name="fBarcode" type="text" class="form-control input-sm" value="" placeholder="Штрихкод">
@@ -50,6 +54,8 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- DocDate -->
                 <div class="col-sm-1 pr0">
                     <div class='input-group date' style="width: 100%" id='dpDocDateBegin'>
                         <input id="fDocDate" name="fDocDate" type="text" class="form-control input-sm" value="" placeholder="Дата документа">
@@ -63,6 +69,8 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- DocNum -->
                 <div class="col-sm-1 pr0">
                     <div class='input-group' style="width: 100%">
                         <input id="fDocNum" name="fDocNum" type="text" class="form-control input-sm" value="" placeholder="Номер документа">
@@ -77,6 +85,7 @@
                     </div>
                 </div>
 
+                <!-- Parent -->
                 <div class="col-sm-2 pr0">
                     <div id="scrollable-dropdown-menu-fParent">
                         <div class='input-group' style="width: 100%">
@@ -94,6 +103,7 @@
                     </div>
                 </div>
 
+                <!-- DocTree -->
                 <div class="col-sm-2 pr0">
                     <div id="scrollable-dropdown-menu-fDocTree">
                         <div class='input-group' style="width: 100%">
@@ -111,6 +121,7 @@
                     </div>
                 </div>
 
+                <!-- FrmContr -->
                 <div class="col-sm-2 pr0">
                     <div id="scrollable-dropdown-menu-fFrmContr">
                         <div class='input-group' style="width: 100%">
@@ -127,6 +138,8 @@
                     </div>
                     <input id="fIdFrmContr" name="fIdFrmContr" type="hidden" value="">
                 </div>
+
+                <!-- User -->
                 <div class="col-sm-2" style="width: 15%;">
                     <div id="scrollable-dropdown-menu-fUser">
                         <div class='input-group' style="width: 100%">
@@ -149,6 +162,48 @@
             <!-- Расширенный -->
             <div id="addFilter" style="display: none;">
                 <div class="row" style="padding-top: 5px">
+
+                    <!-- DateUpd -->
+                    <div class="col-sm-2 pr0">
+                        <div class="row">
+                            <div class="col-sm-5 pr0" style="width:43%">
+                                <div class='input-group' style="width: 100%">
+                                    <input id="fDateUpdBegin" name="fDateUpdBegin" type="text" class="form-control input-sm" value="" placeholder="Дата ред. с">
+                                </div>
+                            </div>
+                            <div class="col-sm-7" style="padding-left:0px;width:57%">
+                                <div class='input-group date' style="width: 100%" id='dpDateUpdBegin'>
+                                    <input id="fDateUpdEnd" name="fDateUpdEnd" type="text" class="form-control input-sm" value="" placeholder="Дата ред. по" 
+                                        style="border-left: 0px;border-top-left-radius: 0;border-bottom-left-radius: 0;">
+                                    <div class="input-group-btn" style="width: 1%">
+                                        <button type="button" id="fDateUpdExt" class="btn btn-default btn-sm fbtn">
+                                            <span class="glyphicon glyphicon-filter"></span>
+                                        </button>
+                                        <button type="button" id="fDateUpdClear" class="btn btn-default btn-sm fbtn">
+                                            <span class="glyphicon glyphicon-remove"></span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DocContent -->
+                    <div class="col-sm-2 pr0">
+                        <div class='input-group' style="width: 100%">
+                            <input id="fDocContent" name="fDocContent" type="text" class="form-control input-sm" value="" placeholder="Содержание">
+                            <div class="input-group-btn" style="width: 1%">
+                                <button type="button" id="fDocContentExt" class="btn btn-default btn-sm fbtn">
+                                    <span class="glyphicon glyphicon-filter"></span>
+                                </button>
+                                <button type="button" id="fDocContentClear" class="btn btn-default btn-sm fbtn">
+                                    <span class="glyphicon glyphicon-remove"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status -->
                     <div class="col-sm-1 pr0">
                         <div id="scrollable-dropdown-menu-fStatus">
                             <div class='input-group' style="width: 100%">
@@ -165,6 +220,8 @@
                         </div>
                         <input id="fIdStatus" name="fIdStatus" type="hidden" value="">
                     </div>
+
+                    <!-- Source -->
                     <div class="col-sm-1 pr0">
                         <div id="scrollable-dropdown-menu-fSource">
                             <div class='input-group' style="width: 100%">
@@ -181,14 +238,32 @@
                         </div>
                         <input id="fIdSource" name="fIdSource" type="hidden" value="">
                     </div>
+
+
+                    <!-- DateTrans -->
+                    <div class="col-sm-1 pr0">
+                        <div class='input-group' style="width: 100%">
+                            <input id="fDateTrans" name="fDateTrans" type="text" class="form-control input-sm" value="" placeholder="Дата передачи">
+                            <div class="input-group-btn" style="width: 1%">
+                                <button type="button" id="fDateTransExt" class="btn btn-default btn-sm fbtn">
+                                    <span class="glyphicon glyphicon-filter"></span>
+                                </button>
+                                <button type="button" id="fDateTransClear" class="btn btn-default btn-sm fbtn">
+                                    <span class="glyphicon glyphicon-remove"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Summ -->
                     <div class="col-sm-1 pr0">
                     <div class='input-group' style="width: 100%">
-                        <input id="fDocContent" name="fDocContent" type="text" class="form-control input-sm" value="" placeholder="Содержание">
+                        <input id="fSumm" name="fSumm" type="text" class="form-control input-sm" value="" placeholder="Сумма">
                         <div class="input-group-btn" style="width: 1%">
-                            <button type="button" id="fDocContentExt" class="btn btn-default btn-sm fbtn">
+                            <button type="button" id="fSummExt" class="btn btn-default btn-sm fbtn">
                                 <span class="glyphicon glyphicon-filter"></span>
                             </button>
-                            <button type="button" id="fDocContentClear" class="btn btn-default btn-sm fbtn">
+                            <button type="button" id="fSummClear" class="btn btn-default btn-sm fbtn">
                                 <span class="glyphicon glyphicon-remove"></span>
                             </button>
                         </div>
@@ -401,7 +476,6 @@
             // ROWINFO
             var detailRows = [];
 
-            function format(id) { return '<div id="RowInfo' + id + '"></div>'; }
 
             $('#table tbody').on('click', 'tr td.details-control', function () {
                 var tr = $(this).closest('tr');
@@ -644,7 +718,6 @@
             //
 
             $('#fDocDate').mask('99.99.9999', { placeholder: 'дд.мм.гггг' });
-            $('#fDocDate').datetimepicker({ locale: 'ru', useCurrent: false, format: 'DD.MM.YYYY', });
             $("#fDocDate").bind("blur", function () {
                 ChangeFilterColor($(this));
                 SendFilterValue();
@@ -795,6 +868,53 @@
             $("#fDocContentClear").bind("click", function () {
                 $("#fDocContent").val("");
                 ChangeFilterColor($("#fDocContent"));
+                SendFilterValue();
+            });
+
+            //
+            // DateTrans
+            //
+
+            $('#fDateTrans').mask('99.99.9999', { placeholder: 'дд.мм.гггг' });
+            $("#fDateTrans").bind("blur", function () {
+                ChangeFilterColor($(this));
+                SendFilterValue();
+            });
+            $("#fDateTransClear").bind("click", function () {
+                $("#fDateTrans").val("");
+                ChangeFilterColor($("#fDateTrans"));
+                SendFilterValue();
+            });
+
+            //
+            // DateUpd
+            //
+
+            $('#fDateUpdBegin,#fDateUpdEnd')
+                .mask('99.99.9999 99:99', { placeholder: 'дд.мм.гггг чч:мм' })
+                .datetimepicker({ locale: 'ru' })
+                .bind("blur", function () {
+                    ChangeFilterColor($(this));
+                    SendFilterValue();
+                });
+            $("#fDateUpdClear").bind("click", function () {
+                $("#fDateUpdBegin, #fDateUpdEnd").val("");
+                ChangeFilterColor($("#fDateUpdBegin,#fDateUpdEnd"));
+                SendFilterValue();
+            });
+
+            //
+            // Summ
+            //
+
+            $("#fSumm").bind("keyup", function () {
+                //$(this).val($(this).val().replace(/^\d+(?:,\d{1,2})?$/, ""));
+                ChangeFilterColor($(this));
+                SendFilterValue();
+            });
+            $("#fSummClear").bind("click", function () {
+                $("#fSumm").val('');
+                ChangeFilterColor($("#fSumm"));
                 SendFilterValue();
             });
 

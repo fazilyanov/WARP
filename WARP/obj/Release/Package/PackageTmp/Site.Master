@@ -1,0 +1,148 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Site.master.cs" Inherits="WARP.Site" EnableViewState="false" ViewStateMode="Disabled" %>
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Архив документов</title>
+
+    <link rel="icon" href="/Content/favicon.ico" />
+
+    <link rel="stylesheet" type="text/css" href="/Content/Bootstrap-3.3.6/css/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/Content/Quill-0.20.1/quill.snow.css" />
+    <link rel="stylesheet" type="text/css" href="/Content/Select2-4.0.1/css/select2.css" />
+    <link rel="stylesheet" type="text/css" href="/Content/Selectize-0.12.1/css/selectize.css" />
+    <link rel="stylesheet" type="text/css" href="/Content/DataTables-1.10.12/css/dataTables.bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/Content/AutoFill-2.1.2/css/autoFill.bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="/Content/Buttons-1.2.1/css/buttons.bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/Content/ColReorder-1.3.2/css/colReorder.bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/Content/Editor-1.5.6/css/editor.bootstrap.css" />
+    <!--<link rel="stylesheet" type="text/css" href="/Content/FieldType-Quill-1.5.6/editor.quill.css" />-->
+    <!--<link rel="stylesheet" type="text/css" href="/Content/FieldType-Select2-1.5.6/editor.select2.css" />-->
+    <!--<link rel="stylesheet" type="text/css" href="/Content/FieldType-Selectize-1.5.6/editor.selectize.css" />-->
+    <!--<link rel="stylesheet" type="text/css" href="/Content/FieldType-Title-1.5.6/editor.title.css" />-->
+    <link rel="stylesheet" type="text/css" href="/Content/FixedColumns-3.2.2/css/fixedColumns.bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/Content/KeyTable-2.1.2/css/keyTable.bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/Content/Responsive-2.1.0/css/responsive.bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/Content/RowReorder-1.1.2/css/rowReorder.bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/Content/Select-1.2.0/css/select.bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/Content/ContextMenu-2.2.4/jquery.contextMenu.css" />
+    <link rel="stylesheet" type="text/css" href="/Content/BootstrapDateTimePicker/css/bootstrap-datetimepicker.css" />
+    <link rel="stylesheet" type="text/css" href="/Content/Archive/css/archive.css?v=1" />
+
+    <script type="text/javascript" src="/Content/jQuery-2.2.3/jquery-2.2.3.js"></script>
+    <script type="text/javascript" src="/Content/Bootstrap-3.3.6/js/bootstrap.js"></script>
+    <script type="text/javascript" src="/Content/JSZip-2.5.0/jszip.js"></script>
+    <script type="text/javascript" src="/Content/pdfmake-0.1.18/build/pdfmake.js"></script>
+    <script type="text/javascript" src="/Content/pdfmake-0.1.18/build/vfs_fonts.js"></script>
+    <!--<script type="text/javascript" src="/Content/MomentJS-2.13.0/moment.js"></script>--%>-->
+    <!--<script type="text/javascript" src="/Content/jquery-mask-1.13.4/dist/jquery.mask.js"></script>-->
+    <script type="text/javascript" src="/Content/Quill-0.20.1/quill.js"></script>
+    <script type="text/javascript" src="/Content/Select2-4.0.1/js/select2.js"></script>
+    <script type="text/javascript" src="/Content/Selectize-0.12.1/js/standalone/selectize.js"></script>
+    <script type="text/javascript" src="/Content/DataTables-1.10.12/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" src="/Content/DataTables-1.10.12/js/dataTables.bootstrap.js"></script>
+    <script type="text/javascript" src="/Content/AutoFill-2.1.2/js/dataTables.autoFill.js"></script>
+    <script type="text/javascript" src="/Content/AutoFill-2.1.2/js/autoFill.bootstrap.js"></script>
+    <script type="text/javascript" src="/Content/Buttons-1.2.1/js/dataTables.buttons.js"></script>
+    <script type="text/javascript" src="/Content/Buttons-1.2.1/js/buttons.bootstrap.js"></script>
+    <script type="text/javascript" src="/Content/Buttons-1.2.1/js/buttons.colVis.js"></script>
+    <script type="text/javascript" src="/Content/Buttons-1.2.1/js/buttons.html5.js"></script>
+    <script type="text/javascript" src="/Content/Buttons-1.2.1/js/buttons.print.js"></script>
+    <script type="text/javascript" src="/Content/ColReorder-1.3.2/js/dataTables.colReorder.js"></script>
+    <script type="text/javascript" src="/Content/Editor-1.5.6/js/dataTables.editor.js"></script>
+    <script type="text/javascript" src="/Content/Editor-1.5.6/js/editor.bootstrap.js"></script>
+    <!--<script type="text/javascript" src="/Content/FieldType-Display-1.5.6/editor.display.js"></script>-->
+    <!--<script type="text/javascript" src="/Content/FieldType-Mask-1.5.6/editor.mask.js"></script>-->
+    <!--<script type="text/javascript" src="/Content/FieldType-Quill-1.5.6/editor.quill.js"></script>-->
+    <!--<script type="text/javascript" src="/Content/FieldType-Select2-1.5.6/editor.select2.js"></script>-->
+    <!-- <script type="text/javascript" src="/Content/FieldType-Selectize-1.5.6/editor.selectize.js"></script>-->
+    <!-- <script type="text/javascript" src="/Content/FieldType-Title-1.5.6/editor.title.js"></script>-->
+    <script type="text/javascript" src="/Content/FixedColumns-3.2.2/js/dataTables.fixedColumns.js"></script>
+    <script type="text/javascript" src="/Content/KeyTable-2.1.2/js/dataTables.keyTable.js"></script>
+    <script type="text/javascript" src="/Content/Responsive-2.1.0/js/dataTables.responsive.js"></script>
+    <script type="text/javascript" src="/Content/RowReorder-1.1.2/js/dataTables.rowReorder.js"></script>
+    <script type="text/javascript" src="/Content/Select-1.2.0/js/dataTables.select.js"></script>
+    <script type="text/javascript" src="/Content/ContextMenu-2.2.4/jquery.contextMenu.js"></script>
+    <script type="text/javascript" src="/Content/Moments-2.14.1/moment-with-locales.js"></script>
+    <script type="text/javascript" src="/Content/BootstrapDateTimePicker/js/bootstrap-datetimepicker.min.js"></script>
+    <!-- -->
+    <script type="text/javascript" src="/Content/dataTables.colResize.js"></script>
+    <script type="text/javascript" src="/Content/Archive/js/typeahead.bundle.js"></script>
+    <script type="text/javascript" src="/Content/Archive/js/archive.js"></script>
+    <script type="text/javascript" src="/Content/Archive/js/jquery.maskedinput.min.js"></script>
+    <script type="text/javascript" src="/Content/Archive/js/accounting.min.js"></script>
+</head>
+
+<body>
+    <div class="container-fluid" style="padding-top: 2px;">
+        <nav class="navbar navbar-blue ">
+            <div class="container-fluid" style="padding-left: 0px">
+                <ul class="nav navbar-nav">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Электронный архив<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/">Электронный архив</a></li>
+                            <li><a href="#">Система заявок</a></li>
+                            <li><a href="#">Корпоративные справочники</a></li>
+                        </ul>
+                    </li>
+                    <li id="ddBase" class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Организация: <%=(curBase != string.Empty?curBaseNameRus:"Не выбрана")%><span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <%=WARP.Func.GetBaseHtmlList()%>
+                        </ul>
+                    </li>
+                    <%
+                        if (curBase != string.Empty)
+                        {
+                    %>
+                    <li id="ddDoc" class="dropdown">
+                        <a id="ddSection" role="button" data-toggle="dropdown" href="#">&nbsp;&nbsp;<b class="caret"></b>&nbsp;&nbsp;&nbsp;</a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li class="dropdown-submenu">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Документы</a>
+                                <ul class="dropdown-menu">
+                                    <li role="presentation"><a role="menuitem" href="<%=Page.GetRouteUrl("archive", new { pBase = curBase, pPage = "All"})%>">Поиск</a></li>
+                                </ul>
+                            </li>
+                            <li class="dropdown-submenu">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Реестры</a>
+                                <ul class="dropdown-menu">
+                                    <li role="presentation"><a role="menuitem" target="_blank" href="#">Реестр1</a></li>
+                                    <li role="presentation"><a role="menuitem" target="_blank" href="#">Реестр2</a></li>
+                                </ul>
+                            </li>
+                            <li class="dropdown-submenu">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Справочники</a>
+                                <ul class="dropdown-menu">
+                                    <li role="presentation"><a role="menuitem" target="_blank" href="#">Сотрудники1</a></li>
+                                    <li role="presentation"><a role="menuitem" target="_blank" href="#">Сотрудники2</a></li>
+                                </ul>
+                            </li>
+                            <li class="dropdown-submenu">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Отчеты</a>
+                                <ul class="dropdown-menu">
+                                    <li role="presentation"><a role="menuitem" href="#">Отчет1</a></li>
+                                    <li role="presentation"><a role="menuitem" href="#">Отчет2</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <%
+                        }
+                    %>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#"><span class="glyphicon glyphicon-cog"></span></a></li>
+                    <li><a href="#"><span class="glyphicon glyphicon-question-sign"></span></a></li>
+                    </ul>
+            </div>
+        </nav>
+        <asp:ContentPlaceHolder ID="cph" runat="server">
+        </asp:ContentPlaceHolder>
+    </div>
+</body>
+</html>

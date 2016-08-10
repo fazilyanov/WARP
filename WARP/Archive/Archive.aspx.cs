@@ -18,22 +18,22 @@ namespace WARP
             ShowRowInfoButton = true;
             FieldList = new List<Field>()
             {
-                new Field { Caption = "Код ЭА",             Name = "Id",            Align = Align.Left,     Width = 70 },
-                new Field { Caption = "Дата редак.",        Name = "DateUpd",       Align = Align.Center,   Width = 115},
-                new Field { Caption = "Оператор",           Name = "User",          Align = Align.Left,     Width = 125},
-                new Field { Caption = "Номер документа",    Name = "DocNum",        Align = Align.Left,     Width = 300},
-                new Field { Caption = "Дата докум.",        Name = "DocDate",       Align = Align.Center,   Width = 85},
-                new Field { Caption = "Документ",           Name = "DocTree",       Align = Align.Left,     Width = 150},
-                new Field { Caption = "Контрагент",         Name = "FrmContr",      Align = Align.Left,     Width = 250},
-                new Field { Caption = "Содержание",         Name = "DocContent",    Align = Align.Left,     Width = 300},
-                new Field { Caption = "Сумма",              Name = "Summ",          Align = Align.Right,    Width = 100},
-                new Field { Caption = "Пакет",              Name = "DocPack",       Align = Align.Right,    Width = 80},
-                new Field { Caption = "Примечание",         Name = "Prim",          Align = Align.Left,     Width = 300},
-                new Field { Caption = "Договор",            Name = "Parent",        Align = Align.Left,     Width = 150},
-                new Field { Caption = "Штрихкод",           Name = "Barcode",       Align = Align.Left,     Width = 80},
-                new Field { Caption = "Статус",             Name = "Status",        Align = Align.Left,     Width = 150},
-                new Field { Caption = "Источник",           Name = "Source",        Align = Align.Left,     Width = 150},
-                new Field { Caption = "Дата перед.",        Name = "DateTrans",     Align = Align.Center,   Width = 85},
+                new Field { Caption = "Код ЭА",             Name = "Id",            Align = Align.Left,     Width = 70 },//1
+                new Field { Caption = "Дата редак.",        Name = "DateUpd",       Align = Align.Center,   Width = 115},//1
+                new Field { Caption = "Оператор",           Name = "User",          Align = Align.Left,     Width = 125},//1
+                new Field { Caption = "Номер документа",    Name = "DocNum",        Align = Align.Left,     Width = 300},//1
+                new Field { Caption = "Дата докум.",        Name = "DocDate",       Align = Align.Center,   Width = 85 },//1
+                new Field { Caption = "Документ",           Name = "DocTree",       Align = Align.Left,     Width = 150},//1
+                new Field { Caption = "Контрагент",         Name = "FrmContr",      Align = Align.Left,     Width = 250},//1
+                new Field { Caption = "Содержание",         Name = "DocContent",    Align = Align.Left,     Width = 300},//1
+                new Field { Caption = "Сумма",              Name = "Summ",          Align = Align.Right,    Width = 100},//1
+                new Field { Caption = "Пакет",              Name = "DocPack",       Align = Align.Right,    Width = 80 },//1
+                new Field { Caption = "Примечание",         Name = "Prim",          Align = Align.Left,     Width = 300},//1
+                new Field { Caption = "Договор",            Name = "Parent",        Align = Align.Left,     Width = 150},//
+                new Field { Caption = "Штрихкод",           Name = "Barcode",       Align = Align.Left,     Width = 80 },//
+                new Field { Caption = "Статус",             Name = "Status",        Align = Align.Left,     Width = 150},//
+                new Field { Caption = "Источник",           Name = "Source",        Align = Align.Left,     Width = 150},//
+                new Field { Caption = "Дата перед.",        Name = "DateTrans",     Align = Align.Center,   Width = 85 },//
             };
         }
     }
@@ -78,9 +78,14 @@ namespace WARP
                             sbWhere.AppendLine("    AND a.[" + key + "] = " + value);
                             break;
 
+                        case "Summ":
+                            value = value.Replace(',', '.');
+                            sbWhere.AppendLine("    AND a.[" + key + "] = " + value);
+                            break;
+
                         case "DateTrans":
                         case "DocDate":
-                            sbWhere.AppendLine("    AND a.[DocDate] = CONVERT(DATE,'" + value + "',104)");
+                            sbWhere.AppendLine("    AND a.[" + key + "] = CONVERT(DATE,'" + value + "',104)");
                             break;
 
                         case "DocDateBegin":
@@ -89,6 +94,14 @@ namespace WARP
 
                         case "DocDateEnd":
                             sbWhere.AppendLine("    AND a.[DocDate] <=CONVERT(DATE,'" + value + "',104)");
+                            break;
+
+                        case "DateUpdBegin":
+                            sbWhere.AppendLine("    AND a.[DateUpd] >=CONVERT(DATETIME,'" + value + "',104)");
+                            break;
+
+                        case "DateUpdEnd":
+                            sbWhere.AppendLine("    AND a.[DateUpd] <=CONVERT(DATETIME,'" + value + "',104)");
                             break;
                     }
                 }
@@ -195,14 +208,22 @@ namespace WARP
 
             sb.AppendLine("<form method=\"POST\" id=\"EditForm\" name=\"EditForm\" action=\"javascript: void(null);\" enctype=\"multipart/form-data\">");
             sb.AppendLine("<div id=\"EditDialogBody\" class=\"modal-body\">");
-            sb.AppendLine("     <div class=\"row\">");
+            sb.AppendLine("     <div class=\"row\" style=\"padding-left:5px;\">");
 
             // Номер документа
             value = (action != Action.Create ? data["DocNum"].ToString() : string.Empty);
             sb.AppendLine("         <div class=\"card-input-group\">");
             sb.AppendLine("             <label class=\"card-label\">Номер документа</label>");
             sb.AppendLine("                 <input id=\"DocNum\" name=\"DocNum\" class=\"card-form-control\" value=\"" + value + "\" >");
-            sb.AppendLine("                 <div id=\"DocNumError\" class=\"card-input-error\">&nbsp;</div>");
+            sb.AppendLine("                 <div id=\"DocNumError\" class=\"card-input-error\"></div>");
+            sb.AppendLine("         </div>");
+
+            // Штрихкод
+            value = (action != Action.Create ? data["Barcode"].ToString() : "0");
+            sb.AppendLine("         <div class=\"card-input-group\">");
+            sb.AppendLine("             <label class=\"card-label\">Штрихкод</label>");
+            sb.AppendLine("                 <input id=\"Barcode\" name=\"Barcode\" class=\"card-form-control\" value=\"" + value + "\" >");
+            sb.AppendLine("                 <div id=\"BarcodeError\" class=\"card-input-error\"></div>");
             sb.AppendLine("         </div>");
 
             // Документ
@@ -214,7 +235,7 @@ namespace WARP
             sb.AppendLine("                 <input type=\"text\"  id=\"DocTree\" onchange=\"if ($('#DocTree').val().trim() == '')$('#IdDocTree').val(0);\" ");
             sb.AppendLine("                     class=\"card-form-control\"  value=\"" + valueText + "\" placeholder=\"Начните вводить для поиска по справочнику..\">");
             sb.AppendLine("                 <input type=\"hidden\" id=\"IdDocTree\" name=\"IdDocTree\" value=\"" + value + "\">");
-            sb.AppendLine("                 <div id=\"IdDocTreeError\" class=\"card-input-error\">&nbsp;</div>");
+            sb.AppendLine("                 <div id=\"IdDocTreeError\" class=\"card-input-error\"></div>");
             sb.AppendLine("             </div>");
             sb.AppendLine("         </div>");
             js.AppendLine("         var sourceDocTree = new Bloodhound({");
@@ -246,17 +267,142 @@ namespace WARP
             sb.AppendLine("         <div class=\"card-input-group\">");
             sb.AppendLine("             <label class=\"card-label\" >Дата документа</label>");
             sb.AppendLine("             <input id=\"DocDate\" name=\"DocDate\" class=\"card-form-control\" value=\"" + value + "\" >");
-            sb.AppendLine("             <div id=\"DocDateError\" class=\"card-input-error\">&nbsp;</div>");
+            sb.AppendLine("             <div id=\"DocDateError\" class=\"card-input-error\"></div>");
             sb.AppendLine("         </div>");
             js.AppendLine("         $('#DocDate').mask('99.99.9999',{ placeholder: 'дд.мм.гггг'}); ");
             js.AppendLine("         $('#DocDate').datetimepicker({locale: 'ru', useCurrent:false, format: 'DD.MM.YYYY',}); ");
+
+            // Договор
+            value = (action != Action.Create ? data["IdParent"].ToString() : "0");
+            valueText = (action != Action.Create ? data["Parent"].ToString() : string.Empty);
+            sb.AppendLine("         <div id=\"scrollable-dropdown-menu\">");
+            sb.AppendLine("             <div class=\"card-input-group\">");
+            sb.AppendLine("                 <label class=\"card-label\">Договор</label>");
+            sb.AppendLine("                 <input type=\"text\"  id=\"Parent\" onchange=\"if ($('#Parent').val().trim() == '')$('#IdParent').val(0);\" ");
+            sb.AppendLine("                     class=\"card-form-control\"  value=\"" + valueText + "\" placeholder=\"Начните вводить для поиска по справочнику..\">");
+            sb.AppendLine("                 <input type=\"hidden\" id=\"IdParent\" name=\"IdParent\" value=\"" + value + "\">");
+            sb.AppendLine("                 <div id=\"IdParentError\" class=\"card-input-error\"></div>");
+            sb.AppendLine("             </div>");
+            sb.AppendLine("         </div>");
+            js.AppendLine("         var sourceParent = new Bloodhound({");
+            js.AppendLine("                datumTokenizer: Bloodhound.tokenizers.whitespace,");
+            js.AppendLine("                queryTokenizer: Bloodhound.tokenizers.whitespace,");
+            js.AppendLine("                remote: {");
+            js.AppendLine("                    url: '/Handler/TypeaheadHandler.ashx?b=" + curBase + "&t=Archive&q=%QUERY',");
+            js.AppendLine("                    wildcard: '%QUERY'");
+            js.AppendLine("                },");
+            js.AppendLine("                limit: 30,");
+            js.AppendLine("         });");
+            js.AppendLine();
+            js.AppendLine("         $('#scrollable-dropdown-menu #Parent').typeahead({");
+            js.AppendLine("                highlight: true,");
+            js.AppendLine("                minLength: 1,");
+            js.AppendLine("         },");
+            js.AppendLine("         {");
+            js.AppendLine("                name: 'thParent',");
+            js.AppendLine("                display: 'Name',");
+            js.AppendLine("                highlight: true,");
+            js.AppendLine("                limit: 30,");
+            js.AppendLine("                source: sourceParent,");
+            js.AppendLine("                templates:");
+            js.AppendLine("                {");
+            js.AppendLine("                     empty: [");
+            js.AppendLine("                         '<div class=\"empty-message\">',");
+            js.AppendLine("                             'Ничего не найдено',");
+            js.AppendLine("                         '</div>'");
+            js.AppendLine("                     ].join('\\n'),");
+            js.AppendLine("                     suggestion: function(data) {");
+            js.AppendLine("                         return '<div>' + data.Name + '  (Код ЭА:' + data.ID + ')</div>'");
+            js.AppendLine("                     }");
+            js.AppendLine("                 }");
+            js.AppendLine("         });");
+            js.AppendLine();
+            js.AppendLine("         $(\"#Parent\").on(\"typeahead:selected typeahead:autocompleted\", function (e, datum) { $(\"#IdParent\").val(datum.ID); AllowSave();});");
+
+            // Статус
+            value = (action != Action.Create ? data["IdStatus"].ToString() : "0");
+            valueText = (action != Action.Create ? data["Status"].ToString() : string.Empty);
+            sb.AppendLine("         <div id=\"scrollable-dropdown-menu\">");
+            sb.AppendLine("             <div class=\"card-input-group\">");
+            sb.AppendLine("                 <label class=\"card-label\">Статус</label>");
+            sb.AppendLine("                 <input type=\"text\"  id=\"Status\" onchange=\"if ($('#Status').val().trim() == '')$('#IdStatus').val(0);\" ");
+            sb.AppendLine("                     class=\"card-form-control\"  value=\"" + valueText + "\" placeholder=\"Начните вводить для поиска по справочнику..\">");
+            sb.AppendLine("                 <input type=\"hidden\" id=\"IdStatus\" name=\"IdStatus\" value=\"" + value + "\">");
+            sb.AppendLine("                 <div id=\"IdStatusError\" class=\"card-input-error\"></div>");
+            sb.AppendLine("             </div>");
+            sb.AppendLine("         </div>");
+            js.AppendLine("         var sourceStatus = new Bloodhound({");
+            js.AppendLine("                datumTokenizer: Bloodhound.tokenizers.whitespace,");
+            js.AppendLine("                queryTokenizer: Bloodhound.tokenizers.whitespace,");
+            js.AppendLine("                remote: {");
+            js.AppendLine("                    url: '/Handler/TypeaheadHandler.ashx?t=Status&q=',");
+            js.AppendLine("                    wildcard: '%QUERY'");
+            js.AppendLine("                },");
+            js.AppendLine("                limit: 30,");
+            js.AppendLine("         });");
+            js.AppendLine();
+            js.AppendLine("         $('#scrollable-dropdown-menu #Status').typeahead({");
+            js.AppendLine("                minLength: 0,");
+            js.AppendLine("         },");
+            js.AppendLine("         {");
+            js.AppendLine("                name: 'thStatus',");
+            js.AppendLine("                display: 'Name',");
+            js.AppendLine("                limit: 30,");
+            js.AppendLine("                source: sourceStatus,");
+            js.AppendLine("         });");
+            js.AppendLine();
+            js.AppendLine("         $(\"#Status\").on(\"typeahead:selected typeahead:autocompleted\", function (e, datum) { $(\"#IdStatus\").val(datum.ID);AllowSave(); });");
+
+            // Источник
+            value = (action != Action.Create ? data["IdSource"].ToString() : "0");
+            valueText = (action != Action.Create ? data["Source"].ToString() : string.Empty);
+            sb.AppendLine("         <div id=\"scrollable-dropdown-menu\">");
+            sb.AppendLine("             <div class=\"card-input-group\">");
+            sb.AppendLine("                 <label class=\"card-label\">Источник</label>");
+            sb.AppendLine("                 <input type=\"text\"  id=\"Source\" onchange=\"if ($('#Source').val().trim() == '')$('#IdSource').val(0);\" ");
+            sb.AppendLine("                     class=\"card-form-control\"  value=\"" + valueText + "\" placeholder=\"Начните вводить для поиска по справочнику..\">");
+            sb.AppendLine("                 <input type=\"hidden\" id=\"IdSource\" name=\"IdSource\" value=\"" + value + "\">");
+            sb.AppendLine("                 <div id=\"IdSourceError\" class=\"card-input-error\"></div>");
+            sb.AppendLine("             </div>");
+            sb.AppendLine("         </div>");
+            js.AppendLine("         var sourceSource = new Bloodhound({");
+            js.AppendLine("                datumTokenizer: Bloodhound.tokenizers.whitespace,");
+            js.AppendLine("                queryTokenizer: Bloodhound.tokenizers.whitespace,");
+            js.AppendLine("                remote: {");
+            js.AppendLine("                    url: '/Handler/TypeaheadHandler.ashx?t=Source&q=',");
+            js.AppendLine("                    wildcard: '%QUERY'");
+            js.AppendLine("                },");
+            js.AppendLine("                limit: 30,");
+            js.AppendLine("         });");
+            js.AppendLine();
+            js.AppendLine("         $('#scrollable-dropdown-menu #Source').typeahead({");
+            js.AppendLine("                minLength: 0,");
+            js.AppendLine("         },");
+            js.AppendLine("         {");
+            js.AppendLine("                name: 'thSource',");
+            js.AppendLine("                display: 'Name',");
+            js.AppendLine("                limit: 30,");
+            js.AppendLine("                source: sourceSource,");
+            js.AppendLine("         });");
+            js.AppendLine();
+            js.AppendLine("         $(\"#Source\").on(\"typeahead:selected typeahead:autocompleted\", function (e, datum) { $(\"#IdSource\").val(datum.ID);AllowSave(); });");
+
+            // Дата передачи
+            value = (action != Action.Create ? data["DateTrans"].ToString() : string.Empty);
+            sb.AppendLine("         <div class=\"card-input-group\">");
+            sb.AppendLine("             <label class=\"card-label\" >Дата передачи</label>");
+            sb.AppendLine("             <input id=\"DateTrans\" name=\"DateTrans\" class=\"card-form-control\" value=\"" + value + "\" >");
+            sb.AppendLine("             <div id=\"DateTransError\" class=\"card-input-error\"></div>");
+            sb.AppendLine("         </div>");
+            js.AppendLine("         $('#DateTrans').mask('99.99.9999',{ placeholder: 'дд.мм.гггг'}); ");
+            js.AppendLine("         $('#DateTrans').datetimepicker({locale: 'ru', useCurrent:false, format: 'DD.MM.YYYY',}); ");
 
             // Содержание
             value = (action != Action.Create ? data["DocContent"].ToString() : string.Empty);
             sb.AppendLine("         <div class=\"card-input-group\">");
             sb.AppendLine("             <label class=\"card-label\">Содержание</label>");
             sb.AppendLine("                 <input id=\"DocContent\" name=\"DocContent\" class=\"card-form-control\" value=\"" + value + "\" >");
-            sb.AppendLine("                 <div id=\"DocContentError\" class=\"card-input-error\">&nbsp;</div>");
+            sb.AppendLine("                 <div id=\"DocContentError\" class=\"card-input-error\"></div>");
             sb.AppendLine("         </div>");
 
             // Контрагент
@@ -268,7 +414,7 @@ namespace WARP
             sb.AppendLine("                 <input type=\"text\"  id=\"FrmContr\" onchange=\"if ($('#FrmContr').val().trim() == '')$('#IdFrmContr').val(0);\" ");
             sb.AppendLine("                     class=\"card-form-control\"  value=\"" + valueText + "\" placeholder=\"Начните вводить для поиска по справочнику..\">");
             sb.AppendLine("                 <input type=\"hidden\" id=\"IdFrmContr\" name=\"IdFrmContr\" value=\"" + value + "\">");
-            sb.AppendLine("                 <div id=\"IdFrmContrError\" class=\"card-input-error\">&nbsp;</div>");
+            sb.AppendLine("                 <div id=\"IdFrmContrError\" class=\"card-input-error\"></div>");
             sb.AppendLine("             </div>");
             sb.AppendLine("         </div>");
             js.AppendLine("         var sourceFrmContr = new Bloodhound({");
@@ -293,14 +439,14 @@ namespace WARP
             js.AppendLine("                source: sourceFrmContr,");
             js.AppendLine("         });");
             js.AppendLine();
-            js.AppendLine("         $(\"#FrmContr\").on(\"typeahead:selected typeahead:autocompleted\", function (e, datum) { $(\"#IdFrmContr\").val(datum.ID); });");
+            js.AppendLine("         $(\"#FrmContr\").on(\"typeahead:selected typeahead:autocompleted\", function (e, datum) { $(\"#IdFrmContr\").val(datum.ID);AllowSave(); });");
 
             // Сумма
             value = (action != Action.Create ? data["Summ"].ToString() : "0");
             sb.AppendLine("             <div class=\"card-input-group\">");
             sb.AppendLine("                 <label class=\"card-label\" >Сумма</label>");
             sb.AppendLine("                 <input id=\"Summ\" name=\"Summ\" class=\"card-form-control\" value=\"" + value + "\" >");
-            sb.AppendLine("                 <div id=\"SummError\" class=\"card-input-error\">&nbsp;</div>");
+            sb.AppendLine("                 <div id=\"SummError\" class=\"card-input-error\"></div>");
             sb.AppendLine("             </div>");
             js.AppendLine();
             js.AppendLine("             $('#Summ').val(accounting.formatNumber($('#Summ').val().trim().replace(',', '.'), 2, ' '));");
@@ -316,7 +462,7 @@ namespace WARP
             sb.AppendLine("         <div class=\"card-input-group\">");
             sb.AppendLine("             <label class=\"card-label\">Пакет</label>");
             sb.AppendLine("                 <input id=\"DocPack\" name=\"DocPack\" class=\"card-form-control\" value=\"" + value + "\" >");
-            sb.AppendLine("                 <div id=\"DocPackError\" class=\"card-input-error\">&nbsp;</div>");
+            sb.AppendLine("                 <div id=\"DocPackError\" class=\"card-input-error\"></div>");
             sb.AppendLine("         </div>");
 
             // Примечание
@@ -324,7 +470,7 @@ namespace WARP
             sb.AppendLine("         <div class=\"card-input-group\">");
             sb.AppendLine("             <label class=\"card-label\">Примечание</label>");
             sb.AppendLine("                 <input id=\"Prim\" name=\"Prim\" class=\"card-form-control\" value=\"" + value + "\" >");
-            sb.AppendLine("                 <div id=\"PrimError\" class=\"card-input-error\">&nbsp;</div>");
+            sb.AppendLine("                 <div id=\"PrimError\" class=\"card-input-error\"></div>");
             sb.AppendLine("         </div>");
             sb.AppendLine("     </div>");// row
 
@@ -332,7 +478,7 @@ namespace WARP
 
             #region Файлы
 
-            sb.AppendLine("     <div>");
+            sb.AppendLine("     <div style=\"padding-top:13px;\">");
             StringBuilder li = new StringBuilder(); // Вкладки
             StringBuilder tp = new StringBuilder(); // Содержимое
 
@@ -415,6 +561,7 @@ namespace WARP
             sb.AppendLine("     <div class=\"card-modal-footer-left\">");
             sb.AppendLine("         <button type=\"button\" class=\"btn btn-default btn-sm\" onclick=\"$('#EditDialogContent').load('/Handler/EditDialogHandler.ashx?curBase=" + curBase + "&curTable=" + curTable + "&curPage=" + curPage + "&action=create&curId=0&_=' + (new Date()).getTime());\">Новая</button>");
             sb.AppendLine("         <button type=\"button\" class=\"btn btn-default btn-sm\" onclick=\" $('#EditDialogContent').load('/Handler/EditDialogHandler.ashx?&curBase=" + curBase + "&curTable=" + curTable + "&curPage=" + curPage + "&action=copy&curId=" + curId + "&_=' + (new Date()).getTime());\">Копировать</button>");
+            sb.AppendLine("         <button type=\"button\" class=\"btn btn-success btn-sm\" onclick=\"window.open('/ArchiveVersion/" + curBase + "/" + curPage + "/" + curId + "');\">Предыдущие версии</button>");
             sb.AppendLine("     </div>");
             sb.AppendLine("     <div class=\"card-modal-footer-rigth\">");
             sb.AppendLine("         <button type=\"button\" class=\"btn btn-default btn-sm\" onclick=\"if($('#SaveButton').is(':disabled')){$('#EditDialog').modal('hide');}else if (confirm('Закрыть без сохранения?')){$('#EditDialog').modal('hide');}\">Закрыть</button>");
@@ -434,7 +581,7 @@ namespace WARP
 
             sb.AppendLine("<script>");
             sb.AppendLine();
-            sb.AppendLine("     $('#EditDialog input').bind('change keyup', function(event) {AllowSave();});"); // Активирует кнопку Сохранить при изменениях в инпутах
+            sb.AppendLine("     $('#EditDialog input, #EditDialog textarea').bind('change keyup', function(event) {AllowSave();});"); // Активирует кнопку Сохранить при изменениях в инпутах
             sb.AppendLine(js.ToString());
             sb.AppendLine();
             sb.AppendLine("     function AllowSave() {"); // Снимает блок с кнопки «Сохранить»
@@ -497,7 +644,7 @@ namespace WARP
         public static string GetColumnNameByIndex(int index)
         {
             Table t = new TableArchive();
-            if (t.ShowRowInfoButton) index--;
+            if (t.ShowRowInfoButton && index > 0) index--;
             return t.FieldList[index].Name;
         }
 
@@ -551,10 +698,11 @@ namespace WARP
 
             sbWhere.AppendLine("	a.Del=0 ");
             sbWhere.AppendLine("	AND a.Active=1 ");
-            sbWhere.AppendLine(GenerateWhereClause(curBase, curTable, curPage));
 
             if (!string.IsNullOrEmpty(ids))
                 sbWhere.AppendLine("    AND a.Id in (" + ids + ")");
+            else
+                sbWhere.AppendLine(GenerateWhereClause(curBase, curTable, curPage));
 
             //
             sbQuery.AppendLine("DECLARE @recordsFiltered int;");
@@ -673,7 +821,7 @@ namespace WARP
                 };
                 ret = javaScriptSerializer.Serialize(result);
             }
-            else 
+            else
             {
                 ret = javaScriptSerializer.Serialize(new { error = "Данные не получены" });
             }
@@ -727,6 +875,7 @@ namespace WARP
                         switch (rd.FieldName)
                         {
                             case "DocDate":
+                            case "DateTrans":
                                 if (!string.IsNullOrEmpty(rd.FieldValue))
                                 {
                                     DateTime date;
@@ -827,9 +976,13 @@ namespace WARP
                             query.AppendLine("    ,[DocContent]");
                             query.AppendLine("    ,[IdFrmContr]");
                             query.AppendLine("    ,[IdDocTree]");
-                            query.AppendLine("    ,[IdDocType]");
+                            query.AppendLine("    ,[IdParent]");
+                            query.AppendLine("    ,[IdStatus]");
+                            query.AppendLine("    ,[IdSource]");
                             query.AppendLine("    ,[Summ]");
                             query.AppendLine("    ,[DocPack]");
+                            query.AppendLine("    ,[Barcode]");
+                            query.AppendLine("    ,[DateTrans]");
                             query.AppendLine("    )");
                             query.AppendLine("VALUES ");
                             query.AppendLine("    (GetDate()");
@@ -840,9 +993,13 @@ namespace WARP
                             query.AppendLine("    ,@DocContent");
                             query.AppendLine("    ,@IdFrmContr");
                             query.AppendLine("    ,@IdDocTree");
-                            query.AppendLine("    ,@IdDocType");
+                            query.AppendLine("    ,@IdParent");
+                            query.AppendLine("    ,@IdStatus");
+                            query.AppendLine("    ,@IdSource");
                             query.AppendLine("    ,@Summ");
                             query.AppendLine("    ,@DocPack");
+                            query.AppendLine("    ,@Barcode");
+                            query.AppendLine("    ,@DateTrans");
                             query.AppendLine("    );");
 
                             param.Add(new SqlParameter { ParameterName = "@IdUser", SqlDbType = SqlDbType.Int, Value = HttpContext.Current.Session["UserId"].ToString() });
@@ -859,8 +1016,11 @@ namespace WARP
 
                                     case "IdFrmContr":
                                     case "IdDocTree":
-                                    case "IdDocType":
+                                    case "IdParent":
                                     case "DocPack":
+                                    case "Barcode":
+                                    case "IdStatus":
+                                    case "IdSource":
                                         param.Add(new SqlParameter { ParameterName = "@" + rd.FieldName, SqlDbType = SqlDbType.Int, Value = rd.FieldValue });
                                         break;
 
@@ -869,6 +1029,7 @@ namespace WARP
                                         break;
 
                                     case "DocDate":
+                                    case "DateTrans":
                                         if (string.IsNullOrEmpty(rd.FieldValue))
                                             value = DBNull.Value;
                                         else
@@ -948,13 +1109,17 @@ namespace WARP
                             query.AppendLine("    ,[IdUser]"); // Пользователь внесший изменения
                             query.AppendLine("    ,[DocNum]");
                             query.AppendLine("    ,[DocDate]");
+                            query.AppendLine("    ,[DateTrans]");
                             query.AppendLine("    ,[Prim]");
                             query.AppendLine("    ,[DocContent]");
                             query.AppendLine("    ,[IdFrmContr]");
                             query.AppendLine("    ,[IdDocTree]");
-                            query.AppendLine("    ,[IdDocType]");
+                            query.AppendLine("    ,[IdStatus]");
+                            query.AppendLine("    ,[IdSource]");
+                            query.AppendLine("    ,[IdParent]");
                             query.AppendLine("    ,[Summ]");
                             query.AppendLine("    ,[DocPack]");
+                            query.AppendLine("    ,[Barcode]");
                             query.AppendLine("    )");
                             query.AppendLine("VALUES ");
                             query.AppendLine("    (@Id");
@@ -962,13 +1127,17 @@ namespace WARP
                             query.AppendLine("    ,@IdUser");
                             query.AppendLine("    ,@DocNum");
                             query.AppendLine("    ,@DocDate");
+                            query.AppendLine("    ,@DateTrans");
                             query.AppendLine("    ,@Prim");
                             query.AppendLine("    ,@DocContent");
                             query.AppendLine("    ,@IdFrmContr");
                             query.AppendLine("    ,@IdDocTree");
-                            query.AppendLine("    ,@IdDocType");
+                            query.AppendLine("    ,@IdStatus");
+                            query.AppendLine("    ,@IdSource");
+                            query.AppendLine("    ,@IdParent");
                             query.AppendLine("    ,@Summ");
                             query.AppendLine("    ,@DocPack");
+                            query.AppendLine("    ,@Barcode");
                             query.AppendLine("    );");
 
                             param.Add(new SqlParameter { ParameterName = "@Id", SqlDbType = SqlDbType.Int, Value = pair.Key });
@@ -986,8 +1155,11 @@ namespace WARP
 
                                     case "IdFrmContr":
                                     case "IdDocTree":
-                                    case "IdDocType":
+                                    case "IdParent":
                                     case "DocPack":
+                                    case "Barcode":
+                                    case "IdStatus":
+                                    case "IdSource":
                                         param.Add(new SqlParameter { ParameterName = "@" + rd.FieldName, SqlDbType = SqlDbType.Int, Value = rd.FieldValue });
                                         break;
 
@@ -996,6 +1168,7 @@ namespace WARP
                                         break;
 
                                     case "DocDate":
+                                    case "DateTrans":
                                         if (string.IsNullOrEmpty(rd.FieldValue))
                                             value = DBNull.Value;
                                         else

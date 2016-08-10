@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Web;
+﻿using System.Web;
 using System.Web.SessionState;
 
 namespace WARP
@@ -15,6 +14,8 @@ namespace WARP
             string curBase = context.Request["curBase"];
             string curTable = context.Request["curTable"];
             string curPage = context.Request["curPage"];
+            string curId = context.Request["curId"] ?? "0";
+            string showVer = context.Request["showVer"] ?? "0";
             int drawCount = int.Parse(context.Request["draw"]);
             int displayLength = int.Parse(context.Request["length"]);
             int displayStart = int.Parse(context.Request["start"]);
@@ -32,10 +33,15 @@ namespace WARP
                 //    break;
 
                 case "Archive":
-                    context.Response.Write(Archive.GetJsonData(curBase, curTable, Archive.GetData(curBase, curTable, curPage, displayStart, displayLength, Archive.GetColumnNameByIndex(sortColi), sortDir), drawCount));
+                    if (showVer == "0")
+                        context.Response.Write(Archive.GetJsonData(curBase, curTable, Archive.GetData(curBase, curTable, curPage, displayStart, displayLength, Archive.GetColumnNameByIndex(sortColi), sortDir), drawCount));
+                    else
+                        context.Response.Write(ArchiveVer.GetJsonData(curBase, curTable, ArchiveVer.GetData(curBase, curTable, curPage, displayStart, displayLength, ArchiveVer.GetColumnNameByIndex(sortColi), sortDir, curId), drawCount));
                     break;
 
-                
+                case "ArchiveVer":
+
+                    break;
 
                 default:
                     context.Response.Write("you one ugly mother f..");

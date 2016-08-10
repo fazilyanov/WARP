@@ -19,6 +19,9 @@ namespace WARP
             // Страница
             string curPage = context.Request["curPage"];
 
+            // 
+            string showVer = context.Request["showVer"] ?? "0";
+
             // ID
             string curId = context.Request["curId"];
 
@@ -33,7 +36,10 @@ namespace WARP
                 //    break;
 
                 case "Archive":
-                    context.Response.Write(Archive.GenerateJSTableInfoButtonContent(curBase, curTable, curId));
+                    if (showVer == "0")
+                        context.Response.Write(Archive.GenerateJSTableInfoButtonContent(curBase, curTable, curId));
+                    else
+                        context.Response.Write(ArchiveVer.GenerateJSTableInfoButtonContent(curBase, curTable, curId));
                     break;
 
                 case "User":

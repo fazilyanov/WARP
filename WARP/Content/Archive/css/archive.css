@@ -303,6 +303,7 @@ tr.details td.details-control {
     float: left;
     padding-right: 10px;
     padding-left: 10px;
+    padding-top: 5px;
 }
 
 .card-form-control {

@@ -70,6 +70,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Admin\Session.aspx" />
+    <Content Include="Archive\ArchiveVer.aspx" />
     <Content Include="Archive\Archive.aspx" />
     <Content Include="Content\Archive\css\archive.css" />
     <Content Include="Content\Archive\img\rowminus.png" />
@@ -356,6 +357,12 @@
     </Compile>
     <Compile Include="Admin\Session.aspx.designer.cs">
       <DependentUpon>Session.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Archive\ArchiveVer.aspx.cs">
+      <DependentUpon>ArchiveVer.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Archive\ArchiveVer.aspx.designer.cs">
+      <DependentUpon>ArchiveVer.aspx</DependentUpon>
     </Compile>
     <Compile Include="Com\ComFunc.cs" />
     <Compile Include="Com\ComClass.cs" />
