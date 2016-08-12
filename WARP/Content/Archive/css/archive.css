@@ -434,3 +434,10 @@ tr.details td.details-control {
 .fbtn {
     padding: 5px;
 }
+
+/*Диалог по центру*/
+.modal-vertical-centered {
+  transform: translate(0, 130%) !important;
+  -ms-transform: translate(0, 130%) !important; /* IE 9 */
+  -webkit-transform: translate(0, 130%) !important; /* Safari and Chrome */
+}

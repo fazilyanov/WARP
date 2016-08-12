@@ -13,7 +13,7 @@ namespace WARP
             // Получаем параметры от грида
             string curBase = context.Request["curBase"];
             string curTable = context.Request["curTable"];
-            string curPage = context.Request["curPage"];
+            string curPage = context.Request["curPage"] ?? string.Empty;
             string curId = context.Request["curId"] ?? "0";
             string showVer = context.Request["showVer"] ?? "0";
             int drawCount = int.Parse(context.Request["draw"]);
@@ -39,8 +39,12 @@ namespace WARP
                         context.Response.Write(ArchiveVer.GetJsonData(curBase, curTable, ArchiveVer.GetData(curBase, curTable, curPage, displayStart, displayLength, ArchiveVer.GetColumnNameByIndex(sortColi), sortDir, curId), drawCount));
                     break;
 
-                case "ArchiveVer":
+                case "Complect":
+                    context.Response.Write(Complect.GetJsonData(curBase, curTable, Complect.GetData(curBase, curTable, displayStart, displayLength, Complect.GetColumnNameByIndex(sortColi), sortDir), drawCount));
+                    break;
 
+                case "ComplectDetail":
+                    context.Response.Write(Complect.GetJsonData(curBase, curTable, Complect.GetDataDetail(curBase, curTable, Complect.GetColumnNameByIndex(sortColi), sortDir, curId), drawCount));
                     break;
 
                 default:

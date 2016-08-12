@@ -72,6 +72,7 @@
     <Content Include="Admin\Session.aspx" />
     <Content Include="Archive\ArchiveVer.aspx" />
     <Content Include="Archive\Archive.aspx" />
+    <Content Include="Complect\Complect.aspx" />
     <Content Include="Content\Archive\css\archive.css" />
     <Content Include="Content\Archive\img\rowminus.png" />
     <Content Include="Content\Archive\img\rowplus.png" />
@@ -364,7 +365,13 @@
     <Compile Include="Archive\ArchiveVer.aspx.designer.cs">
       <DependentUpon>ArchiveVer.aspx</DependentUpon>
     </Compile>
-    <Compile Include="Com\ComFunc.cs" />
+    <Compile Include="Complect\Complect.aspx.cs">
+      <DependentUpon>Complect.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Complect\Complect.aspx.designer.cs">
+      <DependentUpon>Complect.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Com\Func.cs" />
     <Compile Include="Com\ComClass.cs" />
     <Compile Include="Archive\Archive.aspx.cs">
       <DependentUpon>Archive.aspx</DependentUpon>
@@ -442,7 +449,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Complect\" />
     <Folder Include="Reference\" />
   </ItemGroup>
   <PropertyGroup>

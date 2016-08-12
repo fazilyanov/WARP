@@ -42,8 +42,8 @@ namespace WARP
                         context.Response.Write(ArchiveVer.GenerateJSTableInfoButtonContent(curBase, curTable, curId));
                     break;
 
-                case "User":
-
+                case "Complect":
+                    context.Response.Write(Complect.GenerateJSTableInfoButtonContent(curBase, curTable, curId));
                     break;
 
                 default:

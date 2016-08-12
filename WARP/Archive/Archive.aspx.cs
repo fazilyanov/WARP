@@ -564,7 +564,7 @@ namespace WARP
             sb.AppendLine("         <button type=\"button\" class=\"btn btn-success btn-sm\" onclick=\"window.open('/ArchiveVersion/" + curBase + "/" + curPage + "/" + curId + "');\">Предыдущие версии</button>");
             sb.AppendLine("     </div>");
             sb.AppendLine("     <div class=\"card-modal-footer-rigth\">");
-            sb.AppendLine("         <button type=\"button\" class=\"btn btn-default btn-sm\" onclick=\"if($('#SaveButton').is(':disabled')){$('#EditDialog').modal('hide');}else if (confirm('Закрыть без сохранения?')){$('#EditDialog').modal('hide');}\">Закрыть</button>");
+            sb.AppendLine("         <button type=\"button\" class=\"btn btn-default btn-sm\" onclick=\"CloseForm();\">Закрыть</button>");
             sb.AppendLine("         <button type=\"button\" id =\"SaveButton\" class=\"btn btn-primary btn-sm\" onclick=\"SubmitForm();\" disabled>Сохранить</button>");
             sb.AppendLine("     </div>");
             sb.AppendLine("</div>");
@@ -586,6 +586,12 @@ namespace WARP
             sb.AppendLine();
             sb.AppendLine("     function AllowSave() {"); // Снимает блок с кнопки «Сохранить»
             sb.AppendLine("         $('#SaveButton').prop('disabled', false);");
+            sb.AppendLine("     }");
+            sb.AppendLine();
+            sb.AppendLine("     function CloseForm() {");
+            sb.AppendLine("         if($('#SaveButton').is(':disabled') || confirm('Закрыть без сохранения?')){ ");
+            sb.AppendLine("             $('#EditDialog').modal('hide');");
+            sb.AppendLine("         }");
             sb.AppendLine("     }");
             sb.AppendLine();
             sb.AppendLine("     function SubmitForm() {");

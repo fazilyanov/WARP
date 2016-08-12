@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Web;
 using System.Web.SessionState;
 
@@ -27,7 +26,6 @@ namespace WARP
             // Id
             string curId = context.Request["curId"];
 
-
             // Список переданных строк, ключ - ID
             Dictionary<string, List<RequestData>> requestRows = new Dictionary<string, List<RequestData>>();
             requestRows.Add(curId, new List<RequestData>());
@@ -41,26 +39,21 @@ namespace WARP
             // Инитим соотвествующий класс
             switch (curTable)
             {
-                //case "Archive":
-                //    AppPage appPage = new AppPageArchive();
-                //    appPage.Master.Init(curBase, curTable, curPage);
-                //    appPage.Master.Action = tableAction;
-                //    appPage.Master.RequestRows = requestRows;
-                //    if (context.Request.Files.Count > 0)
-                //        appPage.Master.RequestFiles = context.Request.Files;
-
-                //    // Обрабатываем запрос
-                //    context.Response.Write(appPage.Process());
-                //    break;
-
                 case "Archive":
                     context.Response.Write(Archive.Process(curBase, curTable, curPage, tableAction, requestRows, context.Request.Files));
+                    break;
+
+                case "Complect":
+                    context.Response.Write(Complect.Process(curBase, curTable, curPage, tableAction, requestRows, context.Request.Files));
+                    break;
+
+                case "ComplectDetail":
+                    context.Response.Write(Complect.ProcessDetail(curBase, curTable, curPage, tableAction, requestRows, context.Request.Files));
                     break;
 
                 default:
                     break;
             }
-            
         }
 
         public bool IsReusable

@@ -17,7 +17,7 @@ namespace WARP
             string curTable = context.Request["curTable"];
 
             // Страница
-            string curPage = context.Request["curPage"];
+            string curPage = context.Request["curPage"]??string.Empty;
 
             // Действие
             Action tableAction = Func.ParseEnum<Action>(context.Request["action"]);
@@ -45,8 +45,12 @@ namespace WARP
                         context.Response.Write(ArchiveVer.GenerateEditDialog(curBase, curTable, curPage, tableAction, curId));
                     break;
 
-                case "User":
+                case "Complect":
+                    context.Response.Write(Complect.GenerateEditDialog(curBase, curTable, tableAction, curId));
+                    break;
 
+                case "ComplectDetail":
+                    context.Response.Write(Complect.GenerateEditDialogDetail(curBase, curTable, tableAction, curId));
                     break;
 
                 default:
