@@ -7,6 +7,10 @@ td {
     font-size: 11px;
 }
 
+.pre-save-row {
+    background-color: #62ff8b !important;
+}
+
 /*  Выравнивание текста в ячейке*/
 
 .dt-head-left, .dt-body-left {
@@ -183,7 +187,7 @@ td {
 }
 
 /* Быстрый фильтр */
-.top-filterbar,.top-filterbar2 {
+.top-filterbar, .top-filterbar2 {
     padding-top: 5px;
 }
 
@@ -245,7 +249,6 @@ td {
 .tt-menu {
     max-height: 300px;
     overflow-y: auto;
-
 }
 
 /* IE */
@@ -286,6 +289,7 @@ tr.details td.details-control {
     margin-top: 4px;
     margin-right: 22px;
     font-size: 12px;
+    white-space: normal !important;
 }
 
 .card-input {
@@ -437,7 +441,7 @@ tr.details td.details-control {
 
 /*Диалог по центру*/
 .modal-vertical-centered {
-  transform: translate(0, 130%) !important;
-  -ms-transform: translate(0, 130%) !important; /* IE 9 */
-  -webkit-transform: translate(0, 130%) !important; /* Safari and Chrome */
+    transform: translate(0, 130%) !important;
+    -ms-transform: translate(0, 130%) !important; /* IE 9 */
+    -webkit-transform: translate(0, 130%) !important; /* Safari and Chrome */
 }

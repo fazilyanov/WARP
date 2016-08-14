@@ -21,7 +21,7 @@ namespace WARP
             context.Response.Clear();
             if (Func.GetMd5Hash(Func.GetMd5Hash(IdFile) + IdFile)== key)
             {
-                DataTable file = Func.GetData("SELECT * FROM [dbo].[" + curBase + curTable + "Files] WHERE Id = " + IdFile);
+                DataTable file = Db.GetData("SELECT * FROM [dbo].[" + curBase + curTable + "Files] WHERE Id = " + IdFile);
                 if (file.Rows.Count > 0)
                 {
                     Byte[] bytes = (Byte[])file.Rows[0]["fileData"];

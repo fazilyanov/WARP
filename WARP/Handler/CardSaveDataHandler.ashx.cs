@@ -26,6 +26,9 @@ namespace WARP
             // Id
             string curId = context.Request["curId"];
 
+            // ID шапки
+            string idMaster = context.Request["idMaster"] ?? "0";
+
             // Список переданных строк, ключ - ID
             Dictionary<string, List<RequestData>> requestRows = new Dictionary<string, List<RequestData>>();
             requestRows.Add(curId, new List<RequestData>());
@@ -48,7 +51,7 @@ namespace WARP
                     break;
 
                 case "ComplectDetail":
-                    context.Response.Write(Complect.ProcessDetail(curBase, curTable, curPage, tableAction, requestRows, context.Request.Files));
+                    context.Response.Write(Complect.ProcessDetail(curBase, curTable, curPage, idMaster, tableAction, requestRows, context.Request.Files));
                     break;
 
                 default:

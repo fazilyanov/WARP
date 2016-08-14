@@ -59,7 +59,7 @@ namespace WARP
                         Session["UserLogin"] = dt.Rows[0]["Login"];
                         Session["UserName"] = dt.Rows[0]["Name"];
                         //
-                        Func.LogIt(1);
+                        Log.LogIt(1);
                     }
                 }
                 else

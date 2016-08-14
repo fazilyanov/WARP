@@ -602,7 +602,7 @@ namespace WARP
                 sbQuery.AppendLine("WHERE A.Active=1 AND A.Del=0 AND A.Id = " + Id);
             }
 
-            DataTable dt = Func.GetData(sbQuery.ToString());
+            DataTable dt = Db.GetData(sbQuery.ToString());
             return dt;
         }
 
@@ -616,7 +616,7 @@ namespace WARP
             sbQuery.AppendLine("WHERE IdArchive = " + id);
 
             // Выполняем запрос
-            var res = Func.ExecuteScalar(sbQuery.ToString());
+            var res = Db.ExecuteScalar(sbQuery.ToString());
             if (res is DBNull || res == null)
                 return string.Empty;
             else
@@ -692,7 +692,7 @@ namespace WARP
                 new SqlParameter { ParameterName = "@displayLength", SqlDbType = SqlDbType.Int, Value = displayLength }
             };
 
-            DataTable dt = Func.GetData(sbQuery.ToString(), sqlParameterArray);
+            DataTable dt = Db.GetData(sbQuery.ToString(), sqlParameterArray);
             return dt;
         }
 
@@ -749,7 +749,7 @@ namespace WARP
                 var result = new
                 {
                     draw = drawCount,
-                    recordsTotal = (int)Func.ExecuteScalar("SELECT COUNT(*) FROM [dbo].[" + curBase + curTable + "] WHERE Del=0 "),
+                    recordsTotal = Db.ExecuteScalarInt("SELECT COUNT(*) FROM [dbo].[" + curBase + curTable + "] WHERE Del=0 "),
                     recordsFiltered = Convert.ToInt32(dt.Rows.Count > 0 ? dt.Rows[0]["recordsFiltered"] : 0),
                     data = GetFormatData(dt)
                 };

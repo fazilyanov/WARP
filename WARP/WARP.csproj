@@ -371,6 +371,7 @@
     <Compile Include="Complect\Complect.aspx.designer.cs">
       <DependentUpon>Complect.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Com\Db.cs" />
     <Compile Include="Com\Func.cs" />
     <Compile Include="Com\ComClass.cs" />
     <Compile Include="Archive\Archive.aspx.cs">
@@ -379,6 +380,8 @@
     <Compile Include="Archive\Archive.aspx.designer.cs">
       <DependentUpon>Archive.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Com\Lit.cs" />
+    <Compile Include="Com\Log.cs" />
     <Compile Include="Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

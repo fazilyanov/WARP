@@ -167,9 +167,13 @@ namespace WARP
             if (action == Action.Edit || action == Action.Copy)
             {
                 DataTable dt = GetData(curBase, curTable, curPage, 0, 1, "Id", "Asc", curId);
-                if (dt.Rows.Count > 0)
-                    data = dt.Rows[0];
-                else return "Not found id = " + curId;
+                if (dt != null)
+                {
+                    if (dt.Rows.Count > 0)
+                        data = dt.Rows[0];
+                    else return Lit.ID_NOT_FOUND + curId;
+                }
+                else return Lit.ERROR_GET_DATA;
             }
 
             StringBuilder sb = new StringBuilder();
@@ -674,7 +678,7 @@ namespace WARP
                 sbQuery.AppendLine("WHERE A.Active=1 AND A.Del=0 AND A.Id = " + Id);
             }
 
-            DataTable dt = Func.GetData(sbQuery.ToString());
+            DataTable dt = Db.GetData(sbQuery.ToString());
             return dt;
         }
 
@@ -688,7 +692,7 @@ namespace WARP
             sbQuery.AppendLine("WHERE IdArchive = " + id);
 
             // Выполняем запрос
-            var res = Func.ExecuteScalar(sbQuery.ToString());
+            var res = Db.ExecuteScalar(sbQuery.ToString());
             if (res is DBNull || res == null)
                 return string.Empty;
             else
@@ -701,6 +705,10 @@ namespace WARP
             StringBuilder sbQuery = new StringBuilder();
             // Условия отборки
             StringBuilder sbWhere = new StringBuilder();
+            // Если слетела сессия
+            string IdUser = (HttpContext.Current.Session["UserId"] ?? string.Empty).ToString();
+            if (string.IsNullOrEmpty(IdUser))
+                return null;
 
             sbWhere.AppendLine("	a.Del=0 ");
             sbWhere.AppendLine("	AND a.Active=1 ");
@@ -764,7 +772,7 @@ namespace WARP
                 new SqlParameter { ParameterName = "@displayLength", SqlDbType = SqlDbType.Int, Value = displayLength }
             };
 
-            DataTable dt = Func.GetData(sbQuery.ToString(), sqlParameterArray);
+            DataTable dt = Db.GetData(sbQuery.ToString(), sqlParameterArray);
             return dt;
         }
 
@@ -821,7 +829,7 @@ namespace WARP
                 var result = new
                 {
                     draw = drawCount,
-                    recordsTotal = (int)Func.ExecuteScalar("SELECT COUNT(*) FROM [dbo].[" + curBase + curTable + "] WHERE Del=0 AND Active=1"),
+                    recordsTotal = Db.ExecuteScalarInt("SELECT COUNT(*) FROM [dbo].[" + curBase + curTable + "] WHERE Del=0 AND Active=1"),
                     recordsFiltered = Convert.ToInt32(dt.Rows.Count > 0 ? dt.Rows[0]["recordsFiltered"] : 0),
                     data = GetFormatData(dt)
                 };
@@ -947,6 +955,11 @@ namespace WARP
         {
             string result = string.Empty;
 
+            // Проверяем сессию
+            string IdUser = (HttpContext.Current.Session["UserId"] ?? string.Empty).ToString();
+            if (string.IsNullOrEmpty(IdUser))
+                return Lit.BAD_SESSION;
+
             // Запрос
             StringBuilder query = new StringBuilder();
 
@@ -1008,7 +1021,7 @@ namespace WARP
                             query.AppendLine("    ,@DateTrans");
                             query.AppendLine("    );");
 
-                            param.Add(new SqlParameter { ParameterName = "@IdUser", SqlDbType = SqlDbType.Int, Value = HttpContext.Current.Session["UserId"].ToString() });
+                            param.Add(new SqlParameter { ParameterName = "@IdUser", SqlDbType = SqlDbType.Int, Value = IdUser});
                             object value = null;
                             foreach (RequestData rd in pair.Value)
                             {
@@ -1147,7 +1160,7 @@ namespace WARP
                             query.AppendLine("    );");
 
                             param.Add(new SqlParameter { ParameterName = "@Id", SqlDbType = SqlDbType.Int, Value = pair.Key });
-                            param.Add(new SqlParameter { ParameterName = "@IdUser", SqlDbType = SqlDbType.Int, Value = HttpContext.Current.Session["UserId"].ToString() });
+                            param.Add(new SqlParameter { ParameterName = "@IdUser", SqlDbType = SqlDbType.Int, Value = IdUser });
                             object value = null;
                             foreach (RequestData rd in pair.Value)
                             {
@@ -1263,7 +1276,7 @@ namespace WARP
                             query.AppendLine("    ,@Del");
 
                             param.Add(new SqlParameter { ParameterName = "@Id", SqlDbType = SqlDbType.Int, Value = pair.Key });
-                            param.Add(new SqlParameter { ParameterName = "@IdUser", SqlDbType = SqlDbType.Int, Value = HttpContext.Current.Session["UserId"].ToString() });
+                            param.Add(new SqlParameter { ParameterName = "@IdUser", SqlDbType = SqlDbType.Int, Value = IdUser });
                             param.Add(new SqlParameter { ParameterName = "@Del", SqlDbType = SqlDbType.Bit, Value = true });
                             query.AppendLine("    );");
 
@@ -1286,7 +1299,7 @@ namespace WARP
                 JavaScriptSerializer javaScriptSerializer = new JavaScriptSerializer();
                 result = javaScriptSerializer.Serialize(new { error = "Ошибка при сохранении: " + ex.Message.Trim() });
 
-                Func.LogSqlError(ex, sqlCommand.CommandText, param.ToArray());
+                Log.SqlError(ex, sqlCommand.CommandText, param.ToArray());
             }
             finally
             {

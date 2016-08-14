@@ -42,7 +42,7 @@ namespace WARP
             }
             catch (System.Exception ex)
             {
-                Func.LogError(ex);
+                Log.Error(ex);
             }
         }
 

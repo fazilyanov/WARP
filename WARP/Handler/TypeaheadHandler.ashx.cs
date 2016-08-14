@@ -30,7 +30,7 @@ namespace WARP
                     sqlQuery = "SELECT TOP 30 Id, Name FROM [" + curTable + "] WHERE Del=0 " + (query.Length > 0 ? "AND Name LIKE'%" + query + "%' " : "") + " ORDER by Name";
                     break;
             }
-            DataTable dt = Func.GetData(sqlQuery);
+            DataTable dt = Db.GetData(sqlQuery);
             List<Dictionary<string, object>> data = new List<Dictionary<string, object>>();
             Dictionary<string, object> row;
 

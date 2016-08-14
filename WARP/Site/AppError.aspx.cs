@@ -10,7 +10,7 @@ namespace WARP
         {
             if (Session["ErrorException"] != null)
             {
-                Func.LogError((Exception)Session["ErrorException"]);
+                Log.Error((Exception)Session["ErrorException"]);
                 //SendMail();
             }
             Session.Clear();

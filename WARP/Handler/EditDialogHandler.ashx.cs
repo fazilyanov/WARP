@@ -17,15 +17,18 @@ namespace WARP
             string curTable = context.Request["curTable"];
 
             // Страница
-            string curPage = context.Request["curPage"]??string.Empty;
+            string curPage = context.Request["curPage"] ?? string.Empty;
 
             // Действие
             Action tableAction = Func.ParseEnum<Action>(context.Request["action"]);
 
+            // ID Шапки
+            string idMaster = context.Request["idMaster"] ?? "0";
+
             // ID
             string curId = context.Request["curId"];
 
-            // 
+            //
             string showVer = context.Request["showVer"] ?? "0";
 
             // В зависимости от таблицы, используем соответствующий класс
@@ -40,7 +43,7 @@ namespace WARP
 
                 case "Archive":
                     if (showVer == "0")
-                        context.Response.Write(Archive.GenerateEditDialog(curBase, curTable,curPage,tableAction,curId));
+                        context.Response.Write(Archive.GenerateEditDialog(curBase, curTable, curPage, tableAction, curId));
                     else
                         context.Response.Write(ArchiveVer.GenerateEditDialog(curBase, curTable, curPage, tableAction, curId));
                     break;
@@ -50,7 +53,7 @@ namespace WARP
                     break;
 
                 case "ComplectDetail":
-                    context.Response.Write(Complect.GenerateEditDialogDetail(curBase, curTable, tableAction, curId));
+                    context.Response.Write(Complect.GenerateEditDialogDetail(curBase, curTable, tableAction, idMaster, curId));
                     break;
 
                 default:

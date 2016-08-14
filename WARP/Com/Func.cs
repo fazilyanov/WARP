@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
@@ -13,6 +12,7 @@ using System.Web.UI;
 
 namespace WARP
 {
+   
     // Общие функции проекта
     public class Func
     {
@@ -68,7 +68,7 @@ namespace WARP
             dt = HttpContext.Current.Cache[key] as DataTable;
             if (dt == null)
             {
-                dt = GetData("SELECT * FROM Base ORDER BY TabIndex");
+                dt = Db.GetData("SELECT * FROM Base ORDER BY TabIndex");
                 dt.PrimaryKey = new DataColumn[] { dt.Columns["ID"] };
                 HttpContext.Current.Cache.Insert(key, dt, null, DateTime.Now.AddHours(12), Cache.NoSlidingExpiration);
             }
@@ -112,7 +112,7 @@ namespace WARP
             dt = HttpContext.Current.Cache[key] as DataTable;
             if (dt == null)
             {
-                dt = GetData("SELECT * FROM ArchivePage ORDER BY ID");
+                dt = Db.GetData("SELECT * FROM ArchivePage ORDER BY ID");
                 dt.PrimaryKey = new DataColumn[] { dt.Columns["ID"] };
                 HttpContext.Current.Cache.Insert(key, dt, null, DateTime.Now.AddHours(12), Cache.NoSlidingExpiration);
             }
@@ -149,323 +149,12 @@ namespace WARP
         /// <returns>DataTable</returns>
         public static DataTable GetUserInfo(string login)
         {
-            return GetData("SELECT * FROM [dbo].[User] WHERE Del = 0 AND Login = @login", new SqlParameter("login", login));
+            return Db.GetData("SELECT * FROM [dbo].[User] WHERE Del = 0 AND Login = @login", new SqlParameter("login", login));
         }
 
         #endregion GetInfo
 
-        #region SqlData
-
-        /// <summary>
-        /// Выполняет запрос
-        /// </summary>
-        /// <param name="query">SQL запрос</param>
-        /// <returns>Если вернул "-1" значит ошибка</returns>
-        /// <overloads>Cтрока подключения и таймаут по умолчанию</overloads>
-        public static int ExecuteNonQuery(string query)
-        {
-            return ExecuteNonQuery(query, Properties.Settings.Default.ConnectionString);
-        }
-
-        /// <summary>
-        /// Выполняет запрос
-        /// </summary>
-        /// <param name="query">SQL запрос</param>
-        /// <returns>Если вернул "-1" значит ошибка</returns>
-        /// <overloads>Cтрока подключения и таймаут по умолчанию</overloads>
-        public static int ExecuteNonQuery(string query, SqlParameter[] sqlParameterArray)
-        {
-            return ExecuteNonQuery(query, Properties.Settings.Default.ConnectionString, sqlParameterArray);
-        }
-
-        /// <summary>
-        /// Выполняет запрос
-        /// </summary>
-        /// <param name="query">SQL запрос</param>
-        /// <returns>Если вернул "-1" значит ошибка</returns>
-        /// <overloads>Cтрока подключения и таймаут по умолчанию</overloads>
-        public static int ExecuteNonQuery(string query, SqlParameter sqlParameter)
-        {
-            return ExecuteNonQuery(query, Properties.Settings.Default.ConnectionString, new SqlParameter[] { sqlParameter });
-        }
-
-        /// <summary>
-        /// Выполняет запрос
-        /// </summary>
-        /// <param name="query">SQL запрос</param>
-        /// <param name="connString">Строка подключения</param>
-        /// <param name="timeout">Таймаут (По умолчанию - 120)</param>
-        /// <returns>Количество строк, "-1" - ошибка</returns>
-        /// <remarks>аааааа</remarks>
-        public static int ExecuteNonQuery(string query, string connString, SqlParameter[] sqlParameterArray = null, int timeout = 120)
-        {
-            int ret = -1;
-            SqlCommand sqlCommand;
-            SqlConnection sqlConnection = new SqlConnection(connString);
-            sqlConnection.Open();
-            sqlCommand = new SqlCommand(query, sqlConnection);
-            if (sqlParameterArray != null) sqlCommand.Parameters.AddRange(sqlParameterArray);
-            sqlCommand.CommandTimeout = timeout;
-            try
-            {
-                ret = sqlCommand.ExecuteNonQuery();
-            }
-            catch (Exception ex)
-            {
-                LogSqlError(ex, sqlCommand.CommandText, sqlParameterArray);
-            }
-            finally
-            {
-                sqlConnection.Close();
-            }
-            return ret;
-        }
-
-        /// <summary>
-        /// Выполняет запрос
-        /// </summary>
-        /// <param name="query">SQL запрос</param>
-        /// <param name="connString">Строка подключения</param>
-        /// <param name="timeout">Таймаут (По умолчанию - 120)</param>
-        /// <returns>Количество строк, "-1" - ошибка</returns>
-        /// <remarks>аааааа</remarks>
-        public static int ExecuteNonQueryTransaction(string query, SqlParameter[] sqlParameterArray = null, int timeout = 120)
-        {
-            int ret = -1;
-            SqlCommand sqlCommand;
-            SqlConnection sqlConnection = new SqlConnection(Properties.Settings.Default.ConnectionString);
-            sqlConnection.Open();
-
-            SqlTransaction sqlTransaction = sqlConnection.BeginTransaction();
-            sqlCommand = new SqlCommand(query, sqlConnection, sqlTransaction);
-            try
-            {
-                if (sqlParameterArray != null) sqlCommand.Parameters.AddRange(sqlParameterArray);
-                sqlCommand.CommandTimeout = timeout;
-                ret = sqlCommand.ExecuteNonQuery();
-                sqlTransaction.Commit();
-            }
-            catch (Exception ex)
-            {
-                sqlTransaction.Rollback();
-                LogSqlError(ex, sqlCommand.CommandText, sqlParameterArray);
-            }
-            finally
-            {
-                sqlConnection.Close();
-            }
-            return ret;
-        }
-
-        /// <summary>
-        /// Возвращает таблицу - результат запроса, строка подключения и таймаут по умолчанию
-        /// </summary>
-        /// <param name="query">SQL запрос</param>
-        /// <returns>DataTable.</returns>
-        public static DataTable GetData(string query)
-        {
-            return GetData(query, Properties.Settings.Default.ConnectionString, null);
-        }
-
-        /// <summary>
-        /// Возвращает таблицу - результат запроса, строка подключения и таймаут по умолчанию
-        /// </summary>
-        /// <param name="query">SQL запрос</param>
-        /// <returns>DataTable.</returns>
-        public static DataTable GetData(string query, SqlParameter sqlParameter)
-        {
-            return GetData(query, Properties.Settings.Default.ConnectionString, new SqlParameter[] { sqlParameter });
-        }
-
-        /// <summary>
-        /// Возвращает таблицу - результат запроса, строка подключения и таймаут по умолчанию
-        /// </summary>
-        /// <param name="query">SQL запрос</param>
-        /// <returns>DataTable.</returns>
-        public static DataTable GetData(string query, SqlParameter[] sqlParameterArray)
-        {
-            return GetData(query, Properties.Settings.Default.ConnectionString, sqlParameterArray);
-        }
-
-        /// <summary>
-        /// Возвращает таблицу - результат запроса
-        /// </summary>
-        /// <param name="query">SQL запрос</param>
-        /// <param name="connString">Строка подключения</param>
-        /// <param name="timeout">Таймаут (По умолчанию - 120)</param>
-        /// <returns>DataTable.</returns>
-        public static DataTable GetData(string query, string connString, SqlParameter[] sqlParameterArray, int timeout = 120)
-        {
-            SqlCommand sqlCommand;
-            SqlConnection sqlConnection = new SqlConnection(connString);
-            sqlConnection.Open();
-            sqlCommand = new SqlCommand(query, sqlConnection);
-            if (sqlParameterArray != null) sqlCommand.Parameters.AddRange(sqlParameterArray);
-            sqlCommand.CommandTimeout = timeout;
-            DataTable dt = new DataTable();
-            try
-            {
-                SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(sqlCommand);
-                sqlDataAdapter.Fill(dt);
-            }
-            catch (Exception ex)
-            {
-                dt = null;
-                LogSqlError(ex, sqlCommand.CommandText, sqlParameterArray);
-            }
-            finally
-            {
-                sqlConnection.Close();
-            }
-            return dt;
-        }
-
-        /// <summary>
-        /// Выполняет скалярный запрос
-        /// </summary>
-        /// <param name="query">SQL запрос</param>
-        public static object ExecuteScalar(string query)
-        {
-            return ExecuteScalar(query, Properties.Settings.Default.ConnectionString);
-        }
-
-        /// <summary>
-        /// Выполняет скалярный запрос
-        /// </summary>
-        /// <param name="query">SQL запрос</param>
-        /// <param name="connString">Строка подключения</param>
-        /// <param name="timeout">Таймаут (По умолчанию - 120)</param>
-        /// <returns>Количество строк, "-1" - ошибка</returns>
-        /// <remarks>аааааа</remarks>
-        public static object ExecuteScalar(string query, string connString, int timeout = 120)
-        {
-            SqlCommand sqlCommand;
-            SqlConnection sqlConnection = new SqlConnection(connString);
-            object ret = null;
-            sqlConnection.Open();
-            sqlCommand = new SqlCommand(query, sqlConnection);
-            sqlCommand.CommandTimeout = timeout;
-            try
-            {
-                ret = sqlCommand.ExecuteScalar();
-            }
-            catch (Exception ex)
-            {
-                LogSqlError(ex, sqlCommand.CommandText, null);
-            }
-            finally
-            {
-                sqlConnection.Close();
-            }
-            return ret;
-        }
-
-        /// <summary>
-        /// Выполняет скалярный запрос
-        /// </summary>
-        /// <param name="query">SQL запрос</param>
-        /// <returns>Если вернул "-1" значит ошибка</returns>
-        /// <overloads>Cтрока подключения и таймаут по умолчанию</overloads>
-        public static int ExecuteScalarInt(string query)
-        {
-            return ExecuteScalarInt(query, Properties.Settings.Default.ConnectionString);
-        }
-
-        /// <summary>
-        /// Выполняет скалярный запрос
-        /// </summary>
-        /// <param name="query">SQL запрос</param>
-        /// <param name="connString">Строка подключения</param>
-        /// <param name="timeout">Таймаут (По умолчанию - 120)</param>
-        /// <returns>Количество строк, "-1" - ошибка</returns>
-        /// <remarks>аааааа</remarks>
-        public static int ExecuteScalarInt(string query, string connString, int timeout = 120)
-        {
-            int ret = -1;
-            int resInt = 0;
-            var res = Func.ExecuteScalar(query, connString);
-            if (int.TryParse((res is DBNull || res == null ? "-1" : res.ToString()), out resInt))
-                ret = resInt;
-            return ret;
-        }
-
-        #endregion SqlData
-
-        #region Log
-
-        /// <summary>
-        /// Добавляет запись в таблицу Log
-        /// </summary>
-        /// <param name="idLogType">
-        /// 1-Авторизация Windows,
-        /// 2-Авторизация Form,
-        /// 3-Ошибка авторизации Form
-        /// <param name="prim">Примечание</param>
-        public static void LogIt(int idLogType, string prim = null)
-        {
-            int userId = int.Parse((HttpContext.Current.Session["UserId"] ?? "0").ToString());
-            prim = prim == null ? "NULL" : "'" + prim + "'";
-            ExecuteNonQuery("INSERT INTO [dbo].[Log]([IdUser],[When],[IdLogType],[Prim]) VALUES ( " + userId + ", GetDate(), " + idLogType + "," + prim + ")");
-        }
-
-        /// <summary>
-        ///  Логирует SQL ошибки
-        /// </summary>
-        /// <param name="errorText">Сообщение исключения</param>
-        /// <param name="sqlQuery">Запрос в котором произошла ошибка</param>
-        public static void LogSqlError(Exception ex, string sqlQuery, SqlParameter[] sqlParameterArray)
-        {
-            string paramList = "";
-            if (sqlParameterArray != null)
-            {
-                foreach (SqlParameter item in sqlParameterArray)
-                {
-                    paramList += item.ParameterName + " = " + item.Value.ToString() + Environment.NewLine;
-                }
-            }
-            LogError(ex, Environment.NewLine + Environment.NewLine + "SQL:" + Environment.NewLine + sqlQuery + Environment.NewLine + "Params:" + Environment.NewLine + paramList);
-        }
-
-        /// <summary>
-        /// Добавляет запись в таблицу LogError
-        /// </summary>
-        /// <param name="errorText">Примечание</param>
-        /// <remarks>Не используем готовые функции для запроса к БД - зациклитится,
-        /// если проблемы с БД отправляем письмо, если и письмо отправить не получилось,
-        /// тогда уж хз
-        /// </remarks>
-        public static void LogError(Exception ex, string extra = "")
-        {
-            int ret = -1;
-            SqlCommand sqlCommand;
-            string errorText = "Ошибка:" + ex.Message + Environment.NewLine + Environment.NewLine + ex.StackTrace + extra;
-            SqlConnection sqlConnection = new SqlConnection(Properties.Settings.Default.ConnectionString);
-            try
-            {
-                sqlConnection.Open();
-                sqlCommand = new SqlCommand("INSERT INTO [dbo].[LogError]([IdUser],[When],[ErrorText]) VALUES ( @IdUser, GetDate(), @ErrorText);", sqlConnection);
-                int userId = int.Parse((HttpContext.Current.Session["UserId"] ?? "0").ToString());
-                SqlParameter[] sqlParameterArray = {
-                    new SqlParameter { ParameterName = "@IdUser", SqlDbType = SqlDbType.Int, Value = userId },
-                    new SqlParameter { ParameterName = "@ErrorText", SqlDbType = SqlDbType.NVarChar, Value = errorText }
-                };
-                sqlCommand.Parameters.AddRange(sqlParameterArray);
-                ret = sqlCommand.ExecuteNonQuery();
-
-                // Последнюю ошибку сохраняем в сессии для вывода
-                HttpContext.Current.Session["LastError"] = errorText;
-            }
-            catch (Exception ex2)
-            {
-                SendMailAdmin(ex2.Message + Environment.NewLine + errorText, "Архив: Неудачная запись в лог ошибок");
-            }
-            finally
-            {
-                sqlConnection.Close();
-            }
-        }
-
-        #endregion Log
+       
 
         #region SendMail
 
@@ -522,11 +211,5 @@ namespace WARP
             }
             return sBuilder.ToString();
         }
-
-        #region HTML Generate
-
-       
-
-        #endregion HTML Generate
     }
 }
