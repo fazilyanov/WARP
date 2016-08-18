@@ -92,7 +92,7 @@
                     <li id="ddBase" class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Организация: <%=(curBase != string.Empty?curBaseNameRus:"Не выбрана")%><span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <%=WARP.Func.GetBaseHtmlList()%>
+                            <%=GetBaseHtmlList()%>
                         </ul>
                     </li>
                     <%

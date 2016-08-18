@@ -197,6 +197,7 @@ namespace WARP
                 case Action.Create:
                 case Action.Copy:
                     sb.AppendLine("     <h4 class=\"modal-title\">Новая запись</h4>");
+                    sb.AppendLine("     <h6 class=\"modal-title\">Дата редактирования:" + DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss") + "</h6>");
                     break;
 
                 case Action.Edit:
@@ -226,7 +227,7 @@ namespace WARP
             sb.AppendLine("         <div class=\"card-input-group\">");
             sb.AppendLine("             <label class=\"card-label\">Имя</label>");
             sb.AppendLine("                 <input id=\"Name\" name=\"Name\" class=\"card-form-control\" value=\"" + value + "\" >");
-            sb.AppendLine("                 <div id=\"NameError\" class=\"card-input-error\"></div>");
+            sb.AppendLine("                 <div id=\"NameError\" class=\"card-input-error\">&nbsp;</div>");
             sb.AppendLine("         </div>");
 
             // Получатель
@@ -238,7 +239,7 @@ namespace WARP
             sb.AppendLine("                 <input type=\"text\"  id=\"Perf\" onchange=\"if ($('#Perf').val().trim() == '')$('#IdPerf').val(0);\" ");
             sb.AppendLine("                     class=\"card-form-control\"  value=\"" + valueText + "\" placeholder=\"Начните вводить для поиска по справочнику..\">");
             sb.AppendLine("                 <input type=\"hidden\" id=\"IdPerf\" name=\"IdPerf\" value=\"" + value + "\">");
-            sb.AppendLine("                 <div id=\"IdPerfError\" class=\"card-input-error\"></div>");
+            sb.AppendLine("                 <div id=\"IdPerfError\" class=\"card-input-error\">&nbsp;</div>");
             sb.AppendLine("             </div>");
             sb.AppendLine("         </div>");
             js.AppendLine("         var sourcePerf = new Bloodhound({");
@@ -270,7 +271,7 @@ namespace WARP
             sb.AppendLine("         <div class=\"card-input-group\">");
             sb.AppendLine("             <label class=\"card-label\">Примечание</label>");
             sb.AppendLine("                 <input id=\"Prim\" name=\"Prim\" class=\"card-form-control\" value=\"" + value + "\" >");
-            sb.AppendLine("                 <div id=\"PrimError\" class=\"card-input-error\"></div>");
+            sb.AppendLine("                 <div id=\"PrimError\" class=\"card-input-error\">&nbsp;</div>");
             sb.AppendLine("         </div>");
             sb.AppendLine("     </div>");// row
 
@@ -293,6 +294,20 @@ namespace WARP
             tp.AppendLine("                     </thead>");
             tp.AppendLine("                 </table>");
             tp.AppendLine("           </div>");
+
+            js.AppendLine("           editorDetail = new $.fn.dataTable.Editor({");
+            js.AppendLine("                ajax: '/Handler/CardSaveDataHandler.ashx?isInline=1&curBase=" + curBase + "&curTable=" + curTable + "Detail" + "&idMaster=" + curId + "&action=" + action + "',");
+            js.AppendLine("                table: \"#tableDetail\",");
+            js.AppendLine("                idSrc: 'Id',");
+            js.AppendLine("                fields: [");
+            js.AppendLine("                         {");
+            js.AppendLine("                             label: \"Штихкод:\",");
+            js.AppendLine("                             name: \"Barcode\",");
+            js.AppendLine("                         },");
+            js.AppendLine("                ],");
+            js.AppendLine("            });");
+            js.AppendLine("            editorDetail.on('submitComplete', function(e, type) {console.log(e);console.log(type);})");
+            js.AppendLine("");
             js.AppendLine("           tableDetail = $('#tableDetail').DataTable({");
             js.AppendLine("                dom: '<\"row top-toolbar\"<\"col-sm-7\"B><\"col-sm-5\"<\"row\"<\"col-sm-7\"><\"col-sm-5\"i>>>><\"top-filterbar\">Zrt',");
             js.AppendLine("                rowId: 'Id',");
@@ -303,7 +318,16 @@ namespace WARP
             js.AppendLine(tableComplectDetail.GenerateJSTableColumns());
             js.AppendLine("                ],");
             js.AppendLine("                autoWidth: false,");
-            js.AppendLine("                select: true,");
+            //js.AppendLine("                select:true ,");
+            js.AppendLine("                select: {");
+            js.AppendLine("                     style: 'os',");
+            js.AppendLine("                     selector: 'td:first-child',");
+            js.AppendLine("                     blurable: true");
+            js.AppendLine("                },");
+            js.AppendLine("                keys: {");
+            js.AppendLine("                     columns: ':not(:first-child)',");
+            js.AppendLine("                     editor:  editorDetail");
+            js.AppendLine("                },");
             js.AppendLine("                colReorder: {");
             js.AppendLine("                    realtime: false");
             js.AppendLine("                },");
@@ -509,7 +533,7 @@ namespace WARP
                 case Action.Create:
                 case Action.Copy:
                     sb.AppendLine("     <h4 class=\"modal-title\">Новая запись</h4>");
-                    sb.AppendLine("     <h6 class=\"modal-title\">&nbsp;</h6>");
+                    sb.AppendLine("     <h6 class=\"modal-title\">Дата редактирования:" + DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss") + "</h6>");
                     break;
 
                 case Action.Edit:
@@ -532,21 +556,33 @@ namespace WARP
 
             sb.AppendLine("<form method=\"POST\" id=\"EditFormDetail\" name=\"EditFormDetail\" action=\"javascript: void(null);\" enctype=\"multipart/form-data\">");
             sb.AppendLine("<div class=\"modal-body\">");
-            sb.AppendLine("     <div class=\"row\" style=\"padding-left:5px;\">");
+            sb.AppendLine("     <div class=\"row\" style=\"padding-left:5px;padding-bottom:10px;\">");
 
             // Штрихкод
             value = (action != Action.Create ? data["Barcode"].ToString() : "0");
             sb.AppendLine("         <div class=\"card-input-group\">");
             sb.AppendLine("             <label class=\"card-label\">Штрихкод</label>");
             sb.AppendLine("                 <input id=\"Barcode\" name=\"Barcode\" class=\"card-form-control\" value=\"" + value + "\" >");
-            sb.AppendLine("                 <div id=\"BarcodeError\" class=\"card-input-error\"></div>");
+            sb.AppendLine("                 <div id=\"BarcodeError\" class=\"card-input-error\">&nbsp;</div>");
             sb.AppendLine("         </div>");
 
             // Файл
             sb.AppendLine("         <div class=\"card-input-group\">");
-            sb.AppendLine("             <label class=\"btn btn-primary btn-file\">");
-            sb.AppendLine("                 Добавить&nbsp;<span id=\"badge\" class=\"badge\"></span><input id=\"Files\" name=\"Files\" type=\"file\"/ onchange=\"$('#badge').html('Файлов:'+$('#Files').get(0).files.length);\">");
-            sb.AppendLine("             </label>");
+            sb.AppendLine("             <label class=\"card-label\">Файл</label>");
+            if (action == Action.Create || (action == Action.Edit && data["IdFile"].ToString() == "0"))
+            {
+                sb.AppendLine("             <label class=\"btn btn-primary btn-sm btn-file\">");
+                sb.AppendLine("                 Добавить&nbsp;<span id=\"badge\" class=\"badge\"></span><input id=\"Files\" name=\"Files\" type=\"file\"/ onchange=\"$('#badge').html('Файлов:'+$('#Files').get(0).files.length);\">");
+                sb.AppendLine("             </label>");
+            }
+            else
+            {
+                string fn = data["fileName"].ToString();
+                string fid = data["IdFile"].ToString();
+                string state = data["state"].ToString();// нужно передать так как файл может находится еще во временной таблице
+                sb.AppendLine("                         <button type=\"button\"  class=\"btn btn-default btn-sm\" style=\"width:200px;\" title=\"" + fn + "\"");
+                sb.AppendLine("                              onclick =\"window.open('/Handler/GetFileHandler.ashx?p=" + state + "&curBase=" + curBase + "&curTable=" + curTable + "&IdFile=" + fid + "&key=" + Func.GetMd5Hash(Func.GetMd5Hash(fid) + fid) + "');\" >" + (fn.Length > 24 ? fn.Substring(0, 22) + ".." : fn) + "</button>");//
+            }
             sb.AppendLine("         </div>");
 
             //
@@ -560,7 +596,7 @@ namespace WARP
             sb.AppendLine("<div class=\"card-modal-footer\">");
             sb.AppendLine("     <div class=\"card-modal-footer-left\">");
             sb.AppendLine("         <button type=\"button\" class=\"btn btn-default btn-sm\" onclick=\"$('#EditDialogDetailContent').load('/Handler/EditDialogHandler.ashx?curBase=" + curBase + "&curTable=" + curTable + "&idMaster=" + idMaster + "&action=create&curId=0&_=' + (new Date()).getTime());\">Новая</button>");
-            sb.AppendLine("         <button type=\"button\" class=\"btn btn-default btn-sm\" onclick=\" $('#EditDialogDetailContent').load('/Handler/EditDialogHandler.ashx?&curBase=" + curBase + "&curTable=" + curTable + "&idMaster=" + idMaster + "&action=copy&curId=" + curId + "&_=' + (new Date()).getTime());\">Копировать</button>");
+            // sb.AppendLine("         <button type=\"button\" class=\"btn btn-default btn-sm\" onclick=\" $('#EditDialogDetailContent').load('/Handler/EditDialogHandler.ashx?&curBase=" + curBase + "&curTable=" + curTable + "&idMaster=" + idMaster + "&action=copy&curId=" + curId + "&_=' + (new Date()).getTime());\">Копировать</button>");
             sb.AppendLine("     </div>");
             sb.AppendLine("     <div class=\"card-modal-footer-rigth\">");
             sb.AppendLine("         <button type=\"button\" class=\"btn btn-default btn-sm\" data-dismiss=\"modal\">Закрыть</button>");
@@ -652,9 +688,8 @@ namespace WARP
 
         #region Get
 
-        public static string GetColumnNameByIndex(int index)
+        public static string GetColumnNameByIndex(int index, Table t)
         {
-            Table t = new TableComplect();
             if (t.ShowRowInfoButton && index > 0) index--;
             return t.FieldList[index].Name;
         }
@@ -798,9 +833,12 @@ namespace WARP
             sbQuery.AppendLine("   ,T.DateUpd");
             sbQuery.AppendLine("   ,T.Barcode");
             sbQuery.AppendLine("   ,T.Del");
+            sbQuery.AppendLine("   ,T.IdFile");
+            sbQuery.AppendLine("   ,F.fileName");
             sbQuery.AppendLine("   FROM [dbo].[" + curBase + curTable + "Temp] T");
             sbQuery.AppendLine("   LEFT JOIN [dbo].[User] CR on T.IdCreator = CR.Id");
             sbQuery.AppendLine("   LEFT JOIN [dbo].[User] E on T.IdEditor = E.Id");
+            sbQuery.AppendLine("   LEFT JOIN [dbo].[TempFiles] F on T.IdFile = F.Id");
             sbQuery.AppendLine(") a");
             sbQuery.AppendLine("WHERE");
             sbQuery.AppendLine(sbWhere.ToString());
@@ -1024,6 +1062,17 @@ namespace WARP
                     {
                         switch (rd.FieldName)
                         {
+                            case "Barcode":
+                                if (!string.IsNullOrEmpty(rd.FieldValue))
+                                {
+                                    int intVal;
+                                    if (!int.TryParse(rd.FieldValue, out intVal))
+                                    {
+                                        fieldErrors.Add(new FieldErrors { name = rd.FieldName, status = "Неверный формат штрихкода" });
+                                    }
+                                }
+                                break;
+
                             case "DocDate":
                             case "DateTrans":
                                 if (!string.IsNullOrEmpty(rd.FieldValue))
@@ -1472,6 +1521,8 @@ namespace WARP
                 // Выбираем переданное действие
                 switch (tableAction)
                 {
+                    #region Insert
+
                     case Action.Create:
                     case Action.Copy:
 
@@ -1581,6 +1632,10 @@ namespace WARP
                         }
                         break;
 
+                    #endregion Insert
+
+                    #region Edit
+
                     case Action.Edit:
                         // Для каждой переданной строки с данными, создаем строку запроса и параметры к ней, выполняем запрос
                         foreach (KeyValuePair<string, List<RequestData>> pair in requestRows)
@@ -1588,145 +1643,69 @@ namespace WARP
                             query = new StringBuilder();
                             param = new List<SqlParameter>();
 
-                            query.AppendLine("DECLARE @nextVer AS int;");
-                            query.AppendLine("DECLARE @prevVer AS int;");
-
-                            // Номер текущей версии
-                            query.AppendLine("SELECT @prevVer = IdVer FROM [dbo].[" + curBase + curTable + "] WHERE Id = @Id AND [Active]=1;");
-
-                            // Снимаем активность предыдущих записей
-                            query.AppendLine("UPDATE[dbo].[" + curBase + curTable + "] SET [Active] = 0 WHERE Id = @Id AND [Active]=1;");
-                            query.AppendLine();
-
-                            // Добавляем новую версию
-                            query.AppendLine("INSERT INTO [dbo].[" + curBase + curTable + "]");
-                            query.AppendLine("    ([Id]"); // Дата внесения
-                            query.AppendLine("    ,[DateUpd]"); // Дата внесения
-                            query.AppendLine("    ,[IdUser]"); // Пользователь внесший изменения
-                            query.AppendLine("    ,[DocNum]");
-                            query.AppendLine("    ,[DocDate]");
-                            query.AppendLine("    ,[DateTrans]");
-                            query.AppendLine("    ,[Prim]");
-                            query.AppendLine("    ,[DocContent]");
-                            query.AppendLine("    ,[IdFrmContr]");
-                            query.AppendLine("    ,[IdDocTree]");
-                            query.AppendLine("    ,[IdStatus]");
-                            query.AppendLine("    ,[IdSource]");
-                            query.AppendLine("    ,[IdParent]");
-                            query.AppendLine("    ,[Summ]");
-                            query.AppendLine("    ,[DocPack]");
-                            query.AppendLine("    ,[Barcode]");
-                            query.AppendLine("    )");
-                            query.AppendLine("VALUES ");
-                            query.AppendLine("    (@Id");
-                            query.AppendLine("    ,GetDate()");
-                            query.AppendLine("    ,@IdUser");
-                            query.AppendLine("    ,@DocNum");
-                            query.AppendLine("    ,@DocDate");
-                            query.AppendLine("    ,@DateTrans");
-                            query.AppendLine("    ,@Prim");
-                            query.AppendLine("    ,@DocContent");
-                            query.AppendLine("    ,@IdFrmContr");
-                            query.AppendLine("    ,@IdDocTree");
-                            query.AppendLine("    ,@IdStatus");
-                            query.AppendLine("    ,@IdSource");
-                            query.AppendLine("    ,@IdParent");
-                            query.AppendLine("    ,@Summ");
-                            query.AppendLine("    ,@DocPack");
-                            query.AppendLine("    ,@Barcode");
-                            query.AppendLine("    );");
-
-                            param.Add(new SqlParameter { ParameterName = "@Id", SqlDbType = SqlDbType.Int, Value = pair.Key });
-                            param.Add(new SqlParameter { ParameterName = "@IdUser", SqlDbType = SqlDbType.Int, Value = HttpContext.Current.Session["UserId"].ToString() });
-                            object value = null;
+                            // Если редактируем запись со статусом 1 (Новая запись), то она так и остается
+                            // с таким статусом, всю карточку то еще не сохранили
+                            query.AppendLine("UPDATE [dbo].[" + curBase + curTable + "Temp]");
+                            query.AppendLine("SET  [State] = CASE WHEN [State] = 1 THEN 1 ELSE 2 END");
+                            query.AppendLine("    ,[IdEditor] = @IdUser");
+                            query.AppendLine("    ,[DateUpd] = GetDate()");
                             foreach (RequestData rd in pair.Value)
                             {
                                 switch (rd.FieldName)
                                 {
-                                    case "DocNum":
-                                    case "Prim":
-                                    case "DocContent":
-                                        param.Add(new SqlParameter { ParameterName = "@" + rd.FieldName, SqlDbType = SqlDbType.NVarChar, Value = rd.FieldValue });
-                                        break;
-
-                                    case "IdFrmContr":
-                                    case "IdDocTree":
-                                    case "IdParent":
-                                    case "DocPack":
                                     case "Barcode":
-                                    case "IdStatus":
-                                    case "IdSource":
-                                        param.Add(new SqlParameter { ParameterName = "@" + rd.FieldName, SqlDbType = SqlDbType.Int, Value = rd.FieldValue });
+                                        query.AppendLine("    ,[" + rd.FieldName + "] = @" + rd.FieldName);
                                         break;
-
-                                    case "Summ":
+                                }
+                                switch (rd.FieldName)
+                                {
+                                    case "Barcode":
                                         param.Add(new SqlParameter { ParameterName = "@" + rd.FieldName, SqlDbType = SqlDbType.Decimal, Value = rd.FieldValue });
                                         break;
-
-                                    case "DocDate":
-                                    case "DateTrans":
-                                        if (string.IsNullOrEmpty(rd.FieldValue))
-                                            value = DBNull.Value;
-                                        else
-                                            value = rd.FieldValue;
-                                        param.Add(new SqlParameter { ParameterName = "@" + rd.FieldName, SqlDbType = SqlDbType.Date, Value = value });
-                                        break;
                                 }
                             }
+                            query.AppendLine("WHERE [IdUser]=@IdUser AND IdComplect=@IdComplect AND Id=@Id;");
 
-                            query.AppendLine();
-                            query.AppendLine("SET @nextVer = SCOPE_IDENTITY();"); // Узнали номер следующей версии
+                            param.Add(new SqlParameter { ParameterName = "@IdUser", SqlDbType = SqlDbType.Int, Value = IdUser });
+                            param.Add(new SqlParameter { ParameterName = "@Id", SqlDbType = SqlDbType.Int, Value = pair.Key });
+                            param.Add(new SqlParameter { ParameterName = "@IdComplect", SqlDbType = SqlDbType.Int, Value = idMaster });
 
                             // Сохраняем файлы
-                            if (requestFiles != null)
+                            if (requestFiles != null && requestFiles.Count > 0)
                             {
                                 query.AppendLine("DECLARE @fileId AS int;");
-                                for (int i = 0; i < requestFiles.Count; i++)
-                                {
-                                    HttpPostedFile file = requestFiles[i];
-                                    if (file.ContentLength > 0)
-                                    {
-                                        byte[] fileData = null;
-                                        using (var binaryReader = new BinaryReader(file.InputStream))
-                                        {
-                                            fileData = binaryReader.ReadBytes(file.ContentLength);
-                                        }
-                                        query.AppendLine();
-                                        query.AppendLine("INSERT INTO [dbo].[" + curBase + curTable + "Files]([fileDATA],[fileName])VALUES(@fileData" + i + ",@fileName" + i + ");");// Записали файл
-                                        query.AppendLine("SET @fileId = SCOPE_IDENTITY();");// Узнали его id
-                                        query.AppendLine("INSERT INTO [dbo].[" + curBase + curTable + "FileList]([IdVer],[IdFile])VALUES(@nextVer,@fileId);");
 
-                                        param.Add(new SqlParameter { ParameterName = "@fileName" + i, SqlDbType = SqlDbType.NVarChar, Value = Path.GetFileName(file.FileName) });
-                                        param.Add(new SqlParameter { ParameterName = "@fileData" + i, SqlDbType = SqlDbType.VarBinary, Value = fileData });
+                                HttpPostedFile file = requestFiles[0];
+
+                                if (file.ContentLength > 0)
+                                {
+                                    byte[] fileData = null;
+                                    using (var binaryReader = new BinaryReader(file.InputStream))
+                                    {
+                                        fileData = binaryReader.ReadBytes(file.ContentLength);
                                     }
+                                    query.AppendLine();
+                                    query.AppendLine("INSERT INTO [dbo].[TempFiles]([fileDATA],[fileName])VALUES(@fileData,@fileName);");// Записали файл во временную таблицу
+                                    query.AppendLine("SET @fileId = SCOPE_IDENTITY();");// Узнали его id файла
+                                    query.AppendLine("UPDATE [dbo].[" + curBase + curTable + "Temp] SET [IdFile]=@fileId WHERE IdTemp=@si;");
+
+                                    param.Add(new SqlParameter { ParameterName = "@fileName", SqlDbType = SqlDbType.NVarChar, Value = Path.GetFileName(file.FileName).Trim() });
+                                    param.Add(new SqlParameter { ParameterName = "@fileData", SqlDbType = SqlDbType.VarBinary, Value = fileData });
                                 }
                             }
 
-                            // Скрываем файлы
-                            string toPrivate = requestRows[pair.Key].Find(x => x.FieldName == "FilesToPrivate").FieldValue;
-                            if (!string.IsNullOrEmpty(toPrivate))
-                            {
-                                query.AppendLine("UPDATE [dbo].[" + curBase + curTable + "Files] SET [IsPrivate] = 1 WHERE [ID] in (" + toPrivate + ");");
-                            }
-                            query.AppendLine();
-
-                            // Копируем файлы из предыдущей версии без удаленных
-                            string toDelete = requestRows[pair.Key].Find(x => x.FieldName == "FilesToDelete").FieldValue;
-                            query.AppendLine("INSERT INTO [dbo].[" + curBase + curTable + "FileList]([IdVer],[IdFile]) ");
-                            query.AppendLine("      SELECT @nextVer, IdFile FROM [dbo].[" + curBase + curTable + "FileList]");
-                            query.AppendLine("      WHERE IdVer=@prevVer" + (string.IsNullOrEmpty(toDelete) ? "" : " AND [IdFile] NOT IN (" + toDelete + ")") + ";");
-
-                            // Сохраняем текст
-                            string text = pair.Value.Find(x => x.FieldName == "DocText").FieldValue;
-                            query.AppendLine();
-                            query.AppendLine("UPDATE [dbo].[" + curBase + curTable + "Text] SET [Text]=@Text WHERE [IdArchive]=" + pair.Key + " and CAST([Text] as nvarchar(max))<>@Text");
-                            param.Add(new SqlParameter { ParameterName = "@Text", SqlDbType = SqlDbType.NVarChar, Value = text });
+                            // query.AppendLine("SELECT " + maxID + ";");
 
                             sqlCommand = new SqlCommand(query.ToString(), sqlConnection, sqlTransaction);
                             sqlCommand.Parameters.AddRange(param.ToArray());
                             sqlCommand.ExecuteNonQuery();
+                            result = "{\"data\": [{ \"DT_RowId\":\"row_" + pair.Key + "\",\"Barcode\": \"\"}]}";//sqlCommand.ExecuteScalar().ToString(); // Получаем Id новой записи
                         }
                         break;
+
+                    #endregion Edit
+
+                    #region Delete
 
                     case Action.Remove:// TODO : удалять из основной и версий совсем устаревшие данные (полгода), routine
                         foreach (KeyValuePair<string, List<RequestData>> pair in requestRows)
@@ -1764,6 +1743,8 @@ namespace WARP
                             result = "{}"; // После удаления, грид должен получить пустой объект
                         }
                         break;
+
+                        #endregion Delete
                 }
 
                 // Если ошибок не было коммитим

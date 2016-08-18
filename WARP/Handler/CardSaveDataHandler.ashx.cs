@@ -24,19 +24,36 @@ namespace WARP
             Action tableAction = Func.ParseEnum<Action>(context.Request["action"]);
 
             // Id
-            string curId = context.Request["curId"];
+            string curId = context.Request["curId"] ?? "0";
 
             // ID шапки
             string idMaster = context.Request["idMaster"] ?? "0";
 
+            // Редактирование в строке
+            string isInline = context.Request["isInline"] ?? "0";
+
             // Список переданных строк, ключ - ID
             Dictionary<string, List<RequestData>> requestRows = new Dictionary<string, List<RequestData>>();
-            requestRows.Add(curId, new List<RequestData>());
+            if (isInline == "0")
+                requestRows.Add(curId, new List<RequestData>());
 
             // Парсим переданные параметры
+            string id = string.Empty;
             foreach (string item in context.Request.Form.AllKeys)
             {
-                requestRows[curId].Add(new RequestData { FieldName = item, FieldValue = context.Request.Form[item].Trim() });
+                if (item != "action")
+                {
+                    if (isInline == "1")
+                    {
+                        var arr = item.Split('[', ']');
+                        id = arr[1];   // .Substring(item.IndexOf('['), item.IndexOf('[') + 1);
+                        if (!requestRows.ContainsKey(id)) // Если в списке есть строка для текущего ключа,
+                            requestRows.Add(id, new List<RequestData>()); //просто добавляем оставшиеся Имя/Значение поля
+                        requestRows[id].Add(new RequestData { FieldName = arr[3], FieldValue = context.Request.Form[item].Trim() });
+                    }
+                    else
+                        requestRows[curId].Add(new RequestData { FieldName = item, FieldValue = context.Request.Form[item].Trim() });
+                }
             }
 
             // Инитим соотвествующий класс

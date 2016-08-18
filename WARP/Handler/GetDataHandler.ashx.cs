@@ -40,11 +40,11 @@ namespace WARP
                     break;
 
                 case "Complect":
-                    context.Response.Write(Complect.GetJsonData(curBase, curTable, Complect.GetData(curBase, curTable, displayStart, displayLength, Complect.GetColumnNameByIndex(sortColi), sortDir), drawCount));
+                    context.Response.Write(Complect.GetJsonData(curBase, curTable, Complect.GetData(curBase, curTable, displayStart, displayLength, Complect.GetColumnNameByIndex(sortColi, new TableComplect()), sortDir), drawCount));
                     break;
 
                 case "ComplectDetail":
-                    context.Response.Write(Complect.GetJsonData(curBase, curTable, Complect.GetDataDetail(curBase, curTable, Complect.GetColumnNameByIndex(sortColi), sortDir, curId), drawCount));
+                    context.Response.Write(Complect.GetJsonData(curBase, curTable, Complect.GetDataDetail(curBase, curTable, Complect.GetColumnNameByIndex(sortColi, new TableComplectDetail()), sortDir, curId), drawCount));
                     break;
 
                 default:

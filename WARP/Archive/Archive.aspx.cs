@@ -190,6 +190,7 @@ namespace WARP
                 case Action.Create:
                 case Action.Copy:
                     sb.AppendLine("     <h4 class=\"modal-title\">Новая запись</h4>");
+                    sb.AppendLine("     <h6 class=\"modal-title\">Дата редактирования:" + DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss") + "</h6>");
                     break;
 
                 case Action.Edit:
@@ -219,7 +220,7 @@ namespace WARP
             sb.AppendLine("         <div class=\"card-input-group\">");
             sb.AppendLine("             <label class=\"card-label\">Номер документа</label>");
             sb.AppendLine("                 <input id=\"DocNum\" name=\"DocNum\" class=\"card-form-control\" value=\"" + value + "\" >");
-            sb.AppendLine("                 <div id=\"DocNumError\" class=\"card-input-error\"></div>");
+            sb.AppendLine("                 <div id=\"DocNumError\" class=\"card-input-error\">&nbsp;</div>");
             sb.AppendLine("         </div>");
 
             // Штрихкод
@@ -227,7 +228,7 @@ namespace WARP
             sb.AppendLine("         <div class=\"card-input-group\">");
             sb.AppendLine("             <label class=\"card-label\">Штрихкод</label>");
             sb.AppendLine("                 <input id=\"Barcode\" name=\"Barcode\" class=\"card-form-control\" value=\"" + value + "\" >");
-            sb.AppendLine("                 <div id=\"BarcodeError\" class=\"card-input-error\"></div>");
+            sb.AppendLine("                 <div id=\"BarcodeError\" class=\"card-input-error\">&nbsp;</div>");
             sb.AppendLine("         </div>");
 
             // Документ
@@ -239,7 +240,7 @@ namespace WARP
             sb.AppendLine("                 <input type=\"text\"  id=\"DocTree\" onchange=\"if ($('#DocTree').val().trim() == '')$('#IdDocTree').val(0);\" ");
             sb.AppendLine("                     class=\"card-form-control\"  value=\"" + valueText + "\" placeholder=\"Начните вводить для поиска по справочнику..\">");
             sb.AppendLine("                 <input type=\"hidden\" id=\"IdDocTree\" name=\"IdDocTree\" value=\"" + value + "\">");
-            sb.AppendLine("                 <div id=\"IdDocTreeError\" class=\"card-input-error\"></div>");
+            sb.AppendLine("                 <div id=\"IdDocTreeError\" class=\"card-input-error\">&nbsp;</div>");
             sb.AppendLine("             </div>");
             sb.AppendLine("         </div>");
             js.AppendLine("         var sourceDocTree = new Bloodhound({");
@@ -271,7 +272,7 @@ namespace WARP
             sb.AppendLine("         <div class=\"card-input-group\">");
             sb.AppendLine("             <label class=\"card-label\" >Дата документа</label>");
             sb.AppendLine("             <input id=\"DocDate\" name=\"DocDate\" class=\"card-form-control\" value=\"" + value + "\" >");
-            sb.AppendLine("             <div id=\"DocDateError\" class=\"card-input-error\"></div>");
+            sb.AppendLine("             <div id=\"DocDateError\" class=\"card-input-error\">&nbsp;</div>");
             sb.AppendLine("         </div>");
             js.AppendLine("         $('#DocDate').mask('99.99.9999',{ placeholder: 'дд.мм.гггг'}); ");
             js.AppendLine("         $('#DocDate').datetimepicker({locale: 'ru', useCurrent:false, format: 'DD.MM.YYYY',}); ");
@@ -285,7 +286,7 @@ namespace WARP
             sb.AppendLine("                 <input type=\"text\"  id=\"Parent\" onchange=\"if ($('#Parent').val().trim() == '')$('#IdParent').val(0);\" ");
             sb.AppendLine("                     class=\"card-form-control\"  value=\"" + valueText + "\" placeholder=\"Начните вводить для поиска по справочнику..\">");
             sb.AppendLine("                 <input type=\"hidden\" id=\"IdParent\" name=\"IdParent\" value=\"" + value + "\">");
-            sb.AppendLine("                 <div id=\"IdParentError\" class=\"card-input-error\"></div>");
+            sb.AppendLine("                 <div id=\"IdParentError\" class=\"card-input-error\">&nbsp;</div>");
             sb.AppendLine("             </div>");
             sb.AppendLine("         </div>");
             js.AppendLine("         var sourceParent = new Bloodhound({");
@@ -332,7 +333,7 @@ namespace WARP
             sb.AppendLine("                 <input type=\"text\"  id=\"Status\" onchange=\"if ($('#Status').val().trim() == '')$('#IdStatus').val(0);\" ");
             sb.AppendLine("                     class=\"card-form-control\"  value=\"" + valueText + "\" placeholder=\"Начните вводить для поиска по справочнику..\">");
             sb.AppendLine("                 <input type=\"hidden\" id=\"IdStatus\" name=\"IdStatus\" value=\"" + value + "\">");
-            sb.AppendLine("                 <div id=\"IdStatusError\" class=\"card-input-error\"></div>");
+            sb.AppendLine("                 <div id=\"IdStatusError\" class=\"card-input-error\">&nbsp;</div>");
             sb.AppendLine("             </div>");
             sb.AppendLine("         </div>");
             js.AppendLine("         var sourceStatus = new Bloodhound({");
@@ -366,7 +367,7 @@ namespace WARP
             sb.AppendLine("                 <input type=\"text\"  id=\"Source\" onchange=\"if ($('#Source').val().trim() == '')$('#IdSource').val(0);\" ");
             sb.AppendLine("                     class=\"card-form-control\"  value=\"" + valueText + "\" placeholder=\"Начните вводить для поиска по справочнику..\">");
             sb.AppendLine("                 <input type=\"hidden\" id=\"IdSource\" name=\"IdSource\" value=\"" + value + "\">");
-            sb.AppendLine("                 <div id=\"IdSourceError\" class=\"card-input-error\"></div>");
+            sb.AppendLine("                 <div id=\"IdSourceError\" class=\"card-input-error\">&nbsp;</div>");
             sb.AppendLine("             </div>");
             sb.AppendLine("         </div>");
             js.AppendLine("         var sourceSource = new Bloodhound({");
@@ -396,7 +397,7 @@ namespace WARP
             sb.AppendLine("         <div class=\"card-input-group\">");
             sb.AppendLine("             <label class=\"card-label\" >Дата передачи</label>");
             sb.AppendLine("             <input id=\"DateTrans\" name=\"DateTrans\" class=\"card-form-control\" value=\"" + value + "\" >");
-            sb.AppendLine("             <div id=\"DateTransError\" class=\"card-input-error\"></div>");
+            sb.AppendLine("             <div id=\"DateTransError\" class=\"card-input-error\">&nbsp;</div>");
             sb.AppendLine("         </div>");
             js.AppendLine("         $('#DateTrans').mask('99.99.9999',{ placeholder: 'дд.мм.гггг'}); ");
             js.AppendLine("         $('#DateTrans').datetimepicker({locale: 'ru', useCurrent:false, format: 'DD.MM.YYYY',}); ");
@@ -406,7 +407,7 @@ namespace WARP
             sb.AppendLine("         <div class=\"card-input-group\">");
             sb.AppendLine("             <label class=\"card-label\">Содержание</label>");
             sb.AppendLine("                 <input id=\"DocContent\" name=\"DocContent\" class=\"card-form-control\" value=\"" + value + "\" >");
-            sb.AppendLine("                 <div id=\"DocContentError\" class=\"card-input-error\"></div>");
+            sb.AppendLine("                 <div id=\"DocContentError\" class=\"card-input-error\">&nbsp;</div>");
             sb.AppendLine("         </div>");
 
             // Контрагент
@@ -418,7 +419,7 @@ namespace WARP
             sb.AppendLine("                 <input type=\"text\"  id=\"FrmContr\" onchange=\"if ($('#FrmContr').val().trim() == '')$('#IdFrmContr').val(0);\" ");
             sb.AppendLine("                     class=\"card-form-control\"  value=\"" + valueText + "\" placeholder=\"Начните вводить для поиска по справочнику..\">");
             sb.AppendLine("                 <input type=\"hidden\" id=\"IdFrmContr\" name=\"IdFrmContr\" value=\"" + value + "\">");
-            sb.AppendLine("                 <div id=\"IdFrmContrError\" class=\"card-input-error\"></div>");
+            sb.AppendLine("                 <div id=\"IdFrmContrError\" class=\"card-input-error\">&nbsp;</div>");
             sb.AppendLine("             </div>");
             sb.AppendLine("         </div>");
             js.AppendLine("         var sourceFrmContr = new Bloodhound({");
@@ -450,7 +451,7 @@ namespace WARP
             sb.AppendLine("             <div class=\"card-input-group\">");
             sb.AppendLine("                 <label class=\"card-label\" >Сумма</label>");
             sb.AppendLine("                 <input id=\"Summ\" name=\"Summ\" class=\"card-form-control\" value=\"" + value + "\" >");
-            sb.AppendLine("                 <div id=\"SummError\" class=\"card-input-error\"></div>");
+            sb.AppendLine("                 <div id=\"SummError\" class=\"card-input-error\">&nbsp;</div>");
             sb.AppendLine("             </div>");
             js.AppendLine();
             js.AppendLine("             $('#Summ').val(accounting.formatNumber($('#Summ').val().trim().replace(',', '.'), 2, ' '));");
@@ -466,7 +467,7 @@ namespace WARP
             sb.AppendLine("         <div class=\"card-input-group\">");
             sb.AppendLine("             <label class=\"card-label\">Пакет</label>");
             sb.AppendLine("                 <input id=\"DocPack\" name=\"DocPack\" class=\"card-form-control\" value=\"" + value + "\" >");
-            sb.AppendLine("                 <div id=\"DocPackError\" class=\"card-input-error\"></div>");
+            sb.AppendLine("                 <div id=\"DocPackError\" class=\"card-input-error\">&nbsp;</div>");
             sb.AppendLine("         </div>");
 
             // Примечание
@@ -474,7 +475,7 @@ namespace WARP
             sb.AppendLine("         <div class=\"card-input-group\">");
             sb.AppendLine("             <label class=\"card-label\">Примечание</label>");
             sb.AppendLine("                 <input id=\"Prim\" name=\"Prim\" class=\"card-form-control\" value=\"" + value + "\" >");
-            sb.AppendLine("                 <div id=\"PrimError\" class=\"card-input-error\"></div>");
+            sb.AppendLine("                 <div id=\"PrimError\" class=\"card-input-error\">&nbsp;</div>");
             sb.AppendLine("         </div>");
             sb.AppendLine("     </div>");// row
 

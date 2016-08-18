@@ -18,10 +18,31 @@ namespace WARP
             string curTable = context.Request["curTable"];
             string IdFile = context.Request["IdFile"];
             string key = context.Request["key"];
+            string p = context.Request["p"] ?? string.Empty;
             context.Response.Clear();
-            if (Func.GetMd5Hash(Func.GetMd5Hash(IdFile) + IdFile)== key)
+            if (Func.GetMd5Hash(Func.GetMd5Hash(IdFile) + IdFile) == key)
             {
-                DataTable file = Db.GetData("SELECT * FROM [dbo].[" + curBase + curTable + "Files] WHERE Id = " + IdFile);
+                DataTable file = null;
+                switch (curTable)
+                {
+                    case "ComplectDetail":
+                        if (p == "1")
+                        {
+                            file = Db.GetData("SELECT * FROM [dbo].[TempFiles] WHERE Id = " + IdFile);
+                        }
+                        else if (p == "2")
+                        {
+                            file = Db.GetData("SELECT * FROM [dbo].[" + curBase + "ArchiveFiles] WHERE Id = " + IdFile);
+                        }
+
+                        break;
+
+                    default:
+                        file = Db.GetData("SELECT * FROM [dbo].[" + curBase + curTable + "Files] WHERE Id = " + IdFile);
+                        break;
+                }
+
+                //
                 if (file.Rows.Count > 0)
                 {
                     Byte[] bytes = (Byte[])file.Rows[0]["fileData"];
@@ -70,6 +91,7 @@ namespace WARP
                         case ".PNG":
                             context.Response.AddHeader("content-disposition", "filename=" + file.Rows[0]["fileName"].ToString());
                             break;
+
                         default:
                             context.Response.AddHeader("content-disposition", "attachment;filename=" + file.Rows[0]["fileName"].ToString());
                             break;
