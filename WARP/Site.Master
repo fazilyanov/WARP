@@ -30,7 +30,7 @@
     <link rel="stylesheet" type="text/css" href="/Content/Select-1.2.0/css/select.bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="/Content/ContextMenu-2.2.4/jquery.contextMenu.css" />
     <link rel="stylesheet" type="text/css" href="/Content/BootstrapDateTimePicker/css/bootstrap-datetimepicker.css" />
-    <link rel="stylesheet" type="text/css" href="/Content/Archive/css/archive.css?v=1" />
+    <link rel="stylesheet" type="text/css" href="/Content/Archive/css/archive.css?v=1.0" />
 
     <script type="text/javascript" src="/Content/jQuery-2.2.3/jquery-2.2.3.js"></script>
     <script type="text/javascript" src="/Content/Bootstrap-3.3.6/js/bootstrap.js"></script>

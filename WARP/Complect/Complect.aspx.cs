@@ -21,7 +21,7 @@ namespace WARP
                 new Field { Caption = "Id",            Name = "Id",            Align = Align.Left,     Width = 70 },//
                 new Field { Caption = "Дата созд.",    Name = "DateCreate",    Align = Align.Left,     Width = 100},//
                 new Field { Caption = "Создал",        Name = "Creator",       Align = Align.Center,   Width = 115},//
-                new Field { Caption = "Дата редак.",   Name = "DateUpd",       Align = Align.Left,     Width = 100},//
+                new Field { Caption = "Дата редак.",   Name = "DateEdit",       Align = Align.Left,     Width = 100},//
                 new Field { Caption = "Редактировал",  Name = "Editor",        Align = Align.Center,   Width = 115},//
                 new Field { Caption = "Имя",           Name = "Name",          Align = Align.Left,     Width = 100},//
                 new Field { Caption = "Получатель",    Name = "Perf",          Align = Align.Left,     Width = 100},//
@@ -41,7 +41,7 @@ namespace WARP
                 new Field { Caption = "Id",            Name = "Id",            Align = Align.Left,     Width = 70 },//
                 new Field { Caption = "Дата созд.",    Name = "DateCreate",    Align = Align.Left,     Width = 100},//
                 new Field { Caption = "Создал",        Name = "Creator",       Align = Align.Center,   Width = 115},//
-                new Field { Caption = "Дата редак.",   Name = "DateUpd",       Align = Align.Left,     Width = 100},//
+                new Field { Caption = "Дата редак.",   Name = "DateEdit",       Align = Align.Left,     Width = 100},//
                 new Field { Caption = "Редактировал",  Name = "Editor",        Align = Align.Center,   Width = 115},//
                 new Field { Caption = "Штихкод",       Name = "Barcode",       Align = Align.Left,     Width = 100},//
             };
@@ -84,12 +84,12 @@ namespace WARP
                             sbWhere.AppendLine("    AND a.[" + key + "] = " + value);
                             break;
 
-                        case "DateUpdBegin":
+                        case "DateEditBegin":
                         case "DateCreateBegin":
                             sbWhere.AppendLine("    AND a.[" + key.Remove(key.Length - 5) + "] >=CONVERT(DATETIME,'" + value + "',104)");
                             break;
 
-                        case "DateUpdEnd":
+                        case "DateEditEnd":
                         case "DateCreateEnd":
                             sbWhere.AppendLine("    AND a.[" + key.Remove(key.Length - 3) + "] <=CONVERT(DATETIME,'" + value + "',104)");
                             break;
@@ -177,10 +177,11 @@ namespace WARP
             if (action == Action.Edit)
             {
                 q.AppendLine("INSERT INTO [dbo].[" + curBase + curTable + "DetailTemp]");
-                q.AppendLine("  SELECT " + HttpContext.Current.Session["UserId"].ToString() + ", 0, * "); // Пользователь, статус, остальные поля
+                q.AppendLine("  SELECT " + HttpContext.Current.Session["UserId"].ToString() + ", 0, 0, * "); // Пользователь, статус, остальные поля
                 q.AppendLine("  FROM [dbo].[" + curBase + curTable + "Detail] WHERE IdComplect = " + curId + " and del = 0");
             }
-            Db.ExecuteNonQuery(q.ToString());
+            if (Db.ExecuteNonQuery(q.ToString())==-1)
+                return Lit.ERROR_GET_DATA;
 
             //
             StringBuilder sb = new StringBuilder();
@@ -203,7 +204,7 @@ namespace WARP
                 case Action.Edit:
                 case Action.Remove:
                     sb.AppendLine("     <h4 class=\"modal-title\">Запись № " + curId.ToString() + "</h4>");
-                    sb.AppendLine("     <h6 class=\"modal-title\">Дата редактирования: " + data["DateUpd"].ToString() + " " + data["Editor"].ToString() + " Дата создания: " + data["DateCreate"].ToString() + " " + data["Creator"].ToString() + "</h6>");
+                    sb.AppendLine("     <h6 class=\"modal-title\">Дата редактирования: " + data["DateEdit"].ToString() + " " + data["Editor"].ToString() + " Дата создания: " + data["DateCreate"].ToString() + " " + data["Creator"].ToString() + "</h6>");
                     break;
 
                 default:
@@ -509,7 +510,7 @@ namespace WARP
             DataRow data = null;
             if (action == Action.Edit || action == Action.Copy)
             {
-                DataTable dt = GetDataDetail(curBase, curTable, "Id", "Asc", string.Empty, curId);
+                DataTable dt = GetDataDetail(curBase, curTable, "Id", "Asc", idMaster, curId);
                 if (dt != null)
                 {
                     if (dt.Rows.Count > 0)
@@ -539,7 +540,7 @@ namespace WARP
                 case Action.Edit:
                 case Action.Remove:
                     sb.AppendLine("     <h4 class=\"modal-title\">Запись № " + curId.ToString() + "</h4>");
-                    sb.AppendLine("     <h6 class=\"modal-title\">Дата редактирования: " + data["DateUpd"].ToString() + " " + data["Editor"].ToString() + " Дата создания: " + data["DateCreate"].ToString() + " " + data["Creator"].ToString() + "</h6>");
+                    sb.AppendLine("     <h6 class=\"modal-title\">Дата редактирования: " + data["DateEdit"].ToString() + " " + data["Editor"].ToString() + " Дата создания: " + data["DateCreate"].ToString() + " " + data["Creator"].ToString() + "</h6>");
                     break;
 
                 default:
@@ -668,6 +669,7 @@ namespace WARP
             sb.AppendLine("                             $('#HeaderMsgDetail').html('" + (curId != "0" ? "Запись сохранена" : "Запись создана") + "');");
             sb.AppendLine("                             $('#HeaderMsgDetail').fadeIn();");
             sb.AppendLine("                             setTimeout('$(\"#HeaderMsgDetail\").fadeOut();', 3000);");
+            sb.AppendLine("                             console.log('isit');");
             sb.AppendLine("                             tableDetail.draw();");
             sb.AppendLine("                         }");
             sb.AppendLine("                     );");
@@ -770,7 +772,7 @@ namespace WARP
             sbQuery.AppendLine("   ,T.IdEditor");
             sbQuery.AppendLine("   ,E.Name as Editor");
             sbQuery.AppendLine("   ,T.DateCreate");
-            sbQuery.AppendLine("   ,T.DateUpd");
+            sbQuery.AppendLine("   ,T.DateEdit");
             sbQuery.AppendLine("   ,T.IdPerf");
             sbQuery.AppendLine("   ,P.Name as Perf");
             sbQuery.AppendLine("   ,T.Del");
@@ -830,7 +832,7 @@ namespace WARP
             sbQuery.AppendLine("   ,T.IdEditor");
             sbQuery.AppendLine("   ,E.Name as Editor");
             sbQuery.AppendLine("   ,T.DateCreate");
-            sbQuery.AppendLine("   ,T.DateUpd");
+            sbQuery.AppendLine("   ,T.DateEdit");
             sbQuery.AppendLine("   ,T.Barcode");
             sbQuery.AppendLine("   ,T.Del");
             sbQuery.AppendLine("   ,T.IdFile");
@@ -863,7 +865,7 @@ namespace WARP
                     switch (dc.ColumnName)
                     {
                         case "DateCreate":
-                        case "DateUpd":
+                        case "DateEdit":
                             if (dr[dc.ColumnName] is DBNull)
                                 row.Add(dc.ColumnName, string.Empty);
                             else
@@ -1170,75 +1172,38 @@ namespace WARP
                             query = new StringBuilder();
                             param = new List<SqlParameter>();
 
-                            // Обновляем запись в главной таблице
+                            // Шапка
                             query.AppendLine("INSERT INTO [dbo].[" + curBase + curTable + "]");
-                            query.AppendLine("    ([DateUpd]"); // Дата внесения
-                            query.AppendLine("    ,[IdUser]"); // Пользователь внесший изменения
-                            query.AppendLine("    ,[DocNum]");
-                            query.AppendLine("    ,[DocDate]");
+                            query.AppendLine("    ([IdCreator]"); 
+                            query.AppendLine("    ,[DateCreate]");
+                            query.AppendLine("    ,[IdEditor]");
+                            query.AppendLine("    ,[DateEdit]");
+                            query.AppendLine("    ,[Name]");
+                            query.AppendLine("    ,[IdPerf]");
                             query.AppendLine("    ,[Prim]");
-                            query.AppendLine("    ,[DocContent]");
-                            query.AppendLine("    ,[IdFrmContr]");
-                            query.AppendLine("    ,[IdDocTree]");
-                            query.AppendLine("    ,[IdParent]");
-                            query.AppendLine("    ,[IdStatus]");
-                            query.AppendLine("    ,[IdSource]");
-                            query.AppendLine("    ,[Summ]");
-                            query.AppendLine("    ,[DocPack]");
-                            query.AppendLine("    ,[Barcode]");
-                            query.AppendLine("    ,[DateTrans]");
                             query.AppendLine("    )");
                             query.AppendLine("VALUES ");
-                            query.AppendLine("    (GetDate()");
+                            query.AppendLine("    (@IdUser");
+                            query.AppendLine("    ,GetDate()");
                             query.AppendLine("    ,@IdUser");
-                            query.AppendLine("    ,@DocNum");
-                            query.AppendLine("    ,@DocDate");
+                            query.AppendLine("    ,GetDate()");
+                            query.AppendLine("    ,@Name");
+                            query.AppendLine("    ,@IdPerf");
                             query.AppendLine("    ,@Prim");
-                            query.AppendLine("    ,@DocContent");
-                            query.AppendLine("    ,@IdFrmContr");
-                            query.AppendLine("    ,@IdDocTree");
-                            query.AppendLine("    ,@IdParent");
-                            query.AppendLine("    ,@IdStatus");
-                            query.AppendLine("    ,@IdSource");
-                            query.AppendLine("    ,@Summ");
-                            query.AppendLine("    ,@DocPack");
-                            query.AppendLine("    ,@Barcode");
-                            query.AppendLine("    ,@DateTrans");
                             query.AppendLine("    );");
 
                             param.Add(new SqlParameter { ParameterName = "@IdUser", SqlDbType = SqlDbType.Int, Value = IdUser });
-                            object value = null;
                             foreach (RequestData rd in pair.Value)
                             {
                                 switch (rd.FieldName)
                                 {
-                                    case "DocNum":
+                                    case "Name":
                                     case "Prim":
-                                    case "DocContent":
                                         param.Add(new SqlParameter { ParameterName = "@" + rd.FieldName, SqlDbType = SqlDbType.NVarChar, Value = rd.FieldValue });
                                         break;
 
-                                    case "IdFrmContr":
-                                    case "IdDocTree":
-                                    case "IdParent":
-                                    case "DocPack":
-                                    case "Barcode":
-                                    case "IdStatus":
-                                    case "IdSource":
+                                    case "IdPerf":
                                         param.Add(new SqlParameter { ParameterName = "@" + rd.FieldName, SqlDbType = SqlDbType.Int, Value = rd.FieldValue });
-                                        break;
-
-                                    case "Summ":
-                                        param.Add(new SqlParameter { ParameterName = "@" + rd.FieldName, SqlDbType = SqlDbType.Decimal, Value = rd.FieldValue });
-                                        break;
-
-                                    case "DocDate":
-                                    case "DateTrans":
-                                        if (string.IsNullOrEmpty(rd.FieldValue))
-                                            value = DBNull.Value;
-                                        else
-                                            value = rd.FieldValue;
-                                        param.Add(new SqlParameter { ParameterName = "@" + rd.FieldName, SqlDbType = SqlDbType.Date, Value = value });
                                         break;
                                 }
                             }
@@ -1246,41 +1211,69 @@ namespace WARP
                             query.AppendLine();
                             query.AppendLine("DECLARE @si AS int;");
                             query.AppendLine("SET @si = SCOPE_IDENTITY();");
-                            query.AppendLine("UPDATE[dbo].[" + curBase + curTable + "] SET[Id] = [IdVer] WHERE IdVer = @si;");// Записываем новый Id=IdVer
                             query.AppendLine();
 
-                            // Сохраняем файлы
-                            if (requestFiles != null)
-                            {
-                                query.AppendLine("DECLARE @fileId AS int;");
-                                for (int i = 0; i < requestFiles.Count; i++)
-                                {
-                                    HttpPostedFile file = requestFiles[i];
-
-                                    if (file.ContentLength > 0)
-                                    {
-                                        byte[] fileData = null;
-                                        using (var binaryReader = new BinaryReader(file.InputStream))
-                                        {
-                                            fileData = binaryReader.ReadBytes(file.ContentLength);
-                                        }
-                                        query.AppendLine();
-                                        query.AppendLine("INSERT INTO [dbo].[" + curBase + curTable + "Files]([fileDATA],[fileName])VALUES(@fileData" + i + ",@fileName" + i + ");");// Записали файл
-                                        query.AppendLine("SET @fileId = SCOPE_IDENTITY();");// Узнали его id
-                                        query.AppendLine("INSERT INTO [dbo].[" + curBase + curTable + "FileList]([IdVer],[IdFile])VALUES(@si,@fileId);");
-
-                                        param.Add(new SqlParameter { ParameterName = "@fileName" + i, SqlDbType = SqlDbType.NVarChar, Value = Path.GetFileName(file.FileName).Trim() });
-                                        param.Add(new SqlParameter { ParameterName = "@fileData" + i, SqlDbType = SqlDbType.VarBinary, Value = fileData });
-                                    }
-                                }
-                            }
-
-                            // Записываем текст документа
-                            string text = pair.Value.Find(x => x.FieldName == "DocText").FieldValue;
+                            // Сохраняем табличную часть
+                            // Сначала переносим файлы из временной таблицы в архивную
+                            query.AppendLine("DECLARE @CurrentRow int = 0;");
+                            query.AppendLine("DECLARE @RowsToProcess int = 0;");
+                            query.AppendLine("DECLARE @DocCount int = 0;");
+                            query.AppendLine("DECLARE @IdTempFile int = 0;");
+                            query.AppendLine("DECLARE @NewIdFile int = 0;");
                             query.AppendLine();
-                            query.AppendLine("INSERT INTO [dbo].[" + curBase + curTable + "Text]([IdArchive],[Text])VALUES(@si,@Text);");
-                            param.Add(new SqlParameter { ParameterName = "@Text", SqlDbType = SqlDbType.Text, Value = text });
-
+                            //Для обхода, находим мин/макс значения id во временном курсоре пользователя для текущего комплекта
+                            query.AppendLine("SELECT @CurrentRow = Min(id), @RowsToProcess = Max(id)");
+                            query.AppendLine("FROM [dbo].[" + curBase + curTable + "DetailTemp]");
+                            query.AppendLine("WHERE IdComplect=@si AND IdUser=@IdUser;");
+                            query.AppendLine();// Обходим
+                            query.AppendLine("WHILE @CurrentRow<@RowsToProcess+1");
+                            query.AppendLine("BEGIN");
+                            query.AppendLine(); // Id временного файла
+                            query.AppendLine("  SELECT @IdTempFile=IdTempFile");
+                            query.AppendLine("  FROM [dbo].[" + curBase + curTable + "DetailTemp]");
+                            query.AppendLine("  WHERE Id= @CurrentRow AND IdComplect=0 AND IdUser=@IdUser;");
+                            query.AppendLine(); // Копируем временный файл сразу в таблицу файлов архива
+                            query.AppendLine("  IF (@IdTempFile>0)");
+                            query.AppendLine("  BEGIN");
+                            query.AppendLine("      INSERT INTO [dbo].[" + curBase + "ArchiveFiles] ([fileGUID],[fileDATA],[fileName])");
+                            query.AppendLine("      SELECT [fileGUID],[fileDATA],[fileName]");
+                            query.AppendLine("      FROM [dbo].[TempFiles]");
+                            query.AppendLine("      WHERE id=@IdTempFile;");
+                            query.AppendLine();     // Узнаем ID нового файла
+                            query.AppendLine("      SET @NewIdFile = SCOPE_IDENTITY();");
+                            query.AppendLine();     // Записываем его во временную
+                            query.AppendLine("      UPDATE [dbo].[" + curBase + curTable + "DetailTemp]");
+                            query.AppendLine("      SET IdFile=@NewIdFile");
+                            query.AppendLine("      WHERE Id= @CurrentRow AND IdComplect=0 AND IdUser=@IdUser;");
+                            query.AppendLine("  END");
+                            query.AppendLine("  SET @CurrentRow=@CurrentRow+1 ;");
+                            query.AppendLine(); //
+                            query.AppendLine("  SET @DocCount=@DocCount+1;");
+                            query.AppendLine("END");
+                            query.AppendLine(); // Записываем количество документов в шапку
+                            query.AppendLine("UPDATE [dbo].[" + curBase + curTable + "]");
+                            query.AppendLine("SET [DocCount] = @DocCount");
+                            query.AppendLine("WHERE [Id] = @si");
+                            query.AppendLine(); // Переносим данные из временной таблицы
+                            query.AppendLine("INSERT INTO [dbo].[" + curBase + curTable + "Detail]");
+                            query.AppendLine("    ([IdComplect]");
+                            query.AppendLine("    ,[Barcode]");
+                            query.AppendLine("    ,[IdCreator]");
+                            query.AppendLine("    ,[IdEditor]");
+                            query.AppendLine("    ,[DateCreate]");
+                            query.AppendLine("    ,[DateEdit]");
+                            query.AppendLine("    ,[IdFile]");
+                            query.AppendLine("    )");
+                            query.AppendLine("SELECT @si"); // новый Id комплекта
+                            query.AppendLine("    ,[Barcode]");
+                            query.AppendLine("    ,[IdCreator]");
+                            query.AppendLine("    ,[IdEditor]");
+                            query.AppendLine("    ,[DateCreate]");
+                            query.AppendLine("    ,[DateEdit]");
+                            query.AppendLine("    ,[IdFile]");
+                            query.AppendLine("FROM [dbo].[" + curBase + curTable + "DetailTemp]");
+                            query.AppendLine("WHERE IdComplect=0 AND IdUser=@IdUser;");
+                            query.AppendLine(); 
                             query.AppendLine("SELECT @si;");
 
                             sqlCommand = new SqlCommand(query.ToString(), sqlConnection, sqlTransaction);
@@ -1309,7 +1302,7 @@ namespace WARP
                             // Добавляем новую версию
                             query.AppendLine("INSERT INTO [dbo].[" + curBase + curTable + "]");
                             query.AppendLine("    ([Id]"); // Дата внесения
-                            query.AppendLine("    ,[DateUpd]"); // Дата внесения
+                            query.AppendLine("    ,[DateEdit]"); // Дата внесения
                             query.AppendLine("    ,[IdUser]"); // Пользователь внесший изменения
                             query.AppendLine("    ,[DocNum]");
                             query.AppendLine("    ,[DocDate]");
@@ -1449,7 +1442,7 @@ namespace WARP
                             // Добавляем новую версию
                             query.AppendLine("INSERT INTO [dbo].[" + curBase + curTable + "]");
                             query.AppendLine("    ([Id]");
-                            query.AppendLine("    ,[DateUpd]"); // Дата внесения
+                            query.AppendLine("    ,[DateEdit]"); // Дата внесения
                             query.AppendLine("    ,[IdUser]"); // Пользователь внесший изменения
                             query.AppendLine("    ,[Del]"); // Пользователь внесший изменения
                             query.AppendLine("    )");
@@ -1528,6 +1521,7 @@ namespace WARP
 
                         // Текущий максимальный id
                         int maxID = Db.ExecuteScalarInt("SELECT MAX(id) FROM [" + curBase + curTable + "Temp] WHERE IdUser=" + IdUser + " AND IdComplect=" + idMaster);
+                        if (maxID == -1) maxID++; // чтобы не с нуля
 
                         // Для каждой переданной строки с данными, создаем строку запроса и параметры к ней, выполняем запрос
                         foreach (KeyValuePair<string, List<RequestData>> pair in requestRows)
@@ -1545,8 +1539,7 @@ namespace WARP
                             query.AppendLine("    ,[IdCreator]");
                             query.AppendLine("    ,[IdEditor]");
                             query.AppendLine("    ,[DateCreate]");
-                            query.AppendLine("    ,[DateUpd]");
-                            query.AppendLine("    ,[IdFile]");
+                            query.AppendLine("    ,[DateEdit]");
                             query.AppendLine("    )");
                             query.AppendLine("VALUES ");
                             query.AppendLine("    (@IdUser");
@@ -1558,7 +1551,6 @@ namespace WARP
                             query.AppendLine("    ,@IdEditor");
                             query.AppendLine("    ,GetDate()");
                             query.AppendLine("    ,GetDate()");
-                            query.AppendLine("    ,0");
                             query.AppendLine("    );");
 
                             param.Add(new SqlParameter { ParameterName = "@IdUser", SqlDbType = SqlDbType.Int, Value = IdUser });
@@ -1617,7 +1609,7 @@ namespace WARP
                                     query.AppendLine();
                                     query.AppendLine("INSERT INTO [dbo].[TempFiles]([fileDATA],[fileName])VALUES(@fileData,@fileName);");// Записали файл во временную таблицу
                                     query.AppendLine("SET @fileId = SCOPE_IDENTITY();");// Узнали его id файла
-                                    query.AppendLine("UPDATE [dbo].[" + curBase + curTable + "Temp] SET [IdFile]=@fileId WHERE IdTemp=@si;");
+                                    query.AppendLine("UPDATE [dbo].[" + curBase + curTable + "Temp] SET [IdTempFile]=@fileId WHERE IdTemp=@si;");
 
                                     param.Add(new SqlParameter { ParameterName = "@fileName", SqlDbType = SqlDbType.NVarChar, Value = Path.GetFileName(file.FileName).Trim() });
                                     param.Add(new SqlParameter { ParameterName = "@fileData", SqlDbType = SqlDbType.VarBinary, Value = fileData });
@@ -1648,7 +1640,7 @@ namespace WARP
                             query.AppendLine("UPDATE [dbo].[" + curBase + curTable + "Temp]");
                             query.AppendLine("SET  [State] = CASE WHEN [State] = 1 THEN 1 ELSE 2 END");
                             query.AppendLine("    ,[IdEditor] = @IdUser");
-                            query.AppendLine("    ,[DateUpd] = GetDate()");
+                            query.AppendLine("    ,[DateEdit] = GetDate()");
                             foreach (RequestData rd in pair.Value)
                             {
                                 switch (rd.FieldName)
@@ -1720,7 +1712,7 @@ namespace WARP
                             // Добавляем новую версию
                             query.AppendLine("INSERT INTO [dbo].[" + curBase + curTable + "]");
                             query.AppendLine("    ([Id]");
-                            query.AppendLine("    ,[DateUpd]"); // Дата внесения
+                            query.AppendLine("    ,[DateEdit]"); // Дата внесения
                             query.AppendLine("    ,[IdUser]"); // Пользователь внесший изменения
                             query.AppendLine("    ,[Del]"); // Пользователь внесший изменения
                             query.AppendLine("    )");

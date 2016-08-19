@@ -27,7 +27,7 @@ namespace WARP
                 new Field { Caption = "Контрагент",         Name = "FrmContr",      Align = Align.Left,     Width = 250},//1
                 new Field { Caption = "Содержание",         Name = "DocContent",    Align = Align.Left,     Width = 300},//1
                 new Field { Caption = "Сумма",              Name = "Summ",          Align = Align.Right,    Width = 100},//1
-                new Field { Caption = "Пакет",              Name = "DocPack",       Align = Align.Right,    Width = 80 },//1
+                new Field { Caption = "Код операции",       Name = "DocPack",       Align = Align.Right,    Width = 80 },//1
                 new Field { Caption = "Примечание",         Name = "Prim",          Align = Align.Left,     Width = 300},//1
                 new Field { Caption = "Договор",            Name = "Parent",        Align = Align.Left,     Width = 150},//
                 new Field { Caption = "Штрихкод",           Name = "Barcode",       Align = Align.Left,     Width = 80 },//
@@ -465,7 +465,7 @@ namespace WARP
             // Пакет
             value = (action != Action.Create ? data["DocPack"].ToString() : "0");
             sb.AppendLine("         <div class=\"card-input-group\">");
-            sb.AppendLine("             <label class=\"card-label\">Пакет</label>");
+            sb.AppendLine("             <label class=\"card-label\">Код операции</label>");
             sb.AppendLine("                 <input id=\"DocPack\" name=\"DocPack\" class=\"card-form-control\" value=\"" + value + "\" >");
             sb.AppendLine("                 <div id=\"DocPackError\" class=\"card-input-error\">&nbsp;</div>");
             sb.AppendLine("         </div>");
@@ -488,7 +488,7 @@ namespace WARP
             StringBuilder tp = new StringBuilder(); // Содержимое
 
             li.AppendLine("			  <li><a data-target=\"#FilesTab\" data-toggle=\"tab\">Файлы</a></li>");
-            tp.AppendLine("           <div role=\"tabpanel\" class=\"tab-pane fade\" id=\"FilesTab\" style=\"height: 300px;\">");
+            tp.AppendLine("           <div role=\"tabpanel\" class=\"tab-pane fade\" id=\"FilesTab\" style=\"height: 200px;\">");
             tp.AppendLine("                 <label class=\"btn btn-primary btn-file\">");
             tp.AppendLine("                     Добавить&nbsp;<span id=\"badge\" class=\"badge\"></span><input id=\"Files\" name=\"Files\" type=\"file\" multiple/ onchange=\"$('#badge').html('Файлов:'+$('#Files').get(0).files.length);\">");
             tp.AppendLine("                 </label>");
