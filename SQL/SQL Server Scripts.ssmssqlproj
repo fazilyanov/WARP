@@ -27,7 +27,7 @@
           <ConnectionProtocol>NotSpecified</ConnectionProtocol>
           <ApplicationName>Microsoft SQL Server Management Studio - Query</ApplicationName>
         </ConnectionNode>
-        <ConnectionNode Name="SKY-SP-SQL1\SHAREPOINT:FAZL-PC\FAZL">
+        <ConnectionNode Name="SKY-SP-SQL1\SHAREPOINT:ZAO\a.fazilyanov">
           <Created>2016-07-12T16:40:13.5342143+05:00</Created>
           <Type>SQL</Type>
           <Server>SKY-SP-SQL1\SHAREPOINT</Server>
@@ -43,6 +43,12 @@
     </LogicalFolder>
     <LogicalFolder Name="Queries" Type="0" Sorted="true">
       <Items>
+        <FileNode Name="2016-08-22.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SKY-SP-SQL1\SHAREPOINT:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SKY-SP-SQL1\SHAREPOINT</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>2016-08-22.sql</FullPath>
+        </FileNode>
         <FileNode Name="Truncate.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:FAZL-PC:False:fazl</AssociatedConnectionMoniker>
           <AssociatedConnSrvName>FAZL-PC</AssociatedConnSrvName>
