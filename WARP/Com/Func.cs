@@ -43,6 +43,12 @@ namespace WARP
             return sBuilder.ToString();
         }
 
+        // Генерит key для id файла
+        public static string GetFileKey(string idFile)
+        {
+            return GetMd5Hash(GetMd5Hash(idFile) + idFile);
+        }
+
         //String to enum
         public static T ParseEnum<T>(string value)
         {

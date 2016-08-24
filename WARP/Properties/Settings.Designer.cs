@@ -25,16 +25,6 @@ namespace WARP.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=FAZL-PC;Initial Catalog=WARP;User ID=fazl;Password=52772;Max Pool Siz" +
-            "e=200;Connect Timeout=120;")]
-        public string ConnectionString {
-            get {
-                return ((string)(this["ConnectionString"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string ApplicationMail {
             get {
@@ -84,6 +74,16 @@ namespace WARP.Properties {
         public string ApplicationMailPassword {
             get {
                 return ((string)(this["ApplicationMailPassword"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=192.168.100.209;Initial Catalog=WARP;User ID=fazl;Password=52772;Max " +
+            "Pool Size=200;Connect Timeout=120;")]
+        public string ConnectionString {
+            get {
+                return ((string)(this["ConnectionString"]));
             }
         }
     }

@@ -2,9 +2,6 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="WARP.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="ConnectionString" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">Data Source=FAZL-PC;Initial Catalog=WARP;User ID=fazl;Password=52772;Max Pool Size=200;Connect Timeout=120;</Value>
-    </Setting>
     <Setting Name="ApplicationMail" Type="System.String" Scope="Application">
       <Value Profile="(Default)" />
     </Setting>
@@ -22,6 +19,9 @@
     </Setting>
     <Setting Name="ApplicationMailPassword" Type="System.String" Scope="Application">
       <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="ConnectionString" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Data Source=192.168.100.209;Initial Catalog=WARP;User ID=fazl;Password=52772;Max Pool Size=200;Connect Timeout=120;</Value>
     </Setting>
   </Settings>
 </SettingsFile>

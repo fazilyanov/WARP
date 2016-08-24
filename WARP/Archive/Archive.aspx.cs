@@ -129,7 +129,7 @@ namespace WARP
                 {
                     fid = row["IdFile"].ToString();
                     fn = row["fileName"].ToString().Trim();
-                    hash = Func.GetMd5Hash(Func.GetMd5Hash(fid) + fid);
+                    hash = Func.GetFileKey(fid);
                     isPrivate = (bool)row["IsPrivate"];
 
                     tp.AppendLine("                  <div class=\"file-button\"  id=\"FileButton" + fid + "\">");
@@ -507,7 +507,7 @@ namespace WARP
                     {
                         fid = row["IdFile"].ToString();
                         fn = row["fileName"].ToString().Trim();
-                        hash = Func.GetMd5Hash(Func.GetMd5Hash(fid) + fid);
+                        hash = Func.GetFileKey(fid);
                         isPrivate = (bool)row["IsPrivate"];
 
                         tp.AppendLine("                  <div class=\"file-button\"  id=\"EditFileButton" + fid + "\">");

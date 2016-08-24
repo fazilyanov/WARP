@@ -18,9 +18,9 @@ namespace WARP
             string curTable = context.Request["curTable"];
             string IdFile = context.Request["IdFile"];
             string key = context.Request["key"];
-            string p = context.Request["p"] ?? string.Empty;
+            string p = context.Request["p"] ?? string.Empty; // Дополнительный параметр (используется в некотрых модулях)
             context.Response.Clear();
-            if (Func.GetMd5Hash(Func.GetMd5Hash(IdFile) + IdFile) == key)
+            if (Func.GetFileKey(IdFile) == key)
             {
                 DataTable file = null;
                 switch (curTable)
